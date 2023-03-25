@@ -1,0 +1,78 @@
+:root {
+    --bg-color: rgb(31, 31, 39);
+    --input-color: rgb(90, 87, 87);
+    --input-invalid-color: rgb(146, 13, 13);
+}
+
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+body {
+    background:var(--bg-color) !important;
+    min-block-size: 100dvh;
+    margin: auto;
+}
+
+header {
+    color: white;
+    background: blueviolet;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+section.timer-form {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    flex-direction: column;
+}
+
+section.timer-form > * {
+    margin: 16px;
+}
+
+section.timer-form * {
+    font-size: 1.5rem;
+}
+
+section.timer-form input,
+section.timer-form button,
+section.timer-form textarea {
+    background-color: var(--input-color);
+    border: 2px solid rgb(21, 21, 21);
+    border-radius: 4px;
+    color: white;
+    transition: all 250ms;
+    padding: 8px;
+    font-size: 1.25rem;
+    box-shadow: 0 2px 2px black;
+}
+
+section.timer-form button {
+    padding: 20px;
+    border-radius: 10px;
+    position: relative;
+}
+
+section.timer-form button:focus,
+section.timer-form button:hover {
+    background-color: blueviolet;
+}
+
+section.timer-form textarea {
+    display: block;
+    resize: none;
+}
+
+section.timer-form .message-input {
+    flex-direction: column;
+    justify-items: center;
+    align-items: center;
+}
+
+section.timer-form input:invalid {
+    border-color: var(--input-invalid-color);
+}

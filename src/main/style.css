@@ -6,6 +6,7 @@
 
 *, *::before, *::after {
     box-sizing: border-box;
+    font-family: 'Ubuntu', sans-serif;
 }
 
 body {
@@ -22,7 +23,7 @@ header {
     justify-content: center;
 }
 
-section.timer-form {
+.user-input, .timer-form, .update-timer-form {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -30,17 +31,17 @@ section.timer-form {
     flex-direction: column;
 }
 
-section.timer-form > * {
+.update-timer-form > *, .timer-form > * {
     margin: 16px;
 }
 
-section.timer-form * {
+.user-input * {
     font-size: 1.5rem;
 }
 
-section.timer-form input,
-section.timer-form button,
-section.timer-form textarea {
+.timer-form input,
+.user-input button,
+.timer-form textarea {
     background-color: var(--input-color);
     border: 2px solid rgb(21, 21, 21);
     border-radius: 4px;
@@ -51,28 +52,37 @@ section.timer-form textarea {
     box-shadow: 0 2px 2px black;
 }
 
-section.timer-form button {
+.user-input button {
     padding: 20px;
     border-radius: 10px;
     position: relative;
 }
 
-section.timer-form button:focus,
-section.timer-form button:hover {
+.user-input button:focus,
+.user-input button:hover {
     background-color: blueviolet;
 }
 
-section.timer-form textarea {
+.timer-form textarea {
     display: block;
     resize: none;
 }
 
-section.timer-form .message-input {
+.timer-form .message-input {
     flex-direction: column;
     justify-items: center;
     align-items: center;
 }
 
-section.timer-form input:invalid {
+.timer-form input:invalid {
     border-color: var(--input-invalid-color);
+}
+
+.update-timer-form {
+    display: none;
+}
+
+.next-timer-play {
+    text-decoration: underline blueviolet;
+    font-style: normal;
 }

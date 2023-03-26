@@ -13,8 +13,7 @@ function createTray () {
     {
       label: 'Show App',
       click: () => {
-        if(win == null)
-            createWindow()
+        win.show()
       }
     },
     {
@@ -36,17 +35,30 @@ const createWindow = () => {
         width: 800,
         height: 650,
         webPreferences: {
-          nodeIntegration: true,
-          contextIsolation: false,
-          enableRemoteModule: true,
           preload: path.join(app.getAppPath(), 'src/preload/preload.js')
         }
     })
     
     win.loadFile('src/main/index.html')
 
-    win.on('closed', () => {
-        win = null
+    win.on('close', (event) => {
+        if(app.quitting) {
+          win.quit() 
+          return;
+        }
+
+        event.preventDefault()
+        win.hide()
+    })
+
+    win.webContents.setWindowOpenHandler(({ url }) => {
+      if (url === 'about:blank') {
+        win.show()
+        return {
+          action: 'allow',
+        }
+      }
+      return { action: 'deny' }
     })
 }
 
@@ -58,15 +70,4 @@ app.whenReady().then(() => {
     })
 })
 
-app.on('window-all-closed', () => {
-    // if(process.platform === '')
-    //     app.setSkipTaskbar (true);
-    // else
-    //     app.dock.hide()
-    // if (process.platform !== 'darwin') app.quit()
-})
-
-
-ipcMain.on("popup", () => {
-  createPopup()
-});
+app.on('before-quit', () => app.quitting = true)

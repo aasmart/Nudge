@@ -35,6 +35,17 @@ header {
     margin: 16px;
 }
 
+.timer-form div {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+.timer-form div > * {
+    margin: 0px 8px;
+}
+
 .user-input * {
     font-size: 1.5rem;
 }
@@ -61,6 +72,21 @@ header {
 .user-input button:focus,
 .user-input button:hover {
     background-color: blueviolet;
+}
+
+.user-input #reminder-start-override {
+    display: none;
+}
+
+input[type="checkbox"] {
+    height: 2.6rem;
+    width: 2.6rem;
+    accent-color: blueviolet;
+    box-shadow: 0 2px 2px black;
+}
+
+input[type="checkbox"]:checked + label + #reminder-start-override {
+    display: inline-block;
 }
 
 .timer-form textarea {

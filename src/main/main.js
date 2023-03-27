@@ -6,7 +6,7 @@ let tray = null
 let win = null
 
 function createTray () {
-  const icon = path.join(__dirname, '/app.png') // required.
+  const icon = path.join('assets/icon.png') // required.
   const trayicon = nativeImage.createFromPath(icon)
   tray = new Tray(trayicon.resize({ width: 16 }))
   const contextMenu = Menu.buildFromTemplate([
@@ -33,7 +33,8 @@ const createWindow = () => {
 
     win = new BrowserWindow({
         width: 800,
-        height: 650,
+        height: 700,
+        icon: 'assets/icon.png',
         webPreferences: {
           preload: path.join(app.getAppPath(), 'src/preload/preload.js')
         }

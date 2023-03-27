@@ -1,6 +1,7 @@
 const MINUTES_TO_MS = 60000
 
 let alertInterval: ReturnType<typeof setInterval>
+let startTimeout: ReturnType<typeof setInterval>
 
 let dateField: HTMLSpanElement
 
@@ -24,6 +25,7 @@ window.onload =() => {
     const stopButton = document.getElementsByClassName("stop-timer")[0] as HTMLButtonElement
     const messageField = document.getElementById("reminder-message") as HTMLTextAreaElement
     const intervalInput = document.getElementById("reminder-interval") as HTMLInputElement
+    const startOverrideInput = document.getElementById("reminder-start-override") as HTMLInputElement
     dateField = document.getElementsByClassName("next-timer-play")[0] as HTMLSpanElement
 
     // Set default values
@@ -31,10 +33,18 @@ window.onload =() => {
     messageField.value = "Time for a break!"
 
     startButton.addEventListener('click', () => {
-        timerIntervalAmount = MINUTES_TO_MS * parseFloat(intervalInput.value);
+        const startDelta = startOverrideInput.valueAsNumber > 0 ? startOverrideInput.valueAsNumber * MINUTES_TO_MS : 0;
+        timerIntervalAmount = MINUTES_TO_MS * intervalInput.valueAsNumber;
 
-        alertInterval = setInterval(() => breakAlert(messageField.value), timerIntervalAmount)
-        nextTimerPlay = addMilliseconds(new Date(), timerIntervalAmount)
+        startTimeout = setTimeout(() => {
+            if(startDelta > 0)
+                breakAlert(messageField.value)
+            alertInterval = setInterval(() => breakAlert(messageField.value), timerIntervalAmount)
+            nextTimerPlay = addMilliseconds(new Date(), timerIntervalAmount)
+            dateField.textContent = nextTimerPlay.toLocaleString()
+        }, startDelta)
+
+        nextTimerPlay = addMilliseconds(new Date(), startDelta)
         dateField.textContent = nextTimerPlay.toLocaleString()
 
         startButton.blur()
@@ -44,6 +54,7 @@ window.onload =() => {
 
     stopButton.addEventListener('click', () => {
         clearInterval(alertInterval)
+        clearTimeout(startTimeout)
         stopButton.blur()
         newTimerField.style.display = "flex"
         updateTimerField.style.display = "none"

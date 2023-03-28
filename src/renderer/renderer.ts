@@ -25,6 +25,7 @@ window.onload =() => {
     const stopButton = document.getElementsByClassName("stop-timer")[0] as HTMLButtonElement
     const messageField = document.getElementById("reminder-message") as HTMLTextAreaElement
     const intervalInput = document.getElementById("reminder-interval") as HTMLInputElement
+    const isOverrideEnabled = document.getElementById("enable-reminder-start-override") as HTMLInputElement
     const startOverrideInput = document.getElementById("reminder-start-override") as HTMLInputElement
     dateField = document.getElementsByClassName("next-timer-play")[0] as HTMLSpanElement
 
@@ -33,11 +34,11 @@ window.onload =() => {
     messageField.value = "Time for a break!"
 
     startButton.addEventListener('click', () => {
-        const startDelta = startOverrideInput.valueAsNumber > 0 ? startOverrideInput.valueAsNumber * MINUTES_TO_MS : 0;
+        const startDelta = isOverrideEnabled.checked ? startOverrideInput.valueAsNumber * MINUTES_TO_MS : 0;
         timerIntervalAmount = MINUTES_TO_MS * intervalInput.valueAsNumber;
 
         startTimeout = setTimeout(() => {
-            if(startDelta > 0)
+            if(isOverrideEnabled.checked)
                 breakAlert(messageField.value)
             alertInterval = setInterval(() => breakAlert(messageField.value), timerIntervalAmount)
             nextTimerPlay = addMilliseconds(new Date(), timerIntervalAmount)

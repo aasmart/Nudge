@@ -32,8 +32,8 @@ const createWindow = () => {
         createTray()
 
     win = new BrowserWindow({
-        width: 800,
-        height: 700,
+        width: 850,
+        height: 775,
         icon: 'assets/icon.png',
         webPreferences: {
           preload: path.join(app.getAppPath(), 'src/preload/preload.js')

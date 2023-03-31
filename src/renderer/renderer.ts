@@ -11,7 +11,9 @@ function breakAlert(message: string) {
     nextTimerPlay = addMilliseconds(new Date(), timerIntervalAmount)
     dateField.textContent = nextTimerPlay.toLocaleString()
     new Notification("Time For a Break!", { body: message }).onclick =
-    () => window.open('');
+    () => { 
+        window.open('reminder:open-main-win', 'modal') 
+    };
 }
 
 function addMilliseconds(date: Date, milliseconds: number): Date {

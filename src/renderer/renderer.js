@@ -8,7 +8,9 @@ function breakAlert(message) {
     nextTimerPlay = addMilliseconds(new Date(), timerIntervalAmount);
     dateField.textContent = nextTimerPlay.toLocaleString();
     new Notification("Time For a Break!", { body: message }).onclick =
-        function () { return window.open(''); };
+        function () {
+            window.open('reminder:open-main-win', 'modal');
+        };
 }
 function addMilliseconds(date, milliseconds) {
     return new Date(date.getTime() + milliseconds);

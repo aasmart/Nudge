@@ -53,10 +53,12 @@ const createWindow = () => {
     })
 
     win.webContents.setWindowOpenHandler(({ url }) => {
-      if (url === 'about:blank') {
+      // This is kinda cheaty?
+      if (url === 'reminder:open-main-win') {
         win.show()
         return {
-          action: 'allow',
+          action: 'deny',
+          overrideBrowserWindowOptions: {}
         }
       }
       return { action: 'deny' }

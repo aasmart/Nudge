@@ -32,9 +32,10 @@ const createWindow = () => {
         createTray()
 
     win = new BrowserWindow({
-        width: 850,
-        height: 775,
+        width: 1000,
+        height: 900,
         icon: 'assets/icon.png',
+        autoHideMenuBar: true,
         webPreferences: {
           preload: path.join(app.getAppPath(), 'src/preload/preload.js')
         }
@@ -71,6 +72,10 @@ app.whenReady().then(() => {
     app.on('activate', () => {
         if (BrowserWindow.getAllWindows().length === 0) createWindow()
     })
+})
+
+app.setLoginItemSettings({
+  openAtLogin: true    
 })
 
 app.on('before-quit', () => app.quitting = true)

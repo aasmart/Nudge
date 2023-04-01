@@ -75,7 +75,7 @@ header {
     background-color: blueviolet;
 }
 
-div .reminder-override { 
+.reminder-override, .reminder-penalty { 
     opacity: 0;
     position: absolute;
 }
@@ -111,7 +111,6 @@ input[type="checkbox"]::after {
     top: 0;
     position: absolute;
     background-color: blueviolet;
-    border: 1px solid var(--input-color);
     border-radius: 100%;
     height: 100%;
     width: 50%;
@@ -124,6 +123,11 @@ input[type="checkbox"]:checked::after {
 }
 
 div:has(input[type="checkbox"]:checked) + .reminder-override {
+    opacity: 1;
+    position: relative;
+}
+
+div:has(input[type="checkbox"]:checked) + .reminder-penalty {
     opacity: 1;
     position: relative;
 }

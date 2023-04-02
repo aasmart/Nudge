@@ -13,27 +13,29 @@ Date.prototype.addMilliseconds = function(milliseconds: number): Date {
 
 // This code is gross lol...
 
-let alertInterval: ReturnType<typeof setInterval>
-let reminderStartTimeout: ReturnType<typeof setInterval>
+let reminderTimeout: ReturnType<typeof setInterval>
 
 let dateField: HTMLSpanElement
 
 let nextReminder: Date
-let reminderInterval: number
-let ignoredReminderInterval: number
-function updateNextReminderDate(useIgnore: boolean) {
-    if(useIgnore && ignoredReminderInterval > 0)
-        nextReminder = new Date().addMilliseconds(ignoredReminderInterval)
-    else
-        nextReminder = new Date().addMilliseconds(reminderInterval)
+let reminderIntervalAmount: number
+let ignoredReminderIntervalAmount: number
+function setNextReminderTimeout(delayAmount: number, message: string) {
+    clearTimeout(reminderTimeout)
 
+    reminderTimeout = setTimeout(() => {
+        sendBreakNotification(message)
+        setNextReminderTimeout(ignoredReminderIntervalAmount > 0 ? ignoredReminderIntervalAmount : reminderIntervalAmount, message)
+    }, delayAmount)
+
+    nextReminder = new Date().addMilliseconds(delayAmount);
     dateField.textContent = nextReminder.toLocaleString()
 }
 
 function sendBreakNotification(message: string) {
-    updateNextReminderDate(true)
     new Notification("Time For a Break!", { body: message }).onclick =() => { 
-        updateNextReminderDate(false)
+        if(ignoredReminderIntervalAmount > 0)
+            setNextReminderTimeout(reminderIntervalAmount, message)
         window.open('reminder:open-main-win', 'modal') 
     };
 }
@@ -69,21 +71,12 @@ window.onload = () => {
 
     // Events -------------------------------
     startButton.addEventListener('click', () => {
-        const startDelta = (isOverrideEnabled.checked && hasInput(startOverrideInput)) ? (startOverrideInput.valueAsNumber * Constants.MINUTES_TO_MS) : 0;
-        reminderInterval = Constants.MINUTES_TO_MS * intervalInput.valueAsNumber;
-        ignoredReminderInterval = (reminderPenaltyCheckbox.checked && hasInput(ignoredReminderPenalty)) ? (ignoredReminderPenalty.valueAsNumber * Constants.MINUTES_TO_MS) : 0;
+        reminderIntervalAmount = Constants.MINUTES_TO_MS * intervalInput.valueAsNumber;
+        ignoredReminderIntervalAmount = (reminderPenaltyCheckbox.checked && hasInput(ignoredReminderPenalty)) ? (ignoredReminderPenalty.valueAsNumber * Constants.MINUTES_TO_MS) : 0;
 
-        reminderStartTimeout = setTimeout(() => {
-            if(isOverrideEnabled.checked)
-                sendBreakNotification(messageField.value)
-            else
-                updateNextReminderDate(false)
+        const startDelta = (isOverrideEnabled.checked && hasInput(startOverrideInput)) ? (startOverrideInput.valueAsNumber * Constants.MINUTES_TO_MS) : reminderIntervalAmount;
 
-            alertInterval = setInterval(() => sendBreakNotification(messageField.value), reminderInterval)
-        }, startDelta)
-
-        nextReminder = new Date().addMilliseconds(startDelta)
-        dateField.textContent = nextReminder.toLocaleString()
+        setNextReminderTimeout(startDelta, messageField.value)
 
         startButton.blur()
         toggleElementDisplay(newTimerField)
@@ -91,8 +84,7 @@ window.onload = () => {
     })
 
     stopButton.addEventListener('click', () => {
-        clearInterval(alertInterval)
-        clearTimeout(reminderStartTimeout)
+        clearTimeout(reminderTimeout)
         stopButton.blur()
         toggleElementDisplay(newTimerField)
         toggleElementDisplay(updateTimerField)

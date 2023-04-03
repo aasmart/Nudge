@@ -1,52 +1,64 @@
-"use strict";
 var Constants;
 (function (Constants) {
     Constants.MINUTES_TO_MS = 60000;
 })(Constants || (Constants = {}));
 Date.prototype.addMilliseconds = function (milliseconds) {
-    const date = this;
+    var date = this;
     return new Date(date.getTime() + milliseconds);
 };
-// This code is gross lol...
-let reminderTimeout;
-let dateField;
-let nextReminder;
-let reminderIntervalAmount;
-let ignoredReminderIntervalAmount;
-function setNextReminderTimeout(delayAmount, message) {
-    clearTimeout(reminderTimeout);
-    reminderTimeout = setTimeout(() => {
-        sendBreakNotification(message);
-        setNextReminderTimeout(ignoredReminderIntervalAmount > 0 ? ignoredReminderIntervalAmount : reminderIntervalAmount, message);
-    }, delayAmount);
-    nextReminder = new Date().addMilliseconds(delayAmount);
-    dateField.textContent = nextReminder.toLocaleString();
-}
-function sendBreakNotification(message) {
-    new Notification("Time For a Break!", { body: message }).onclick = () => {
-        if (ignoredReminderIntervalAmount > 0)
-            setNextReminderTimeout(reminderIntervalAmount, message);
-        window.open('reminder:open-main-win', 'modal');
+var Reminder = /** @class */ (function () {
+    function Reminder(reminderIntervalAmount, ignoredReminderIntervalAmount, message) {
+        this.reminderIntervalAmount = reminderIntervalAmount;
+        this.ignoredReminderIntervalAmount = ignoredReminderIntervalAmount;
+        this.message = message;
+    }
+    Reminder.prototype.setNextReminderTimeout = function (delayAmount) {
+        var _this = this;
+        clearTimeout(this.reminderTimeout);
+        this.reminderTimeout = setTimeout(function () {
+            _this.sendBreakNotification(_this.message);
+            _this.setNextReminderTimeout(_this.ignoredReminderIntervalAmount > 0 ? _this.ignoredReminderIntervalAmount : _this.reminderIntervalAmount);
+        }, delayAmount);
+        this.nextReminder = new Date().addMilliseconds(delayAmount);
+        dateField.textContent = this.nextReminder.toLocaleString();
     };
-}
+    Reminder.prototype.sendBreakNotification = function (message) {
+        var _this = this;
+        new Notification("Time For a Break!", { body: message }).onclick = function () {
+            if (_this.ignoredReminderIntervalAmount > 0)
+                _this.setNextReminderTimeout(_this.reminderIntervalAmount);
+            window.open('reminder:open-main-win', 'modal');
+        };
+    };
+    Reminder.prototype.start = function () {
+        this.setNextReminderTimeout(this.reminderIntervalAmount);
+    };
+    Reminder.prototype.cancel = function () {
+        if (this.reminderTimeout != null)
+            clearTimeout(this.reminderTimeout);
+    };
+    return Reminder;
+}());
+var activeReminder;
+var dateField;
 function hasInput(inputElement) {
     return inputElement.value.length > 0;
 }
 function toggleElementDisplay(element) {
     element.style.display = element.style.display === 'none' ? 'inherit' : 'none';
 }
-window.onload = () => {
+window.onload = function () {
     //#region interactive fields
-    const newTimerField = document.getElementsByClassName("timer-form")[0];
-    const updateTimerField = document.getElementsByClassName("update-timer-form")[0];
-    const startButton = document.getElementsByClassName("start-timer")[0];
-    const stopButton = document.getElementsByClassName("stop-timer")[0];
-    const messageField = document.getElementById("reminder-message");
-    const intervalInput = document.getElementById("reminder-interval");
-    const isOverrideEnabled = document.getElementById("enable-reminder-start-override");
-    const startOverrideInput = document.getElementById("reminder-start-override");
-    const reminderPenaltyCheckbox = document.getElementById("enable-ignore-reminder-penalty");
-    const ignoredReminderPenalty = document.getElementById("reminder-ignore");
+    var newTimerField = document.getElementsByClassName("timer-form")[0];
+    var updateTimerField = document.getElementsByClassName("update-timer-form")[0];
+    var startButton = document.getElementsByClassName("start-timer")[0];
+    var stopButton = document.getElementsByClassName("stop-timer")[0];
+    var messageField = document.getElementById("reminder-message");
+    var intervalInput = document.getElementById("reminder-interval");
+    var isOverrideEnabled = document.getElementById("enable-reminder-start-override");
+    var startOverrideInput = document.getElementById("reminder-start-override");
+    var reminderPenaltyCheckbox = document.getElementById("enable-ignore-reminder-penalty");
+    var ignoredReminderPenalty = document.getElementById("reminder-ignore");
     dateField = document.getElementsByClassName("next-timer-play")[0];
     //#endregion interactive fields
     // Set default values
@@ -55,17 +67,19 @@ window.onload = () => {
     newTimerField.style.display = 'inherit';
     updateTimerField.style.display = 'none';
     // Events -------------------------------
-    startButton.addEventListener('click', () => {
-        reminderIntervalAmount = Constants.MINUTES_TO_MS * intervalInput.valueAsNumber;
-        ignoredReminderIntervalAmount = (reminderPenaltyCheckbox.checked && hasInput(ignoredReminderPenalty)) ? (ignoredReminderPenalty.valueAsNumber * Constants.MINUTES_TO_MS) : 0;
-        const startDelta = (isOverrideEnabled.checked && hasInput(startOverrideInput)) ? (startOverrideInput.valueAsNumber * Constants.MINUTES_TO_MS) : reminderIntervalAmount;
-        setNextReminderTimeout(startDelta, messageField.value);
+    startButton.addEventListener('click', function () {
+        var reminderIntervalAmount = Constants.MINUTES_TO_MS * intervalInput.valueAsNumber;
+        var ignoredReminderIntervalAmount = (reminderPenaltyCheckbox.checked && hasInput(ignoredReminderPenalty)) ? (ignoredReminderPenalty.valueAsNumber * Constants.MINUTES_TO_MS) : 0;
+        var startDelta = (isOverrideEnabled.checked && hasInput(startOverrideInput)) ? (startOverrideInput.valueAsNumber * Constants.MINUTES_TO_MS) : reminderIntervalAmount;
+        var reminder = new Reminder(reminderIntervalAmount, ignoredReminderIntervalAmount, messageField.value);
+        reminder.setNextReminderTimeout(startDelta);
+        activeReminder = reminder;
         startButton.blur();
         toggleElementDisplay(newTimerField);
         toggleElementDisplay(updateTimerField);
     });
-    stopButton.addEventListener('click', () => {
-        clearTimeout(reminderTimeout);
+    stopButton.addEventListener('click', function () {
+        activeReminder.cancel();
         stopButton.blur();
         toggleElementDisplay(newTimerField);
         toggleElementDisplay(updateTimerField);

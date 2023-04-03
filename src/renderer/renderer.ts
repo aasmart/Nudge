@@ -11,34 +11,51 @@ Date.prototype.addMilliseconds = function(milliseconds: number): Date {
     return new Date(date.getTime() + milliseconds)
 }
 
-// This code is gross lol...
+class Reminder {
+    reminderTimeout!: ReturnType<typeof setInterval>
+    nextReminder!: Date
+    reminderIntervalAmount: number
+    ignoredReminderIntervalAmount: number
+    message: string
 
-let reminderTimeout: ReturnType<typeof setInterval>
+    constructor(reminderIntervalAmount: number, ignoredReminderIntervalAmount: number, message: string) {
+        this.reminderIntervalAmount = reminderIntervalAmount;
+        this.ignoredReminderIntervalAmount = ignoredReminderIntervalAmount;
+        this.message = message;
+    }
 
+    setNextReminderTimeout(delayAmount: number) {
+        clearTimeout(this.reminderTimeout)
+    
+        this.reminderTimeout = setTimeout(() => {
+            this.sendBreakNotification(this.message)
+            this.setNextReminderTimeout(this.ignoredReminderIntervalAmount > 0 ? this.ignoredReminderIntervalAmount : this.reminderIntervalAmount)
+        }, delayAmount)
+    
+        this.nextReminder = new Date().addMilliseconds(delayAmount);
+        dateField.textContent = this.nextReminder.toLocaleString()
+    }
+
+    private sendBreakNotification(message: string) {
+        new Notification("Time For a Break!", { body: message }).onclick =() => { 
+            if(this.ignoredReminderIntervalAmount > 0)
+                this.setNextReminderTimeout(this.reminderIntervalAmount)
+            window.open('reminder:open-main-win', 'modal') 
+        };
+    }
+
+    start() {
+        this.setNextReminderTimeout(this.reminderIntervalAmount)
+    }
+
+    cancel() {
+        if(this.reminderTimeout != null)
+            clearTimeout(this.reminderTimeout)
+    }
+}
+
+let activeReminder: Reminder
 let dateField: HTMLSpanElement
-
-let nextReminder: Date
-let reminderIntervalAmount: number
-let ignoredReminderIntervalAmount: number
-function setNextReminderTimeout(delayAmount: number, message: string) {
-    clearTimeout(reminderTimeout)
-
-    reminderTimeout = setTimeout(() => {
-        sendBreakNotification(message)
-        setNextReminderTimeout(ignoredReminderIntervalAmount > 0 ? ignoredReminderIntervalAmount : reminderIntervalAmount, message)
-    }, delayAmount)
-
-    nextReminder = new Date().addMilliseconds(delayAmount);
-    dateField.textContent = nextReminder.toLocaleString()
-}
-
-function sendBreakNotification(message: string) {
-    new Notification("Time For a Break!", { body: message }).onclick =() => { 
-        if(ignoredReminderIntervalAmount > 0)
-            setNextReminderTimeout(reminderIntervalAmount, message)
-        window.open('reminder:open-main-win', 'modal') 
-    };
-}
 
 function hasInput(inputElement: HTMLInputElement): boolean {
     return inputElement.value.length > 0; 
@@ -71,12 +88,15 @@ window.onload = () => {
 
     // Events -------------------------------
     startButton.addEventListener('click', () => {
-        reminderIntervalAmount = Constants.MINUTES_TO_MS * intervalInput.valueAsNumber;
-        ignoredReminderIntervalAmount = (reminderPenaltyCheckbox.checked && hasInput(ignoredReminderPenalty)) ? (ignoredReminderPenalty.valueAsNumber * Constants.MINUTES_TO_MS) : 0;
+        const reminderIntervalAmount = Constants.MINUTES_TO_MS * intervalInput.valueAsNumber;
+        const ignoredReminderIntervalAmount = (reminderPenaltyCheckbox.checked && hasInput(ignoredReminderPenalty)) ? (ignoredReminderPenalty.valueAsNumber * Constants.MINUTES_TO_MS) : 0;
 
         const startDelta = (isOverrideEnabled.checked && hasInput(startOverrideInput)) ? (startOverrideInput.valueAsNumber * Constants.MINUTES_TO_MS) : reminderIntervalAmount;
 
-        setNextReminderTimeout(startDelta, messageField.value)
+        let reminder = new Reminder(reminderIntervalAmount, ignoredReminderIntervalAmount, messageField.value)
+        reminder.setNextReminderTimeout(startDelta)
+
+        activeReminder = reminder;
 
         startButton.blur()
         toggleElementDisplay(newTimerField)
@@ -84,7 +104,7 @@ window.onload = () => {
     })
 
     stopButton.addEventListener('click', () => {
-        clearTimeout(reminderTimeout)
+        activeReminder.cancel()
         stopButton.blur()
         toggleElementDisplay(newTimerField)
         toggleElementDisplay(updateTimerField)

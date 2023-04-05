@@ -24,7 +24,7 @@ header {
     justify-content: center;
 }
 
-.user-input, .timer-form, .update-timer-form {
+section {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -32,28 +32,41 @@ header {
     flex-direction: column;
 }
 
-.update-timer-form > *, .timer-form > * {
+section > * {
     margin: 16px;
 }
 
-.timer-form > div {
+.user-input > div {
     display: flex;
     flex-direction: row;
     justify-content: center;
     align-items: center;
 }
 
-.timer-form div > * {
+section div > * {
     margin: 0px 8px;
 }
 
-.user-input * {
+section * {
     font-size: 1.35rem;
 }
 
-.timer-form input,
-.user-input button,
-.timer-form textarea {
+.reminder {
+    flex-direction: row;
+    border: 2px solid black;
+    border-radius: 6px;
+    padding: 10px;
+    margin: 4px;
+    box-shadow: 0 2px 2px black;
+}
+
+.reminder > * {
+    display: inline-block;
+}
+
+input,
+button,
+textarea {
     background-color: var(--input-color);
     border-radius: 4px;
     color: white;
@@ -64,14 +77,13 @@ header {
     box-shadow: 0 2px 2px black;
 }
 
-.user-input button {
+button {
     padding: 20px;
     border-radius: 10px;
     position: relative;
 }
 
-.user-input button:focus,
-.user-input button:hover {
+button:focus, button:hover {
     background-color: blueviolet;
 }
 
@@ -132,23 +144,19 @@ div:has(input[type="checkbox"]:checked) + .reminder-penalty {
     position: relative;
 }
 
-.timer-form textarea {
+.user-input textarea {
     display: block;
     resize: none;
 }
 
-.timer-form .message-input {
+.user-input .message-input {
     flex-direction: column;
     justify-items: center;
     align-items: center;
 }
 
-.timer-form input:invalid {
+.user-input input:invalid {
     border-color: var(--input-invalid-color);
-}
-
-.update-timer-form {
-    display: none;
 }
 
 .next-timer-play {

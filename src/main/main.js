@@ -37,7 +37,9 @@ const createWindow = () => {
         icon: 'assets/icon.png',
         autoHideMenuBar: true,
         webPreferences: {
-          preload: path.join(app.getAppPath(), 'src/preload/preload.js')
+          preload: path.join(app.getAppPath(), 'src/preload/preload.js'),
+          nodeIntegration: true,
+          contextIsolation: false,
         }
     })
     
@@ -53,16 +55,12 @@ const createWindow = () => {
         win.hide()
     })
 
-    win.webContents.setWindowOpenHandler(({ url }) => {
-      // This is kinda cheaty?
-      if (url === 'reminder:open-main-win') {
-        win.show()
-        return {
-          action: 'deny',
-          overrideBrowserWindowOptions: {}
-        }
-      }
-      return { action: 'deny' }
+    ipcMain.on('open-page', (event, name) => {
+      win.loadFile(`src/main/${name}.html`)
+    })
+
+    ipcMain.on('show-window', (event, name) => {
+      if(name === 'main') win.show()
     })
 }
 

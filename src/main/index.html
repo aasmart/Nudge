@@ -18,47 +18,13 @@
     </header>
     <main>
         <section class="user-input">
-            <div class="timer-form">
-                <div title="The duration, in minutes, between each reminder">
-                    <label for="reminder-interval">Reminder Interval: </label>
-                    <input type="number" step="0.01" id="reminder-interval" name="reminder-interval" min="0.1">
-                </div>
+            <button id="create-new-reminder">Create New Reminder</button>
+        </section>
 
-                <div title="If enabled, the delay until the first reminder is sent can be configured">
-                    <input type="checkbox" id="enable-reminder-start-override" name="enable-reminder-start-override">
-                    <label for="enable-reminder-start-override">Enable 'Reminder Start Override'</label>
-                </div>
-
-                <div class="reminder-override" title="The delay, in minutes, until the first reminder is sent">
-                    <label for="reminder-start-override">Reminder Start Override: </label>
-                    <input type="number" id="reminder-start-override" name="reminder-start-override" step="0.01"  min="0.1">
-                </div>
-
-                <div title="If enabled, penalties for ignoring a reminder (not clicking on it) can be enabled">
-                    <input type="checkbox" id="enable-ignore-reminder-penalty" name="enable-ignore-reminder-penalty">
-                    <label for="enable-ignore-reminder-penalty">Enable 'Ignore Reminder Penalty'</label>
-                </div>
-
-                <div class="reminder-penalty" title="If the notification isn't clicked, another notification will be sent after a given amount of minutes">
-                    <label for="reminder-ignore">Ignored Reminder Interval: </label>
-                    <input type="number" id="reminder-ignore" name="reminder-ignore" step="0.01"  min="0.1">
-                </div>
-    
-                <div class="message-input" title="The message sent when receiving the reminder">
-                    <label for="reminder-message">Reminder Message: </label>
-                    <textarea cols="40" rows = "10" id="reminder-message" name="reminder-message"></textarea>
-                </div>
-    
-                <button class="start-timer">Start Reminder</button>
-            </div>
-
-            <div class="update-timer-form">
-                <p>The next reminder will be at <span class="next-timer-play">---</span></p>
-                <button class="stop-timer">Stop Reminder</button>
-            </div>
-
-            <script src="../renderer/renderer.js"></script>
+        <section id="reminder-list">
+            <h2>Active Reminders:</h2>
         </section>
     </main>
+    <script src="../renderer/renderer.js"></script>
 </body>
 </html>

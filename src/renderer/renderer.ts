@@ -102,7 +102,7 @@ function listActiveReminders() {
 
         // Create the display text
         let text = document.createElement('p')
-        text.innerHTML = "This reminder will be at "
+        text.innerHTML = "Next Reminder: "
 
         let textSpan = document.createElement('span')
         textSpan.innerHTML = reminder.nextReminder.toLocaleString()
@@ -110,11 +110,11 @@ function listActiveReminders() {
 
         text.append(textSpan)
 
-        // Create the stop button
-        let stopButton = document.createElement('button')
-        stopButton.innerHTML = "Cancel Reminder"
+        // Create the delete button
+        let deleteButton = document.createElement('button')
+        deleteButton.innerHTML = "Delete"
 
-        stopButton.addEventListener('click', () => {
+        deleteButton.addEventListener('click', () => {
             const index = activeReminders.indexOf(reminder)
             activeReminders[index].cancel()
             if(index >= 0)
@@ -122,9 +122,14 @@ function listActiveReminders() {
             window.dispatchEvent(new Event('update-reminder-list'))
         })
 
+        // Create the edit button
+        let editButton = document.createElement('button')
+        editButton.innerHTML = "Edit"
+
         // Finish building the ui element
         reminderDiv.append(text)
-        reminderDiv.append(stopButton)
+        reminderDiv.append(editButton)
+        reminderDiv.append(deleteButton)
 
         reminders.push(reminderDiv)
     })

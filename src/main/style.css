@@ -83,6 +83,12 @@ button {
     position: relative;
 }
 
+#reminder-list div > button {
+    min-width: 100px;
+    padding: 15px;
+    margin: 0px 4px;
+}
+
 button:focus, button:hover {
     background-color: blueviolet;
 }

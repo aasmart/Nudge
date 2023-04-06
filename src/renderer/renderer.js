@@ -77,24 +77,28 @@ function listActiveReminders() {
         reminderDiv.classList.add('reminder');
         // Create the display text
         var text = document.createElement('p');
-        text.innerHTML = "This reminder will be at ";
+        text.innerHTML = "Next Reminder: ";
         var textSpan = document.createElement('span');
         textSpan.innerHTML = reminder.nextReminder.toLocaleString();
         textSpan.classList.add("next-timer-play");
         text.append(textSpan);
-        // Create the stop button
-        var stopButton = document.createElement('button');
-        stopButton.innerHTML = "Cancel Reminder";
-        stopButton.addEventListener('click', function () {
+        // Create the delete button
+        var deleteButton = document.createElement('button');
+        deleteButton.innerHTML = "Delete";
+        deleteButton.addEventListener('click', function () {
             var index = activeReminders.indexOf(reminder);
             activeReminders[index].cancel();
             if (index >= 0)
                 activeReminders.splice(index, 1);
             window.dispatchEvent(new Event('update-reminder-list'));
         });
+        // Create the edit button
+        var editButton = document.createElement('button');
+        editButton.innerHTML = "Edit";
         // Finish building the ui element
         reminderDiv.append(text);
-        reminderDiv.append(stopButton);
+        reminderDiv.append(editButton);
+        reminderDiv.append(deleteButton);
         reminders.push(reminderDiv);
     });
     reminderList.replaceChildren.apply(reminderList, reminders);

@@ -2,6 +2,7 @@ var ipcRenderer = require('electron').ipcRenderer;
 var Constants;
 (function (Constants) {
     Constants.MINUTES_TO_MS = 60000;
+    Constants.MS_TO_MINUTES = 1 / Constants.MINUTES_TO_MS;
 })(Constants || (Constants = {}));
 Date.prototype.addMilliseconds = function (milliseconds) {
     var date = this;
@@ -95,6 +96,16 @@ function listActiveReminders() {
         // Create the edit button
         var editButton = document.createElement('button');
         editButton.innerHTML = "Edit";
+        editButton.addEventListener('click', function () {
+            var index = activeReminders.indexOf(reminder);
+            sessionStorage.setItem("edit-reminder-index", index.toString());
+            if (index < 0) {
+                console.error("Failed to edit reminder for it does not exist");
+                return;
+            }
+            saveActiveReminders();
+            ipcRenderer.send('open-page', 'new_reminder');
+        });
         // Finish building the ui element
         reminderDiv.append(text);
         reminderDiv.append(editButton);
@@ -123,8 +134,18 @@ function loadReminderCreationPage() {
     var ignoredReminderPenalty = document.getElementById("reminder-ignore");
     //#endregion interactive fields
     // Set default values
-    intervalInput.value = "30";
-    messageField.value = "Time for a break!";
+    var editIndex = parseInt(sessionStorage.getItem('edit-reminder-index') || '-1');
+    if (editIndex >= 0) {
+        messageField.value = activeReminders[editIndex].message;
+        intervalInput.value = (activeReminders[editIndex].reminderIntervalAmount * Constants.MS_TO_MINUTES).toString();
+        reminderPenaltyCheckbox.checked = activeReminders[editIndex].ignoredReminderIntervalAmount > 0;
+        ignoredReminderPenalty.value = (activeReminders[editIndex].ignoredReminderIntervalAmount * Constants.MS_TO_MINUTES).toString();
+        startButton.innerHTML = 'Update Reminder';
+    }
+    else {
+        intervalInput.value = "30";
+        messageField.value = "Time for a break!";
+    }
     // Events -------------------------------
     startButton.addEventListener('click', function () {
         var reminderIntervalAmount = Constants.MINUTES_TO_MS * intervalInput.valueAsNumber;
@@ -132,7 +153,12 @@ function loadReminderCreationPage() {
         var startDelta = (isOverrideEnabled.checked && hasInput(startOverrideInput)) ? (startOverrideInput.valueAsNumber * Constants.MINUTES_TO_MS) : reminderIntervalAmount;
         var reminder = new Reminder(reminderIntervalAmount, ignoredReminderIntervalAmount, messageField.value);
         reminder.setNextReminderTimeout(startDelta);
-        activeReminders.push(reminder);
+        if (editIndex >= 0) {
+            activeReminders[editIndex] = reminder;
+            sessionStorage.setItem('edit-reminder-index', '-1');
+        }
+        else
+            activeReminders.push(reminder);
         saveActiveReminders();
         startButton.blur();
         ipcRenderer.send('open-page', 'index');

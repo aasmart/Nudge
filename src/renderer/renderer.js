@@ -1,89 +1,92 @@
-"use strict";
-let { ipcRenderer } = require('electron');
+var ipcRenderer = require('electron').ipcRenderer;
 var Constants;
 (function (Constants) {
     Constants.MINUTES_TO_MS = 60000;
 })(Constants || (Constants = {}));
 Date.prototype.addMilliseconds = function (milliseconds) {
-    const date = this;
+    var date = this;
     return new Date(date.getTime() + milliseconds);
 };
-class Reminder {
-    constructor(reminderIntervalAmount, ignoredReminderIntervalAmount, message) {
+var Reminder = /** @class */ (function () {
+    function Reminder(reminderIntervalAmount, ignoredReminderIntervalAmount, message) {
         this.reminderIntervalAmount = reminderIntervalAmount;
         this.ignoredReminderIntervalAmount = ignoredReminderIntervalAmount;
         this.message = message;
     }
-    setNextReminderTimeout(delayAmount) {
+    Reminder.prototype.setNextReminderTimeout = function (delayAmount) {
+        var _this = this;
         clearTimeout(this.reminderTimeout);
-        this.reminderTimeout = setTimeout(() => {
-            this.sendBreakNotification(this.message);
-            this.setNextReminderTimeout(this.ignoredReminderIntervalAmount > 0 ? this.ignoredReminderIntervalAmount : this.reminderIntervalAmount);
+        this.reminderTimeout = setTimeout(function () {
+            _this.sendBreakNotification(_this.message);
+            _this.setNextReminderTimeout(_this.ignoredReminderIntervalAmount > 0 ? _this.ignoredReminderIntervalAmount : _this.reminderIntervalAmount);
         }, delayAmount);
         this.nextReminder = new Date().addMilliseconds(delayAmount);
         window.dispatchEvent(new Event('update-reminder-list'));
-    }
-    sendBreakNotification(message) {
-        new Notification("Time For a Break!", { body: message }).onclick = () => {
-            if (this.ignoredReminderIntervalAmount > 0)
-                this.setNextReminderTimeout(this.reminderIntervalAmount);
+    };
+    Reminder.prototype.sendBreakNotification = function (message) {
+        var _this = this;
+        new Notification("Time For a Break!", { body: message }).onclick = function () {
+            if (_this.ignoredReminderIntervalAmount > 0)
+                _this.setNextReminderTimeout(_this.reminderIntervalAmount);
             ipcRenderer.send('show-window', 'main');
         };
-    }
-    start() {
+    };
+    Reminder.prototype.start = function () {
         this.setNextReminderTimeout(this.reminderIntervalAmount);
-    }
-    cancel() {
+    };
+    Reminder.prototype.cancel = function () {
         if (this.reminderTimeout != null)
             clearTimeout(this.reminderTimeout);
-    }
-    toJSON() {
+    };
+    Reminder.prototype.toJSON = function () {
         return {
             nextReminder: this.nextReminder.valueOf(),
             reminderIntervalAmount: this.reminderIntervalAmount,
             ignoredReminderIntervalAmount: this.ignoredReminderIntervalAmount,
             message: this.message
         };
-    }
-}
+    };
+    return Reminder;
+}());
 function hasInput(inputElement) {
     return inputElement.value.length > 0;
 }
-let activeReminders = [];
+var activeReminders = [];
 function saveActiveReminders() {
     sessionStorage.setItem("active_reminders", JSON.stringify(activeReminders));
 }
 function loadActiveReminders() {
     var _a;
-    let remindersObjs = (_a = JSON.parse(sessionStorage.getItem("active_reminders"))) !== null && _a !== void 0 ? _a : [];
-    activeReminders = remindersObjs.map(obj => {
-        const reminder = new Reminder(obj.reminderIntervalAmount, obj.ignoredReminderIntervalAmount, obj.message);
+    var remindersObjs = (_a = JSON.parse(sessionStorage.getItem("active_reminders"))) !== null && _a !== void 0 ? _a : [];
+    activeReminders = remindersObjs.map(function (obj) {
+        var reminder = new Reminder(obj.reminderIntervalAmount, obj.ignoredReminderIntervalAmount, obj.message);
         reminder.nextReminder = new Date(obj.nextReminder.valueOf());
         return reminder;
     });
-    activeReminders.forEach(reminder => {
-        reminder.setNextReminderTimeout(reminder.nextReminder.valueOf() - new Date().valueOf());
+    activeReminders.forEach(function (reminder) {
+        var nextStart = Math.max(reminder.nextReminder.valueOf() - new Date().valueOf(), 0);
+        reminder.setNextReminderTimeout(nextStart);
     });
 }
 function listActiveReminders() {
-    const reminderList = document.getElementById("reminder-list");
-    let reminders = [reminderList.children[0]];
-    activeReminders.forEach(reminder => {
+    var reminderList = document.getElementById("reminder-list");
+    var reminders = [reminderList.children[0]];
+    activeReminders.forEach(function (reminder) {
         // Create the base div
-        let reminderDiv = document.createElement("div");
+        var reminderDiv = document.createElement("div");
         reminderDiv.classList.add('reminder');
         // Create the display text
-        let text = document.createElement('p');
+        var text = document.createElement('p');
         text.innerHTML = "This reminder will be at ";
-        let textSpan = document.createElement('span');
+        var textSpan = document.createElement('span');
         textSpan.innerHTML = reminder.nextReminder.toLocaleString();
         textSpan.classList.add("next-timer-play");
         text.append(textSpan);
         // Create the stop button
-        let stopButton = document.createElement('button');
+        var stopButton = document.createElement('button');
         stopButton.innerHTML = "Cancel Reminder";
-        stopButton.addEventListener('click', () => {
-            const index = activeReminders.indexOf(reminder);
+        stopButton.addEventListener('click', function () {
+            var index = activeReminders.indexOf(reminder);
             activeReminders[index].cancel();
             if (index >= 0)
                 activeReminders.splice(index, 1);
@@ -94,36 +97,36 @@ function listActiveReminders() {
         reminderDiv.append(stopButton);
         reminders.push(reminderDiv);
     });
-    reminderList.replaceChildren(...reminders);
+    reminderList.replaceChildren.apply(reminderList, reminders);
 }
 function loadCreateRemindersPage() {
-    const createNewReminder = document.getElementById("create-new-reminder");
-    createNewReminder.addEventListener('click', () => {
+    var createNewReminder = document.getElementById("create-new-reminder");
+    createNewReminder.addEventListener('click', function () {
         saveActiveReminders();
         ipcRenderer.send('open-page', 'new_reminder');
     });
-    window.addEventListener('update-reminder-list', () => listActiveReminders());
+    window.addEventListener('update-reminder-list', function () { return listActiveReminders(); });
     window.dispatchEvent(new Event('update-reminder-list'));
 }
 function loadReminderCreationPage() {
     //#region interactive fields
-    const startButton = document.getElementsByClassName("start-timer")[0];
-    const messageField = document.getElementById("reminder-message");
-    const intervalInput = document.getElementById("reminder-interval");
-    const isOverrideEnabled = document.getElementById("enable-reminder-start-override");
-    const startOverrideInput = document.getElementById("reminder-start-override");
-    const reminderPenaltyCheckbox = document.getElementById("enable-ignore-reminder-penalty");
-    const ignoredReminderPenalty = document.getElementById("reminder-ignore");
+    var startButton = document.getElementsByClassName("start-timer")[0];
+    var messageField = document.getElementById("reminder-message");
+    var intervalInput = document.getElementById("reminder-interval");
+    var isOverrideEnabled = document.getElementById("enable-reminder-start-override");
+    var startOverrideInput = document.getElementById("reminder-start-override");
+    var reminderPenaltyCheckbox = document.getElementById("enable-ignore-reminder-penalty");
+    var ignoredReminderPenalty = document.getElementById("reminder-ignore");
     //#endregion interactive fields
     // Set default values
     intervalInput.value = "30";
     messageField.value = "Time for a break!";
     // Events -------------------------------
-    startButton.addEventListener('click', () => {
-        const reminderIntervalAmount = Constants.MINUTES_TO_MS * intervalInput.valueAsNumber;
-        const ignoredReminderIntervalAmount = (reminderPenaltyCheckbox.checked && hasInput(ignoredReminderPenalty)) ? (ignoredReminderPenalty.valueAsNumber * Constants.MINUTES_TO_MS) : 0;
-        const startDelta = (isOverrideEnabled.checked && hasInput(startOverrideInput)) ? (startOverrideInput.valueAsNumber * Constants.MINUTES_TO_MS) : reminderIntervalAmount;
-        let reminder = new Reminder(reminderIntervalAmount, ignoredReminderIntervalAmount, messageField.value);
+    startButton.addEventListener('click', function () {
+        var reminderIntervalAmount = Constants.MINUTES_TO_MS * intervalInput.valueAsNumber;
+        var ignoredReminderIntervalAmount = (reminderPenaltyCheckbox.checked && hasInput(ignoredReminderPenalty)) ? (ignoredReminderPenalty.valueAsNumber * Constants.MINUTES_TO_MS) : 0;
+        var startDelta = (isOverrideEnabled.checked && hasInput(startOverrideInput)) ? (startOverrideInput.valueAsNumber * Constants.MINUTES_TO_MS) : reminderIntervalAmount;
+        var reminder = new Reminder(reminderIntervalAmount, ignoredReminderIntervalAmount, messageField.value);
         reminder.setNextReminderTimeout(startDelta);
         activeReminders.push(reminder);
         saveActiveReminders();
@@ -131,8 +134,8 @@ function loadReminderCreationPage() {
         ipcRenderer.send('open-page', 'index');
     });
 }
-window.onload = () => {
-    let location = window.location.href.split("/");
+window.onload = function () {
+    var location = window.location.href.split("/");
     loadActiveReminders();
     switch (location[location.length - 1]) {
         case 'index.html':

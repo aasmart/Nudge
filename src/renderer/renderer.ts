@@ -85,7 +85,8 @@ function loadActiveReminders() {
     })
 
     activeReminders.forEach(reminder => {
-        reminder.setNextReminderTimeout(reminder.nextReminder.valueOf() - new Date().valueOf())
+        const nextStart = Math.max(reminder.nextReminder.valueOf() - new Date().valueOf(), 0)
+        reminder.setNextReminderTimeout(nextStart)
     })
 }
 

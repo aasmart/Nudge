@@ -108,6 +108,10 @@ function loadActiveReminders() {
     })
 }
 
+function setEditReminder(index: number) {
+    sessionStorage.setItem('edit-reminder-index', index.toString())
+}
+
 function getEditReminder(): Reminder {
     const editIndex = parseInt(sessionStorage.getItem('edit-reminder-index') || '-1')
     return activeReminders[editIndex] || null
@@ -151,13 +155,12 @@ function listActiveReminders() {
 
         editButton.addEventListener('click', () => {
             const index = activeReminders.indexOf(reminder)
-            sessionStorage.setItem("edit-reminder-index", index.toString())
-
             if(index < 0) {
                 console.error("Failed to edit reminder for it does not exist")
                 return;
             }
 
+            setEditReminder(index)
             saveActiveReminders()
             ipcRenderer.send('open-page', 'reminder')
         })

@@ -137,7 +137,7 @@ function listActiveReminders() {
             }
 
             saveActiveReminders()
-            ipcRenderer.send('open-page', 'new_reminder')
+            ipcRenderer.send('open-page', 'reminder')
         })
 
         // Finish building the ui element
@@ -156,7 +156,7 @@ function loadCreateRemindersPage() {
 
     createNewReminder.addEventListener('click', () => {
         saveActiveReminders()
-        ipcRenderer.send('open-page', 'new_reminder')
+        ipcRenderer.send('open-page', 'reminder')
     })
 
     window.addEventListener('update-reminder-list', () => listActiveReminders())
@@ -166,7 +166,7 @@ function loadCreateRemindersPage() {
 
 function loadReminderCreationPage() {
     //#region interactive fields
-    const startButton = document.getElementsByClassName("start-timer")[0] as HTMLButtonElement
+    const createButton = document.getElementsByClassName("start-timer")[0] as HTMLButtonElement
     const messageField = document.getElementById("reminder-message") as HTMLTextAreaElement
     const intervalInput = document.getElementById("reminder-interval") as HTMLInputElement
     const isOverrideEnabled = document.getElementById("enable-reminder-start-override") as HTMLInputElement
@@ -175,21 +175,20 @@ function loadReminderCreationPage() {
     const ignoredReminderPenalty = document.getElementById("reminder-ignore") as HTMLInputElement
     //#endregion interactive fields
 
-    // Set default values
+    // Update display if the user is editing
     const editIndex = parseInt(sessionStorage.getItem('edit-reminder-index') || '-1')
     if(editIndex >= 0) {
-        messageField.value = activeReminders[editIndex].message;
-        intervalInput.value = (activeReminders[editIndex].reminderIntervalAmount * Constants.MS_TO_MINUTES).toString();
-        reminderPenaltyCheckbox.checked = activeReminders[editIndex].ignoredReminderIntervalAmount > 0;
-        ignoredReminderPenalty.value = (activeReminders[editIndex].ignoredReminderIntervalAmount * Constants.MS_TO_MINUTES).toString()
-        startButton.innerHTML = 'Update Reminder'
-    } else {
-        intervalInput.value = "30"
-        messageField.value = "Time for a break!"
+        const editReminder = activeReminders[editIndex]
+
+        messageField.value = editReminder.message;
+        intervalInput.value = (editReminder.reminderIntervalAmount * Constants.MS_TO_MINUTES).toString();
+        reminderPenaltyCheckbox.checked = editReminder.ignoredReminderIntervalAmount > 0;
+        ignoredReminderPenalty.value = (editReminder.ignoredReminderIntervalAmount * Constants.MS_TO_MINUTES).toString()
+        createButton.innerHTML = createButton.getAttribute('when-editing') || createButton.innerHTML
     }
 
     // Events -------------------------------
-    startButton.addEventListener('click', () => {
+    createButton.addEventListener('click', () => {
         const reminderIntervalAmount = Constants.MINUTES_TO_MS * intervalInput.valueAsNumber;
         const ignoredReminderIntervalAmount = (reminderPenaltyCheckbox.checked && hasInput(ignoredReminderPenalty)) ? (ignoredReminderPenalty.valueAsNumber * Constants.MINUTES_TO_MS) : 0;
 
@@ -206,7 +205,7 @@ function loadReminderCreationPage() {
 
         saveActiveReminders()
 
-        startButton.blur()
+        createButton.blur()
         ipcRenderer.send('open-page', 'index');
     })
 }
@@ -220,7 +219,7 @@ window.onload = () => {
         case 'index.html':
             loadCreateRemindersPage()
             break;
-        case 'new_reminder.html':
+        case 'reminder.html':
             loadReminderCreationPage()
             break;
     }

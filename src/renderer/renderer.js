@@ -112,6 +112,7 @@ function listActiveReminders() {
             var index = activeReminders.indexOf(reminder);
             if (index < 0) {
                 console.error("Failed to edit reminder for it does not exist");
+                alert("An error was encountered while attempting to edit this reminder");
                 return;
             }
             setEditReminder(index);
@@ -159,6 +160,11 @@ function loadReminderCreationPage() {
     }
     // Events -------------------------------
     createButton.addEventListener('click', function () {
+        if (!intervalInput.checkValidity() || !startOverrideInput.checkValidity() || !ignoredReminderPenalty.checkValidity()) {
+            createButton.blur();
+            alert("Cannot create reminder as one or more inputs are invalid (indicated by red outline).");
+            return;
+        }
         var reminderIntervalAmount = Constants.MINUTES_TO_MS * intervalInput.valueAsNumber;
         var ignoredReminderIntervalAmount = (reminderPenaltyCheckbox.checked && hasInput(ignoredReminderPenalty)) ? (ignoredReminderPenalty.valueAsNumber * Constants.MINUTES_TO_MS) : 0;
         var startDelta = (isOverrideEnabled.checked && hasInput(startOverrideInput)) ? (startOverrideInput.valueAsNumber * Constants.MINUTES_TO_MS) : reminderIntervalAmount;

@@ -98,10 +98,19 @@ function loadActiveReminders() {
         return reminder;
     })
 
+    const editReminder = getEditReminder()
+
     activeReminders.forEach(reminder => {
+        if(editReminder !== null && reminder === editReminder)
+            return;
         const nextStart = Math.max(reminder.nextReminder.valueOf() - new Date().valueOf(), 0)
         reminder.setNextReminderTimeout(nextStart)
     })
+}
+
+function getEditReminder(): Reminder {
+    const editIndex = parseInt(sessionStorage.getItem('edit-reminder-index') || '-1')
+    return activeReminders[editIndex] || null
 }
 
 function listActiveReminders() {

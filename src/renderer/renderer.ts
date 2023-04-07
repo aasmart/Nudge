@@ -2,6 +2,7 @@ let { ipcRenderer } = require('electron')
 
 namespace Constants {
     export const MINUTES_TO_MS = 60000
+    export const MS_TO_MINUTES = 1 / MINUTES_TO_MS
 }
 
 interface Date {
@@ -17,11 +18,18 @@ class Reminder {
     reminderTimeout!: ReturnType<typeof setInterval>
     nextReminder!: Date
     reminderIntervalAmount: number
+    reminderStartOverrideAmount: number
     ignoredReminderIntervalAmount: number
     message: string
 
-    constructor(reminderIntervalAmount: number, ignoredReminderIntervalAmount: number, message: string) {
+    constructor(
+        reminderIntervalAmount: number, 
+        reminderStartOverrideAmoun: number, 
+        ignoredReminderIntervalAmount: number, 
+        message: string) 
+    {
         this.reminderIntervalAmount = reminderIntervalAmount;
+        this.reminderStartOverrideAmount = reminderStartOverrideAmoun
         this.ignoredReminderIntervalAmount = ignoredReminderIntervalAmount;
         this.message = message;
     }
@@ -59,6 +67,7 @@ class Reminder {
         return {
             nextReminder: this.nextReminder.valueOf(),
             reminderIntervalAmount: this.reminderIntervalAmount,
+            reminderStartOverrideAmount: this.reminderStartOverrideAmount,
             ignoredReminderIntervalAmount: this.ignoredReminderIntervalAmount,
             message: this.message
         }
@@ -79,15 +88,33 @@ function loadActiveReminders() {
     let remindersObjs: Array<Reminder> = JSON.parse(sessionStorage.getItem("active_reminders")!) ?? []
 
     activeReminders = remindersObjs.map(obj => {
-        const reminder = new Reminder(obj.reminderIntervalAmount, obj.ignoredReminderIntervalAmount, obj.message)
+        const reminder = new Reminder(
+            obj.reminderIntervalAmount, 
+            obj.reminderStartOverrideAmount, 
+            obj.ignoredReminderIntervalAmount, 
+            obj.message
+        )
         reminder.nextReminder = new Date(obj.nextReminder.valueOf())
         return reminder;
     })
 
+    const editReminder = getEditReminder()
+
     activeReminders.forEach(reminder => {
+        if(editReminder !== null && reminder === editReminder)
+            return;
         const nextStart = Math.max(reminder.nextReminder.valueOf() - new Date().valueOf(), 0)
         reminder.setNextReminderTimeout(nextStart)
     })
+}
+
+function setEditReminder(index: number) {
+    sessionStorage.setItem('edit-reminder-index', index.toString())
+}
+
+function getEditReminder(): Reminder {
+    const editIndex = parseInt(sessionStorage.getItem('edit-reminder-index') || '-1')
+    return activeReminders[editIndex] || null
 }
 
 function listActiveReminders() {
@@ -102,7 +129,7 @@ function listActiveReminders() {
 
         // Create the display text
         let text = document.createElement('p')
-        text.innerHTML = "This reminder will be at "
+        text.innerHTML = "Next Reminder: "
 
         let textSpan = document.createElement('span')
         textSpan.innerHTML = reminder.nextReminder.toLocaleString()
@@ -110,11 +137,11 @@ function listActiveReminders() {
 
         text.append(textSpan)
 
-        // Create the stop button
-        let stopButton = document.createElement('button')
-        stopButton.innerHTML = "Cancel Reminder"
+        // Create the delete button
+        let deleteButton = document.createElement('button')
+        deleteButton.innerHTML = "Delete"
 
-        stopButton.addEventListener('click', () => {
+        deleteButton.addEventListener('click', () => {
             const index = activeReminders.indexOf(reminder)
             activeReminders[index].cancel()
             if(index >= 0)
@@ -122,9 +149,26 @@ function listActiveReminders() {
             window.dispatchEvent(new Event('update-reminder-list'))
         })
 
+        // Create the edit button
+        let editButton = document.createElement('button')
+        editButton.innerHTML = "Edit"
+
+        editButton.addEventListener('click', () => {
+            const index = activeReminders.indexOf(reminder)
+            if(index < 0) {
+                console.error("Failed to edit reminder for it does not exist")
+                return;
+            }
+
+            setEditReminder(index)
+            saveActiveReminders()
+            ipcRenderer.send('open-page', 'reminder')
+        })
+
         // Finish building the ui element
         reminderDiv.append(text)
-        reminderDiv.append(stopButton)
+        reminderDiv.append(editButton)
+        reminderDiv.append(deleteButton)
 
         reminders.push(reminderDiv)
     })
@@ -137,7 +181,7 @@ function loadCreateRemindersPage() {
 
     createNewReminder.addEventListener('click', () => {
         saveActiveReminders()
-        ipcRenderer.send('open-page', 'new_reminder')
+        ipcRenderer.send('open-page', 'reminder')
     })
 
     window.addEventListener('update-reminder-list', () => listActiveReminders())
@@ -147,7 +191,7 @@ function loadCreateRemindersPage() {
 
 function loadReminderCreationPage() {
     //#region interactive fields
-    const startButton = document.getElementsByClassName("start-timer")[0] as HTMLButtonElement
+    const createButton = document.getElementsByClassName("start-timer")[0] as HTMLButtonElement
     const messageField = document.getElementById("reminder-message") as HTMLTextAreaElement
     const intervalInput = document.getElementById("reminder-interval") as HTMLInputElement
     const isOverrideEnabled = document.getElementById("enable-reminder-start-override") as HTMLInputElement
@@ -156,25 +200,44 @@ function loadReminderCreationPage() {
     const ignoredReminderPenalty = document.getElementById("reminder-ignore") as HTMLInputElement
     //#endregion interactive fields
 
-    // Set default values
-    intervalInput.value = "30"
-    messageField.value = "Time for a break!"
+    // Update display if the user is editing
+    const editIndex = parseInt(sessionStorage.getItem('edit-reminder-index') || '-1')
+    if(editIndex >= 0) {
+        const editReminder = activeReminders[editIndex]
+
+        messageField.value = editReminder.message;
+        intervalInput.value = (editReminder.reminderIntervalAmount * Constants.MS_TO_MINUTES).toString();
+        isOverrideEnabled.checked = editReminder.reminderStartOverrideAmount > 0;
+        startOverrideInput.value = (editReminder.reminderStartOverrideAmount * Constants.MS_TO_MINUTES).toString()
+        reminderPenaltyCheckbox.checked = editReminder.ignoredReminderIntervalAmount > 0;
+        ignoredReminderPenalty.value = (editReminder.ignoredReminderIntervalAmount * Constants.MS_TO_MINUTES).toString()
+        createButton.innerHTML = createButton.getAttribute('when-editing') || createButton.innerHTML
+    }
 
     // Events -------------------------------
-    startButton.addEventListener('click', () => {
+    createButton.addEventListener('click', () => {
         const reminderIntervalAmount = Constants.MINUTES_TO_MS * intervalInput.valueAsNumber;
         const ignoredReminderIntervalAmount = (reminderPenaltyCheckbox.checked && hasInput(ignoredReminderPenalty)) ? (ignoredReminderPenalty.valueAsNumber * Constants.MINUTES_TO_MS) : 0;
 
         const startDelta = (isOverrideEnabled.checked && hasInput(startOverrideInput)) ? (startOverrideInput.valueAsNumber * Constants.MINUTES_TO_MS) : reminderIntervalAmount;
 
-        let reminder = new Reminder(reminderIntervalAmount, ignoredReminderIntervalAmount, messageField.value)
+        let reminder = new Reminder(
+            reminderIntervalAmount, 
+            startOverrideInput.valueAsNumber * Constants.MINUTES_TO_MS, 
+            ignoredReminderIntervalAmount, 
+            messageField.value
+        )
         reminder.setNextReminderTimeout(startDelta)
 
-        activeReminders.push(reminder)
+        if(editIndex >= 0) {
+            activeReminders[editIndex] = reminder;
+            sessionStorage.setItem('edit-reminder-index', '-1')
+        } else
+            activeReminders.push(reminder)
 
         saveActiveReminders()
 
-        startButton.blur()
+        createButton.blur()
         ipcRenderer.send('open-page', 'index');
     })
 }
@@ -188,7 +251,7 @@ window.onload = () => {
         case 'index.html':
             loadCreateRemindersPage()
             break;
-        case 'new_reminder.html':
+        case 'reminder.html':
             loadReminderCreationPage()
             break;
     }

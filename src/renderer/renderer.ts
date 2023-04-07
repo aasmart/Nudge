@@ -18,11 +18,18 @@ class Reminder {
     reminderTimeout!: ReturnType<typeof setInterval>
     nextReminder!: Date
     reminderIntervalAmount: number
+    reminderStartOverrideAmount: number
     ignoredReminderIntervalAmount: number
     message: string
 
-    constructor(reminderIntervalAmount: number, ignoredReminderIntervalAmount: number, message: string) {
+    constructor(
+        reminderIntervalAmount: number, 
+        reminderStartOverrideAmoun: number, 
+        ignoredReminderIntervalAmount: number, 
+        message: string) 
+    {
         this.reminderIntervalAmount = reminderIntervalAmount;
+        this.reminderStartOverrideAmount = reminderStartOverrideAmoun
         this.ignoredReminderIntervalAmount = ignoredReminderIntervalAmount;
         this.message = message;
     }
@@ -60,6 +67,7 @@ class Reminder {
         return {
             nextReminder: this.nextReminder.valueOf(),
             reminderIntervalAmount: this.reminderIntervalAmount,
+            reminderStartOverrideAmount: this.reminderStartOverrideAmount,
             ignoredReminderIntervalAmount: this.ignoredReminderIntervalAmount,
             message: this.message
         }
@@ -80,7 +88,12 @@ function loadActiveReminders() {
     let remindersObjs: Array<Reminder> = JSON.parse(sessionStorage.getItem("active_reminders")!) ?? []
 
     activeReminders = remindersObjs.map(obj => {
-        const reminder = new Reminder(obj.reminderIntervalAmount, obj.ignoredReminderIntervalAmount, obj.message)
+        const reminder = new Reminder(
+            obj.reminderIntervalAmount, 
+            obj.reminderStartOverrideAmount, 
+            obj.ignoredReminderIntervalAmount, 
+            obj.message
+        )
         reminder.nextReminder = new Date(obj.nextReminder.valueOf())
         return reminder;
     })
@@ -182,6 +195,8 @@ function loadReminderCreationPage() {
 
         messageField.value = editReminder.message;
         intervalInput.value = (editReminder.reminderIntervalAmount * Constants.MS_TO_MINUTES).toString();
+        isOverrideEnabled.checked = editReminder.reminderStartOverrideAmount > 0;
+        startOverrideInput.value = (editReminder.reminderStartOverrideAmount * Constants.MS_TO_MINUTES).toString()
         reminderPenaltyCheckbox.checked = editReminder.ignoredReminderIntervalAmount > 0;
         ignoredReminderPenalty.value = (editReminder.ignoredReminderIntervalAmount * Constants.MS_TO_MINUTES).toString()
         createButton.innerHTML = createButton.getAttribute('when-editing') || createButton.innerHTML
@@ -194,7 +209,12 @@ function loadReminderCreationPage() {
 
         const startDelta = (isOverrideEnabled.checked && hasInput(startOverrideInput)) ? (startOverrideInput.valueAsNumber * Constants.MINUTES_TO_MS) : reminderIntervalAmount;
 
-        let reminder = new Reminder(reminderIntervalAmount, ignoredReminderIntervalAmount, messageField.value)
+        let reminder = new Reminder(
+            reminderIntervalAmount, 
+            startOverrideInput.valueAsNumber * Constants.MINUTES_TO_MS, 
+            ignoredReminderIntervalAmount, 
+            messageField.value
+        )
         reminder.setNextReminderTimeout(startDelta)
 
         if(editIndex >= 0) {

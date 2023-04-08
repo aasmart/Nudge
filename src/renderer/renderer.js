@@ -110,7 +110,7 @@ function listActiveReminders() {
             const index = activeReminders.indexOf(reminder);
             if (index < 0) {
                 console.error("Failed to edit reminder for it does not exist");
-                alert("An error was encountered while attempting to edit this reminder");
+                sendPopup('Encountered An Error', 'An error was encounter while trying to edit the reminder');
                 return;
             }
             setEditReminder(index);
@@ -124,6 +124,35 @@ function listActiveReminders() {
         reminders.push(reminderDiv);
     });
     reminderList.replaceChildren(...reminders);
+}
+function sendPopup(title, content) {
+    const popupContainer = document.getElementsByClassName("popup-container")[0];
+    if (popupContainer === null) {
+        console.error('Cannot create popup as the container does not exist');
+        return;
+    }
+    const section = popupContainer.children[0];
+    const popupTitle = section.children[0];
+    const popupText = section.children[1];
+    const popupButton = section.children[2];
+    popupTitle.innerHTML = title;
+    popupText.innerHTML = content;
+    function handleButton() {
+        section.classList.remove('show-popup');
+        section.classList.add('hide-popup');
+        popupButton.style.visibility = 'hidden';
+    }
+    function hideContainer(e) {
+        if (e.animationName === 'popup-out')
+            popupContainer.style.visibility = 'hidden';
+    }
+    popupButton.addEventListener('click', handleButton);
+    popupContainer.addEventListener('animationend', hideContainer);
+    // Show the popup
+    popupContainer.style.visibility = 'visible';
+    popupButton.style.visibility = 'visible';
+    section.classList.remove('hide-popup');
+    section.classList.add('show-popup');
 }
 function loadCreateRemindersPage() {
     const createNewReminder = document.getElementById("create-new-reminder");
@@ -161,7 +190,7 @@ function loadReminderCreationPage() {
     createButton.addEventListener('click', () => {
         if (!intervalInput.checkValidity() || !startOverrideInput.checkValidity() || !ignoredReminderPenalty.checkValidity()) {
             createButton.blur();
-            alert("Cannot create reminder as one or more inputs are invalid (indicated by red outline).");
+            sendPopup('Cannot Create Reminder', 'One or more inputs are invalid');
             return;
         }
         const reminderIntervalAmount = Constants.MINUTES_TO_MS * intervalInput.valueAsNumber;

@@ -89,7 +89,7 @@ button {
     margin: 0px 4px;
 }
 
-button:focus, button:hover {
+button:focus-visible, button:hover {
     background-color: blueviolet;
 }
 
@@ -168,4 +168,85 @@ div:has(input[type="checkbox"]:checked) + .reminder-penalty {
 .next-timer-play {
     text-decoration: underline blueviolet;
     font-style: normal;
+}
+
+.popup-container {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: radial-gradient(rgb(0,0,0,0.2), rgb(0,0,0,0.35));
+    visibility: hidden;
+}
+
+.popup-container > section {
+    padding: 8px;
+    background-color: var(--bg-color);
+    box-shadow: 0 8px 8px black;
+    border-radius: 16px;
+    border: blueviolet 1px solid;
+
+    justify-content: space-between;
+
+    width: 40%;
+    min-width: 100px;
+    max-width: 500px;
+
+    height: 30%;
+    min-height: 100px;
+    max-height: 350px;
+}
+
+.popup-container > section > * {
+    margin: 4px;
+    text-align: center;
+}
+
+.popup-container > section > h2 {
+    font-size: 3.5ch;
+    font-weight: bold;
+    text-decoration: underline;
+}
+
+.popup-button {
+    visibility: inherit;
+}
+
+.show-popup {
+    visibility: visible;
+    animation: popup-in 250ms ease-in-out;
+}
+
+.hide-popup {
+    animation: popup-out 250ms ease-in-out;
+}
+
+@keyframes popup-in {
+    from {
+        opacity: 0;
+        transform: translateY(6%);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes popup-out {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    to {
+        opacity: 0;
+        transform: translateY(6%);
+    }
+
+    100% {
+        visibility: hidden;
+    }
 }

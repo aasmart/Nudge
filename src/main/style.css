@@ -96,6 +96,7 @@ button:focus-visible, button:hover {
 .reminder-override, .reminder-penalty { 
     opacity: 0;
     position: absolute;
+    visibility: hidden;
 }
 
 input[type="checkbox"] {
@@ -143,11 +144,13 @@ input[type="checkbox"]:checked::after {
 div:has(input[type="checkbox"]:checked) + .reminder-override {
     opacity: 1;
     position: relative;
+    visibility: visible;
 }
 
 div:has(input[type="checkbox"]:checked) + .reminder-penalty {
     opacity: 1;
     position: relative;
+    visibility: visible;
 }
 
 .user-input textarea {

@@ -9161,3 +9161,6 @@ node_modules/yocto-queue/license
 node_modules/yocto-queue/package.json
 node_modules/yocto-queue/readme.md
 out/make/squirrel.windows/x64/take_a_break.1.0.0.nupkg
+out/take-a-break-win32-x64/resources/app/src/main/new_reminder.html
+out/take-a-break-win32-x64/resources/app/src/main/reminder.html
+out/take-a-break-win32-x64/resources/app/src/main/new_reminder.html

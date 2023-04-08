@@ -193,6 +193,7 @@ function loadCreateRemindersPage() {
 function loadReminderCreationPage() {
     //#region interactive fields
     const createButton = document.getElementsByClassName("start-timer")[0] as HTMLButtonElement
+    const cancelButton = document.getElementsByClassName("cancel-reminder")[0] as HTMLButtonElement
     const messageField = document.getElementById("reminder-message") as HTMLTextAreaElement
     const intervalInput = document.getElementById("reminder-interval") as HTMLInputElement
     const isOverrideEnabled = document.getElementById("enable-reminder-start-override") as HTMLInputElement
@@ -244,6 +245,13 @@ function loadReminderCreationPage() {
 
         saveActiveReminders()
 
+        createButton.blur()
+        ipcRenderer.send('open-page', 'index');
+    })
+
+    cancelButton.addEventListener('click', () => {
+        sessionStorage.setItem('edit-reminder-index', '-1')
+        saveActiveReminders()
         createButton.blur()
         ipcRenderer.send('open-page', 'index');
     })

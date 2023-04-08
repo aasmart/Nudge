@@ -1,8 +1,8 @@
 :root {
     --bg-color: rgb(31, 31, 39);
     --input-color: rgb(90, 87, 87);
-    --input-invalid-color: rgb(146, 13, 13);
-    --input-success-color: rgb(40, 146, 13);
+    --input-invalid-color: #FA2333;
+    --input-success-color: #22F095;
 }
 
 *, *::before, *::after {
@@ -18,7 +18,7 @@ body {
 
 header {
     color: white;
-    background: blueviolet;
+    background: #8a2be2;
     width: 100%;
     display: flex;
     justify-content: center;

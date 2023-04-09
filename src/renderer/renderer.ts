@@ -255,7 +255,10 @@ function loadReminderCreationPage() {
 
     // Events -------------------------------
     createButton.addEventListener('click', () => {
-        if(!intervalInput.checkValidity() || !startOverrideInput.checkValidity() || !ignoredReminderPenalty.checkValidity()) {
+        if(!intervalInput.checkValidity() 
+            || (isOverrideEnabled.checked && !startOverrideInput.checkValidity())
+            || (reminderPenaltyCheckbox.checked && !ignoredReminderPenalty.checkValidity())
+        ) {
             createButton.blur()
             sendPopup('Cannot Create Reminder', 'One or more inputs are invalid')
             return;

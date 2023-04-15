@@ -10,7 +10,6 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Ubuntu&display=swap" rel="stylesheet"> 
 </head>
 <body>
     <header>
@@ -20,7 +19,7 @@
         <section class="user-input">
             <div title="The duration, in minutes, between each reminder">
                 <label for="reminder-interval">Reminder Interval: </label>
-                <input type="number" step="0.01" id="reminder-interval" name="reminder-interval" min="0.1" value="30">
+                <input type="number" step="0.01" id="reminder-interval" name="reminder-interval" min="0.1" value="30" required>
             </div>
 
             <div title="If enabled, the delay until the first reminder is sent can be configured">
@@ -30,7 +29,7 @@
 
             <div class="reminder-override" title="The delay, in minutes, until the first reminder is sent">
                 <label for="reminder-start-override">Reminder Start Override: </label>
-                <input type="number" id="reminder-start-override" name="reminder-start-override" step="0.01"  min="0.1">
+                <input type="number" id="reminder-start-override" name="reminder-start-override" step="0.01"  min="0.1" required>
             </div>
 
             <div title="If enabled, penalties for ignoring a reminder (not clicking on it) can be enabled">
@@ -40,7 +39,12 @@
 
             <div class="reminder-penalty" title="If the notification isn't clicked, another notification will be sent after a given amount of minutes">
                 <label for="reminder-ignore">Ignored Reminder Interval: </label>
-                <input type="number" id="reminder-ignore" name="reminder-ignore" step="0.01"  min="0.1">
+                <input type="number" id="reminder-ignore" name="reminder-ignore" step="0.01"  min="0.1" required>
+            </div>
+
+            <div class="title-input" title="The title of the reminder (1 to 32 characters)">
+                <label for="reminder-title">Reminder Title: </label>
+                <input type="text" minlength="1" maxlength="32" id="reminder-title" name="reminder-title" value="Time for a break!" required>
             </div>
 
             <div class="message-input" title="The message sent when receiving the reminder">

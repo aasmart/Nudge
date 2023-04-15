@@ -9,11 +9,12 @@ Date.prototype.addMilliseconds = function (milliseconds) {
     return new Date(date.getTime() + milliseconds);
 };
 var Reminder = /** @class */ (function () {
-    function Reminder(reminderIntervalAmount, reminderStartOverrideAmoun, ignoredReminderIntervalAmount, message) {
+    function Reminder(reminderIntervalAmount, reminderStartOverrideAmoun, ignoredReminderIntervalAmount, message, title) {
         this.reminderIntervalAmount = reminderIntervalAmount;
         this.reminderStartOverrideAmount = reminderStartOverrideAmoun;
         this.ignoredReminderIntervalAmount = ignoredReminderIntervalAmount;
         this.message = message;
+        this.title = title;
     }
     Reminder.prototype.setNextReminderTimeout = function (delayAmount) {
         var _this = this;
@@ -27,7 +28,7 @@ var Reminder = /** @class */ (function () {
     };
     Reminder.prototype.sendBreakNotification = function (message) {
         var _this = this;
-        new Notification("Time For a Break!", { body: message }).onclick = function () {
+        new Notification(this.title, { body: message }).onclick = function () {
             if (_this.ignoredReminderIntervalAmount > 0)
                 _this.setNextReminderTimeout(_this.reminderIntervalAmount);
             ipcRenderer.send('show-window', 'main');
@@ -46,7 +47,8 @@ var Reminder = /** @class */ (function () {
             reminderIntervalAmount: this.reminderIntervalAmount,
             reminderStartOverrideAmount: this.reminderStartOverrideAmount,
             ignoredReminderIntervalAmount: this.ignoredReminderIntervalAmount,
-            message: this.message
+            message: this.message,
+            title: this.title
         };
     };
     return Reminder;
@@ -62,7 +64,7 @@ function loadActiveReminders() {
     var _a;
     var remindersObjs = (_a = JSON.parse(sessionStorage.getItem("active_reminders"))) !== null && _a !== void 0 ? _a : [];
     activeReminders = remindersObjs.map(function (obj) {
-        var reminder = new Reminder(obj.reminderIntervalAmount, obj.reminderStartOverrideAmount, obj.ignoredReminderIntervalAmount, obj.message);
+        var reminder = new Reminder(obj.reminderIntervalAmount, obj.reminderStartOverrideAmount, obj.ignoredReminderIntervalAmount, obj.message, obj.title);
         reminder.nextReminder = new Date(obj.nextReminder.valueOf());
         return reminder;
     });
@@ -170,6 +172,7 @@ function loadReminderCreationPage() {
     var createButton = document.getElementsByClassName("start-timer")[0];
     var cancelButton = document.getElementsByClassName("cancel-reminder")[0];
     var messageField = document.getElementById("reminder-message");
+    var titleField = document.getElementById("reminder-title");
     var intervalInput = document.getElementById("reminder-interval");
     var isOverrideEnabled = document.getElementById("enable-reminder-start-override");
     var startOverrideInput = document.getElementById("reminder-start-override");
@@ -181,6 +184,7 @@ function loadReminderCreationPage() {
     if (editIndex >= 0) {
         var editReminder = activeReminders[editIndex];
         messageField.value = editReminder.message;
+        titleField.value = editReminder.title;
         intervalInput.value = (editReminder.reminderIntervalAmount * Constants.MS_TO_MINUTES).toString();
         isOverrideEnabled.checked = editReminder.reminderStartOverrideAmount > 0;
         startOverrideInput.value = (editReminder.reminderStartOverrideAmount * Constants.MS_TO_MINUTES).toString();
@@ -192,7 +196,8 @@ function loadReminderCreationPage() {
     createButton.addEventListener('click', function () {
         if (!intervalInput.checkValidity()
             || (isOverrideEnabled.checked && !startOverrideInput.checkValidity())
-            || (reminderPenaltyCheckbox.checked && !ignoredReminderPenalty.checkValidity())) {
+            || (reminderPenaltyCheckbox.checked && !ignoredReminderPenalty.checkValidity())
+            || (!titleField.checkValidity())) {
             createButton.blur();
             sendPopup('Cannot Create Reminder', 'One or more inputs are invalid');
             return;
@@ -200,7 +205,7 @@ function loadReminderCreationPage() {
         var reminderIntervalAmount = Constants.MINUTES_TO_MS * intervalInput.valueAsNumber;
         var ignoredReminderIntervalAmount = (reminderPenaltyCheckbox.checked && hasInput(ignoredReminderPenalty)) ? (ignoredReminderPenalty.valueAsNumber * Constants.MINUTES_TO_MS) : 0;
         var startDelta = (isOverrideEnabled.checked && hasInput(startOverrideInput)) ? (startOverrideInput.valueAsNumber * Constants.MINUTES_TO_MS) : reminderIntervalAmount;
-        var reminder = new Reminder(reminderIntervalAmount, startOverrideInput.valueAsNumber * Constants.MINUTES_TO_MS, ignoredReminderIntervalAmount, messageField.value);
+        var reminder = new Reminder(reminderIntervalAmount, startOverrideInput.valueAsNumber * Constants.MINUTES_TO_MS, ignoredReminderIntervalAmount, messageField.value, titleField.value);
         reminder.setNextReminderTimeout(startDelta);
         if (editIndex >= 0) {
             activeReminders[editIndex] = reminder;

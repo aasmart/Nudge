@@ -21,17 +21,20 @@ class Reminder {
     reminderStartOverrideAmount: number
     ignoredReminderIntervalAmount: number
     message: string
+    title: string
 
     constructor(
         reminderIntervalAmount: number, 
         reminderStartOverrideAmoun: number, 
         ignoredReminderIntervalAmount: number, 
-        message: string) 
-    {
+        message: string,
+        title: string
+    ) {
         this.reminderIntervalAmount = reminderIntervalAmount;
         this.reminderStartOverrideAmount = reminderStartOverrideAmoun
         this.ignoredReminderIntervalAmount = ignoredReminderIntervalAmount;
         this.message = message;
+        this.title = title;
     }
 
     setNextReminderTimeout(delayAmount: number) {
@@ -47,7 +50,7 @@ class Reminder {
     }
 
     private sendBreakNotification(message: string) {
-        new Notification("Time For a Break!", { body: message }).onclick =() => { 
+        new Notification(this.title, { body: message }).onclick =() => { 
             if(this.ignoredReminderIntervalAmount > 0)
                 this.setNextReminderTimeout(this.reminderIntervalAmount)
             ipcRenderer.send('show-window', 'main')
@@ -69,7 +72,8 @@ class Reminder {
             reminderIntervalAmount: this.reminderIntervalAmount,
             reminderStartOverrideAmount: this.reminderStartOverrideAmount,
             ignoredReminderIntervalAmount: this.ignoredReminderIntervalAmount,
-            message: this.message
+            message: this.message,
+            title: this.title
         }
     }
 }
@@ -92,7 +96,8 @@ function loadActiveReminders() {
             obj.reminderIntervalAmount, 
             obj.reminderStartOverrideAmount, 
             obj.ignoredReminderIntervalAmount, 
-            obj.message
+            obj.message,
+            obj.title
         )
         reminder.nextReminder = new Date(obj.nextReminder.valueOf())
         return reminder;
@@ -232,6 +237,7 @@ function loadReminderCreationPage() {
     const createButton = document.getElementsByClassName("start-timer")[0] as HTMLButtonElement
     const cancelButton = document.getElementsByClassName("cancel-reminder")[0] as HTMLButtonElement
     const messageField = document.getElementById("reminder-message") as HTMLTextAreaElement
+    const titleField = document.getElementById("reminder-title") as HTMLInputElement
     const intervalInput = document.getElementById("reminder-interval") as HTMLInputElement
     const isOverrideEnabled = document.getElementById("enable-reminder-start-override") as HTMLInputElement
     const startOverrideInput = document.getElementById("reminder-start-override") as HTMLInputElement
@@ -245,6 +251,7 @@ function loadReminderCreationPage() {
         const editReminder = activeReminders[editIndex]
 
         messageField.value = editReminder.message;
+        titleField.value = editReminder.title;
         intervalInput.value = (editReminder.reminderIntervalAmount * Constants.MS_TO_MINUTES).toString();
         isOverrideEnabled.checked = editReminder.reminderStartOverrideAmount > 0;
         startOverrideInput.value = (editReminder.reminderStartOverrideAmount * Constants.MS_TO_MINUTES).toString()
@@ -258,6 +265,7 @@ function loadReminderCreationPage() {
         if(!intervalInput.checkValidity() 
             || (isOverrideEnabled.checked && !startOverrideInput.checkValidity())
             || (reminderPenaltyCheckbox.checked && !ignoredReminderPenalty.checkValidity())
+            || (!titleField.checkValidity())
         ) {
             createButton.blur()
             sendPopup('Cannot Create Reminder', 'One or more inputs are invalid')
@@ -273,7 +281,8 @@ function loadReminderCreationPage() {
             reminderIntervalAmount, 
             startOverrideInput.valueAsNumber * Constants.MINUTES_TO_MS, 
             ignoredReminderIntervalAmount, 
-            messageField.value
+            messageField.value,
+            titleField.value
         )
         reminder.setNextReminderTimeout(startDelta)
 

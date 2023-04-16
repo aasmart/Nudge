@@ -145,6 +145,7 @@ function listActiveReminders() {
         // Create the delete button
         let deleteButton = document.createElement('button')
         deleteButton.innerHTML = "Delete"
+        deleteButton.setAttribute("action", "destructive")
 
         deleteButton.addEventListener('click', () => {
             const index = activeReminders.indexOf(reminder)

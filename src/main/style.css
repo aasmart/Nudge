@@ -51,17 +51,35 @@ section * {
     font-size: 1.35rem;
 }
 
-.reminder {
-    flex-direction: row;
-    border: 2px solid black;
-    border-radius: 6px;
+#reminder-list {
+    background: #282833;
+    border-radius: 12px;
+    overflow-y: auto;
+    overflow-x: hidden;
     padding: 10px;
-    margin: 4px;
-    box-shadow: 0 2px 2px black;
+    margin: auto;
+    justify-content: unset;
+
+    min-height: 200px;
+    max-height: 1000px;
+    height: 60dvh;
+
+    width: 90%;
+    min-width: 300px;
+    max-width: 680px;
 }
 
-.reminder > * {
-    display: inline-block;
+.reminder {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    border-radius: 8px;
+    padding: 10px;
+    margin: 6px;
+    box-shadow: 0 1px 2px black;
+    background: var(--bg-color);
+    width: 100%;
 }
 
 input,
@@ -89,11 +107,13 @@ button {
     margin: 0px 4px;
 }
 
-button:focus-visible, button:hover {
-    background-color: blueviolet;
+button:focus-visible, 
+button:hover {
+    background-color: #8a2be2;
 }
 
-button[action="destructive"]:focus-visible, button[action="destructive"]:hover {
+button[action="destructive"]:focus-visible, 
+button[action="destructive"]:hover {
     background-color: var(--input-invalid-color);
 }
 

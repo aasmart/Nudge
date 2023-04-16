@@ -125,7 +125,7 @@ function getEditReminder(): Reminder {
 function listActiveReminders() {
     const reminderList = document.getElementById("reminder-list") as HTMLElement
     
-    let reminders: Array<Node> = [reminderList.children[0]]
+    let reminders: Array<Node> = []
 
     activeReminders.forEach(reminder => {
         // Create the base div

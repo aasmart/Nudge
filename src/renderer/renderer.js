@@ -83,7 +83,7 @@ function getEditReminder() {
 }
 function listActiveReminders() {
     const reminderList = document.getElementById("reminder-list");
-    let reminders = [reminderList.children[0]];
+    let reminders = [];
     activeReminders.forEach(reminder => {
         // Create the base div
         let reminderDiv = document.createElement("div");

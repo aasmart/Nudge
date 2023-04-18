@@ -22,19 +22,26 @@ class Reminder {
     ignoredReminderIntervalAmount: number
     message: string
     title: string
+    paused: boolean
+    pausedTime: Date
 
     constructor(
         reminderIntervalAmount: number, 
-        reminderStartOverrideAmoun: number, 
+        reminderStartOverrideAmount: number, 
         ignoredReminderIntervalAmount: number, 
         message: string,
-        title: string
+        title: string,
+        isPaused = false,
+        pausedTime = new Date(),
     ) {
         this.reminderIntervalAmount = reminderIntervalAmount;
-        this.reminderStartOverrideAmount = reminderStartOverrideAmoun
+        this.reminderStartOverrideAmount = reminderStartOverrideAmount
         this.ignoredReminderIntervalAmount = ignoredReminderIntervalAmount;
         this.message = message;
         this.title = title;
+
+        this.paused = isPaused;
+        this.pausedTime = pausedTime;
     }
 
     setNextReminderTimeout(delayAmount: number) {
@@ -66,6 +73,19 @@ class Reminder {
             clearTimeout(this.reminderTimeout)
     }
 
+    setPaused(paused: boolean) {
+        if(paused) {
+            this.cancel()
+            this.pausedTime = new Date()
+        } else if(this.paused && !paused) {
+            const nextPlay = this.nextReminder.valueOf() - this.pausedTime.valueOf();
+            this.setNextReminderTimeout(nextPlay)
+        }
+
+        this.paused = paused;
+        window.dispatchEvent(new Event('update-reminder-list'))
+    }
+
     toJSON() {
         return {
             nextReminder: this.nextReminder.valueOf(),
@@ -73,7 +93,9 @@ class Reminder {
             reminderStartOverrideAmount: this.reminderStartOverrideAmount,
             ignoredReminderIntervalAmount: this.ignoredReminderIntervalAmount,
             message: this.message,
-            title: this.title
+            title: this.title,
+            paused: this.paused,
+            pausedTime: this.pausedTime,
         }
     }
 }
@@ -97,7 +119,9 @@ function loadActiveReminders() {
             obj.reminderStartOverrideAmount, 
             obj.ignoredReminderIntervalAmount, 
             obj.message,
-            obj.title
+            obj.title,
+            obj.paused,
+            obj.pausedTime
         )
         reminder.nextReminder = new Date(obj.nextReminder.valueOf())
         return reminder;
@@ -106,7 +130,7 @@ function loadActiveReminders() {
     const editReminder = getEditReminder()
 
     activeReminders.forEach(reminder => {
-        if(editReminder !== null && reminder === editReminder)
+        if(editReminder !== null && reminder === editReminder || reminder.paused)
             return;
         const nextStart = Math.max(reminder.nextReminder.valueOf() - new Date().valueOf(), 0)
         reminder.setNextReminderTimeout(nextStart)
@@ -137,7 +161,10 @@ function listActiveReminders() {
         text.innerHTML = "Next Reminder: "
 
         let textSpan = document.createElement('span')
-        textSpan.innerHTML = reminder.nextReminder.toLocaleString()
+        if(reminder.paused)
+            textSpan.innerHTML = "this reminder is paused"
+        else
+            textSpan.innerHTML = reminder.nextReminder.toLocaleString()
         textSpan.classList.add("next-timer-play")
 
         text.append(textSpan)
@@ -172,8 +199,26 @@ function listActiveReminders() {
             ipcRenderer.send('open-page', 'reminder')
         })
 
+        // Create the pause button
+        let pauseButton = document.createElement('button')
+        pauseButton.setAttribute('aria-label', reminder.paused ? 'Unpause' : 'Pause')
+        pauseButton.innerHTML = reminder.paused ? 'Unpause' : 'Pause'
+
+        pauseButton.addEventListener('click', () => {
+            if(pauseButton.getAttribute('aria-label') === 'Pause') {
+                pauseButton.setAttribute('aria-label', 'Unpause')
+                reminder.setPaused(true)
+                pauseButton.innerHTML = 'Unpause'
+            } else {
+                pauseButton.setAttribute('aria-label', 'Pause')
+                reminder.setPaused(false)
+                pauseButton.innerHTML = 'Pause'
+            }
+        })
+
         // Finish building the ui element
         reminderDiv.append(text)
+        reminderDiv.append(pauseButton)
         reminderDiv.append(editButton)
         reminderDiv.append(deleteButton)
 
@@ -283,7 +328,8 @@ function loadReminderCreationPage() {
             startOverrideInput.valueAsNumber * Constants.MINUTES_TO_MS, 
             ignoredReminderIntervalAmount, 
             messageField.value,
-            titleField.value
+            titleField.value,
+            false
         )
         reminder.setNextReminderTimeout(startDelta)
 

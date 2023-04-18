@@ -65,8 +65,8 @@ section * {
     height: 60dvh;
 
     width: 90%;
-    min-width: 300px;
-    max-width: 680px;
+    min-width: 450px;
+    max-width: 780px;
 }
 
 .reminder {

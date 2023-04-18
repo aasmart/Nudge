@@ -1,78 +1,92 @@
-var ipcRenderer = require('electron').ipcRenderer;
+"use strict";
+let { ipcRenderer } = require('electron');
 var Constants;
 (function (Constants) {
     Constants.MINUTES_TO_MS = 60000;
     Constants.MS_TO_MINUTES = 1 / Constants.MINUTES_TO_MS;
 })(Constants || (Constants = {}));
 Date.prototype.addMilliseconds = function (milliseconds) {
-    var date = this;
+    const date = this;
     return new Date(date.getTime() + milliseconds);
 };
-var Reminder = /** @class */ (function () {
-    function Reminder(reminderIntervalAmount, reminderStartOverrideAmoun, ignoredReminderIntervalAmount, message, title) {
+class Reminder {
+    constructor(reminderIntervalAmount, reminderStartOverrideAmount, ignoredReminderIntervalAmount, message, title, isPaused = false, pausedTime = new Date()) {
         this.reminderIntervalAmount = reminderIntervalAmount;
-        this.reminderStartOverrideAmount = reminderStartOverrideAmoun;
+        this.reminderStartOverrideAmount = reminderStartOverrideAmount;
         this.ignoredReminderIntervalAmount = ignoredReminderIntervalAmount;
         this.message = message;
         this.title = title;
+        this.paused = isPaused;
+        this.pausedTime = pausedTime;
     }
-    Reminder.prototype.setNextReminderTimeout = function (delayAmount) {
-        var _this = this;
+    setNextReminderTimeout(delayAmount) {
         clearTimeout(this.reminderTimeout);
-        this.reminderTimeout = setTimeout(function () {
-            _this.sendBreakNotification(_this.message);
-            _this.setNextReminderTimeout(_this.ignoredReminderIntervalAmount > 0 ? _this.ignoredReminderIntervalAmount : _this.reminderIntervalAmount);
+        this.reminderTimeout = setTimeout(() => {
+            this.sendBreakNotification(this.message);
+            this.setNextReminderTimeout(this.ignoredReminderIntervalAmount > 0 ? this.ignoredReminderIntervalAmount : this.reminderIntervalAmount);
         }, delayAmount);
         this.nextReminder = new Date().addMilliseconds(delayAmount);
         window.dispatchEvent(new Event('update-reminder-list'));
-    };
-    Reminder.prototype.sendBreakNotification = function (message) {
-        var _this = this;
-        new Notification(this.title, { body: message }).onclick = function () {
-            if (_this.ignoredReminderIntervalAmount > 0)
-                _this.setNextReminderTimeout(_this.reminderIntervalAmount);
+    }
+    sendBreakNotification(message) {
+        new Notification(this.title, { body: message }).onclick = () => {
+            if (this.ignoredReminderIntervalAmount > 0)
+                this.setNextReminderTimeout(this.reminderIntervalAmount);
             ipcRenderer.send('show-window', 'main');
         };
-    };
-    Reminder.prototype.start = function () {
+    }
+    start() {
         this.setNextReminderTimeout(this.reminderIntervalAmount);
-    };
-    Reminder.prototype.cancel = function () {
+    }
+    cancel() {
         if (this.reminderTimeout != null)
             clearTimeout(this.reminderTimeout);
-    };
-    Reminder.prototype.toJSON = function () {
+    }
+    setPaused(paused) {
+        if (paused) {
+            this.cancel();
+            this.pausedTime = new Date();
+        }
+        else if (this.paused && !paused) {
+            const nextPlay = this.nextReminder.valueOf() - this.pausedTime.valueOf();
+            this.setNextReminderTimeout(nextPlay);
+        }
+        this.paused = paused;
+        window.dispatchEvent(new Event('update-reminder-list'));
+    }
+    toJSON() {
         return {
             nextReminder: this.nextReminder.valueOf(),
             reminderIntervalAmount: this.reminderIntervalAmount,
             reminderStartOverrideAmount: this.reminderStartOverrideAmount,
             ignoredReminderIntervalAmount: this.ignoredReminderIntervalAmount,
             message: this.message,
-            title: this.title
+            title: this.title,
+            paused: this.paused,
+            pausedTime: this.pausedTime,
         };
-    };
-    return Reminder;
-}());
+    }
+}
 function hasInput(inputElement) {
     return inputElement.value.length > 0;
 }
-var activeReminders = [];
+let activeReminders = [];
 function saveActiveReminders() {
     sessionStorage.setItem("active_reminders", JSON.stringify(activeReminders));
 }
 function loadActiveReminders() {
     var _a;
-    var remindersObjs = (_a = JSON.parse(sessionStorage.getItem("active_reminders"))) !== null && _a !== void 0 ? _a : [];
-    activeReminders = remindersObjs.map(function (obj) {
-        var reminder = new Reminder(obj.reminderIntervalAmount, obj.reminderStartOverrideAmount, obj.ignoredReminderIntervalAmount, obj.message, obj.title);
+    let remindersObjs = (_a = JSON.parse(sessionStorage.getItem("active_reminders"))) !== null && _a !== void 0 ? _a : [];
+    activeReminders = remindersObjs.map(obj => {
+        const reminder = new Reminder(obj.reminderIntervalAmount, obj.reminderStartOverrideAmount, obj.ignoredReminderIntervalAmount, obj.message, obj.title, obj.paused, obj.pausedTime);
         reminder.nextReminder = new Date(obj.nextReminder.valueOf());
         return reminder;
     });
-    var editReminder = getEditReminder();
-    activeReminders.forEach(function (reminder) {
-        if (editReminder !== null && reminder === editReminder)
+    const editReminder = getEditReminder();
+    activeReminders.forEach(reminder => {
+        if (editReminder !== null && reminder === editReminder || reminder.paused)
             return;
-        var nextStart = Math.max(reminder.nextReminder.valueOf() - new Date().valueOf(), 0);
+        const nextStart = Math.max(reminder.nextReminder.valueOf() - new Date().valueOf(), 0);
         reminder.setNextReminderTimeout(nextStart);
     });
 }
@@ -80,38 +94,41 @@ function setEditReminder(index) {
     sessionStorage.setItem('edit-reminder-index', index.toString());
 }
 function getEditReminder() {
-    var editIndex = parseInt(sessionStorage.getItem('edit-reminder-index') || '-1');
+    const editIndex = parseInt(sessionStorage.getItem('edit-reminder-index') || '-1');
     return activeReminders[editIndex] || null;
 }
 function listActiveReminders() {
-    var reminderList = document.getElementById("reminder-list");
-    var reminders = [reminderList.children[0]];
-    activeReminders.forEach(function (reminder) {
+    const reminderList = document.getElementById("reminder-list");
+    let reminders = [reminderList.children[0]];
+    activeReminders.forEach(reminder => {
         // Create the base div
-        var reminderDiv = document.createElement("div");
+        let reminderDiv = document.createElement("div");
         reminderDiv.classList.add('reminder');
         // Create the display text
-        var text = document.createElement('p');
+        let text = document.createElement('p');
         text.innerHTML = "Next Reminder: ";
-        var textSpan = document.createElement('span');
-        textSpan.innerHTML = reminder.nextReminder.toLocaleString();
+        let textSpan = document.createElement('span');
+        if (reminder.paused)
+            textSpan.innerHTML = "this reminder is paused";
+        else
+            textSpan.innerHTML = reminder.nextReminder.toLocaleString();
         textSpan.classList.add("next-timer-play");
         text.append(textSpan);
         // Create the delete button
-        var deleteButton = document.createElement('button');
+        let deleteButton = document.createElement('button');
         deleteButton.innerHTML = "Delete";
-        deleteButton.addEventListener('click', function () {
-            var index = activeReminders.indexOf(reminder);
+        deleteButton.addEventListener('click', () => {
+            const index = activeReminders.indexOf(reminder);
             activeReminders[index].cancel();
             if (index >= 0)
                 activeReminders.splice(index, 1);
             window.dispatchEvent(new Event('update-reminder-list'));
         });
         // Create the edit button
-        var editButton = document.createElement('button');
+        let editButton = document.createElement('button');
         editButton.innerHTML = "Edit";
-        editButton.addEventListener('click', function () {
-            var index = activeReminders.indexOf(reminder);
+        editButton.addEventListener('click', () => {
+            const index = activeReminders.indexOf(reminder);
             if (index < 0) {
                 console.error("Failed to edit reminder for it does not exist");
                 sendPopup('Encountered An Error', 'An error was encounter while trying to edit the reminder');
@@ -121,24 +138,41 @@ function listActiveReminders() {
             saveActiveReminders();
             ipcRenderer.send('open-page', 'reminder');
         });
+        // Create the pause button
+        let pauseButton = document.createElement('button');
+        pauseButton.setAttribute('aria-label', reminder.paused ? 'Unpause' : 'Pause');
+        pauseButton.innerHTML = reminder.paused ? 'Unpause' : 'Pause';
+        pauseButton.addEventListener('click', () => {
+            if (pauseButton.getAttribute('aria-label') === 'Pause') {
+                pauseButton.setAttribute('aria-label', 'Unpause');
+                reminder.setPaused(true);
+                pauseButton.innerHTML = 'Unpause';
+            }
+            else {
+                pauseButton.setAttribute('aria-label', 'Pause');
+                reminder.setPaused(false);
+                pauseButton.innerHTML = 'Pause';
+            }
+        });
         // Finish building the ui element
         reminderDiv.append(text);
+        reminderDiv.append(pauseButton);
         reminderDiv.append(editButton);
         reminderDiv.append(deleteButton);
         reminders.push(reminderDiv);
     });
-    reminderList.replaceChildren.apply(reminderList, reminders);
+    reminderList.replaceChildren(...reminders);
 }
 function sendPopup(title, content) {
-    var popupContainer = document.getElementsByClassName("popup-container")[0];
+    const popupContainer = document.getElementsByClassName("popup-container")[0];
     if (popupContainer === null) {
         console.error('Cannot create popup as the container does not exist');
         return;
     }
-    var section = popupContainer.children[0];
-    var popupTitle = section.children[0];
-    var popupText = section.children[1];
-    var popupButton = section.children[2];
+    const section = popupContainer.children[0];
+    const popupTitle = section.children[0];
+    const popupText = section.children[1];
+    const popupButton = section.children[2];
     popupTitle.innerHTML = title;
     popupText.innerHTML = content;
     function handleButton() {
@@ -159,30 +193,30 @@ function sendPopup(title, content) {
     section.classList.add('show-popup');
 }
 function loadCreateRemindersPage() {
-    var createNewReminder = document.getElementById("create-new-reminder");
-    createNewReminder.addEventListener('click', function () {
+    const createNewReminder = document.getElementById("create-new-reminder");
+    createNewReminder.addEventListener('click', () => {
         saveActiveReminders();
         ipcRenderer.send('open-page', 'reminder');
     });
-    window.addEventListener('update-reminder-list', function () { return listActiveReminders(); });
+    window.addEventListener('update-reminder-list', () => listActiveReminders());
     window.dispatchEvent(new Event('update-reminder-list'));
 }
 function loadReminderCreationPage() {
     //#region interactive fields
-    var createButton = document.getElementsByClassName("start-timer")[0];
-    var cancelButton = document.getElementsByClassName("cancel-reminder")[0];
-    var messageField = document.getElementById("reminder-message");
-    var titleField = document.getElementById("reminder-title");
-    var intervalInput = document.getElementById("reminder-interval");
-    var isOverrideEnabled = document.getElementById("enable-reminder-start-override");
-    var startOverrideInput = document.getElementById("reminder-start-override");
-    var reminderPenaltyCheckbox = document.getElementById("enable-ignore-reminder-penalty");
-    var ignoredReminderPenalty = document.getElementById("reminder-ignore");
+    const createButton = document.getElementsByClassName("start-timer")[0];
+    const cancelButton = document.getElementsByClassName("cancel-reminder")[0];
+    const messageField = document.getElementById("reminder-message");
+    const titleField = document.getElementById("reminder-title");
+    const intervalInput = document.getElementById("reminder-interval");
+    const isOverrideEnabled = document.getElementById("enable-reminder-start-override");
+    const startOverrideInput = document.getElementById("reminder-start-override");
+    const reminderPenaltyCheckbox = document.getElementById("enable-ignore-reminder-penalty");
+    const ignoredReminderPenalty = document.getElementById("reminder-ignore");
     //#endregion interactive fields
     // Update display if the user is editing
-    var editIndex = parseInt(sessionStorage.getItem('edit-reminder-index') || '-1');
+    const editIndex = parseInt(sessionStorage.getItem('edit-reminder-index') || '-1');
     if (editIndex >= 0) {
-        var editReminder = activeReminders[editIndex];
+        const editReminder = activeReminders[editIndex];
         messageField.value = editReminder.message;
         titleField.value = editReminder.title;
         intervalInput.value = (editReminder.reminderIntervalAmount * Constants.MS_TO_MINUTES).toString();
@@ -193,7 +227,7 @@ function loadReminderCreationPage() {
         createButton.innerHTML = createButton.getAttribute('when-editing') || createButton.innerHTML;
     }
     // Events -------------------------------
-    createButton.addEventListener('click', function () {
+    createButton.addEventListener('click', () => {
         if (!intervalInput.checkValidity()
             || (isOverrideEnabled.checked && !startOverrideInput.checkValidity())
             || (reminderPenaltyCheckbox.checked && !ignoredReminderPenalty.checkValidity())
@@ -202,10 +236,10 @@ function loadReminderCreationPage() {
             sendPopup('Cannot Create Reminder', 'One or more inputs are invalid');
             return;
         }
-        var reminderIntervalAmount = Constants.MINUTES_TO_MS * intervalInput.valueAsNumber;
-        var ignoredReminderIntervalAmount = (reminderPenaltyCheckbox.checked && hasInput(ignoredReminderPenalty)) ? (ignoredReminderPenalty.valueAsNumber * Constants.MINUTES_TO_MS) : 0;
-        var startDelta = (isOverrideEnabled.checked && hasInput(startOverrideInput)) ? (startOverrideInput.valueAsNumber * Constants.MINUTES_TO_MS) : reminderIntervalAmount;
-        var reminder = new Reminder(reminderIntervalAmount, startOverrideInput.valueAsNumber * Constants.MINUTES_TO_MS, ignoredReminderIntervalAmount, messageField.value, titleField.value);
+        const reminderIntervalAmount = Constants.MINUTES_TO_MS * intervalInput.valueAsNumber;
+        const ignoredReminderIntervalAmount = (reminderPenaltyCheckbox.checked && hasInput(ignoredReminderPenalty)) ? (ignoredReminderPenalty.valueAsNumber * Constants.MINUTES_TO_MS) : 0;
+        const startDelta = (isOverrideEnabled.checked && hasInput(startOverrideInput)) ? (startOverrideInput.valueAsNumber * Constants.MINUTES_TO_MS) : reminderIntervalAmount;
+        let reminder = new Reminder(reminderIntervalAmount, startOverrideInput.valueAsNumber * Constants.MINUTES_TO_MS, ignoredReminderIntervalAmount, messageField.value, titleField.value, false);
         reminder.setNextReminderTimeout(startDelta);
         if (editIndex >= 0) {
             activeReminders[editIndex] = reminder;
@@ -217,15 +251,15 @@ function loadReminderCreationPage() {
         createButton.blur();
         ipcRenderer.send('open-page', 'index');
     });
-    cancelButton.addEventListener('click', function () {
+    cancelButton.addEventListener('click', () => {
         sessionStorage.setItem('edit-reminder-index', '-1');
         saveActiveReminders();
         createButton.blur();
         ipcRenderer.send('open-page', 'index');
     });
 }
-window.onload = function () {
-    var location = window.location.href.split("/");
+window.onload = () => {
+    let location = window.location.href.split("/");
     loadActiveReminders();
     switch (location[location.length - 1]) {
         case 'index.html':

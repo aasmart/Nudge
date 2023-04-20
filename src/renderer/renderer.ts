@@ -147,14 +147,14 @@ function getEditReminder(): Reminder {
 }
 
 function listActiveReminders() {
-    const reminderList = document.getElementById("reminder-list") as HTMLElement
+    const reminderList = (document.getElementById("reminder-list") as HTMLElement).children[1] as HTMLElement
     
     let reminders: Array<Node> = []
 
     activeReminders.forEach(reminder => {
         // Create the base div
-        let reminderDiv = document.createElement("div")
-        reminderDiv.classList.add('reminder')
+        let reminderListElement = document.createElement("li")
+        reminderListElement.classList.add('reminder')
 
         // Create the display text
         let text = document.createElement('p')
@@ -217,12 +217,12 @@ function listActiveReminders() {
         })
 
         // Finish building the ui element
-        reminderDiv.append(text)
-        reminderDiv.append(pauseButton)
-        reminderDiv.append(editButton)
-        reminderDiv.append(deleteButton)
+        reminderListElement.append(text)
+        reminderListElement.append(pauseButton)
+        reminderListElement.append(editButton)
+        reminderListElement.append(deleteButton)
 
-        reminders.push(reminderDiv)
+        reminders.push(reminderListElement)
     })
 
     reminderList.replaceChildren(...reminders)

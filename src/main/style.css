@@ -16,6 +16,12 @@ body {
     margin: auto;
 }
 
+main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
 header {
     color: white;
     background: #8a2be2;
@@ -52,14 +58,6 @@ section * {
 }
 
 #reminder-list {
-    background: #282833;
-    border-radius: 12px;
-    overflow-y: auto;
-    overflow-x: hidden;
-    padding: 10px;
-    margin: auto;
-    justify-content: unset;
-
     min-height: 200px;
     max-height: 1000px;
     height: 60dvh;
@@ -69,11 +67,35 @@ section * {
     max-width: 780px;
 }
 
+#reminder-list > ul {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    background: #282833;
+    border-radius: 12px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 10px;
+    margin: auto;
+    justify-content: unset;
+    list-style: none;
+    list-style-type: none;
+
+    height: 100%;
+    width: 100%;
+}
+
+#reminder-list > button {
+    width: 100%;
+}
+
 .reminder {
     display: flex;
     flex-direction: row;
     justify-content: center;
     align-items: center;
+    
     border-radius: 8px;
     padding: 10px;
     margin: 6px;
@@ -101,7 +123,7 @@ button {
     position: relative;
 }
 
-#reminder-list div > button {
+#reminder-list li > button {
     min-width: 100px;
     padding: 15px;
     margin: 0px 4px;

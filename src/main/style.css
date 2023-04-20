@@ -60,7 +60,7 @@ section * {
 #reminder-list {
     min-height: 200px;
     max-height: 1000px;
-    height: 60dvh;
+    height: 80dvh;
 
     width: 90%;
     min-width: 450px;

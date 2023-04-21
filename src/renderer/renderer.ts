@@ -179,6 +179,7 @@ function listActiveReminders() {
             activeReminders[index].cancel()
             if(index >= 0)
                 activeReminders.splice(index, 1)
+            saveActiveReminders()
             window.dispatchEvent(new Event('update-reminder-list'))
         })
 

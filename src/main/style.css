@@ -3,6 +3,7 @@
     --input-color: rgb(90, 87, 87);
     --input-invalid-color: #FA2333;
     --input-success-color: #22F095;
+    --header-height: 5rem;
 }
 
 *, *::before, *::after {
@@ -14,8 +15,7 @@ body {
     background: var(--bg-color) !important;
     min-block-size: 100dvh;
     margin: auto;
-    height: 100%;
-    width: 100%;
+    height: 100dvh;
 }
 
 main {
@@ -23,8 +23,7 @@ main {
     display: flex;
     flex-direction: column;
     align-items: center;
-    width: 100%;
-    height: 100%;
+    height: calc(100dvh - var(--header-height));
 }
 
 header {
@@ -33,11 +32,13 @@ header {
     width: 100%;
     display: flex;
     justify-content: center;
+    align-items: center;
+    height: var(--header-height);
 }
 
 section {
     display: flex;
-    justify-content: center;
+    justify-content: start;
     align-items: center;
     color: white;
     flex-direction: column;
@@ -63,9 +64,7 @@ section * {
 }
 
 #reminder-list {
-    min-height: 200px;
-    max-height: 1000px;
-    height: 80dvh;
+    height: 100%;
 
     width: 90%;
     min-width: 450px;
@@ -82,17 +81,18 @@ section * {
     overflow-y: auto;
     overflow-x: hidden;
     padding: 10px;
-    margin: auto;
     justify-content: unset;
     list-style: none;
     list-style-type: none;
+    margin: 0;
 
-    height: 100%;
+    min-height: 6.5rem;
     width: 100%;
 }
 
 #reminder-list > button {
     width: 100%;
+    position: relative;
 }
 
 .reminder {
@@ -163,8 +163,8 @@ input[type="checkbox"] {
 
 input[type="checkbox"]::before {
     content: '';
-    visibility: visible;
     inset: 0;
+    visibility: visible;
     position: absolute;
     background-color: var(--input-invalid-color);
     border-radius: 20px;

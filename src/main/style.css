@@ -67,7 +67,7 @@ section * {
     height: 100%;
 
     width: 90%;
-    min-width: 450px;
+    min-width: fit-content;
     max-width: 800px;
 }
 
@@ -92,7 +92,6 @@ section * {
 
 #reminder-list > button {
     width: 100%;
-    position: relative;
 }
 
 .reminder {
@@ -107,6 +106,7 @@ section * {
     box-shadow: 0 1px 2px black;
     background: #383873;
     width: 100%;
+    min-width: fit-content;
 }
 
 .reminder > *{

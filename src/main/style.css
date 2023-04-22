@@ -148,8 +148,12 @@ button:focus-visible,
 button:hover,
 input[type="checkbox"]:focus-visible + label::after,
 input[type="checkbox"]:hover + label::after {
-    outline: var(--focus-visible-outline);
     background-color: #8a2be2;
+}
+
+button:focus-visible, 
+input[type="checkbox"]:focus-visible + label::after {
+    outline: var(--focus-visible-outline);
 }
 
 button[action="destructive"]:focus-visible, 

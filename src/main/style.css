@@ -4,6 +4,12 @@
     --input-invalid-color: #FA2333;
     --input-success-color: #22F095;
     --header-height: 5rem;
+
+    --checkbox-height: 1.75rem;
+    --checkbox-width: 3.5rem;
+    --checkbox-margin: 16px;
+
+    --focus-visible-outline: 3px solid blanchedalmond;;
 }
 
 *, *::before, *::after {
@@ -139,7 +145,10 @@ button {
 }
 
 button:focus-visible, 
-button:hover {
+button:hover,
+input[type="checkbox"]:focus-visible + label::after,
+input[type="checkbox"]:hover + label::after {
+    outline: var(--focus-visible-outline);
     background-color: #8a2be2;
 }
 
@@ -155,45 +164,58 @@ button[action="destructive"]:hover {
 }
 
 input[type="checkbox"] {
-    visibility: hidden;
-    position: relative;
-    height: 1.75rem;
-    width: 3.5rem;
+    opacity: 0;
+    height: var(--checkbox-height);
+    width: var(--checkbox-width);
 }
 
-input[type="checkbox"]::before {
+input[type="checkbox"] + label {
+    position: relative;
+}
+
+/* Styles the checkbox's background */
+input[type="checkbox"] + label::before {
     content: '';
-    inset: 0;
-    visibility: visible;
-    position: absolute;
     background-color: var(--input-invalid-color);
     border-radius: 20px;
     line-height: 20px;
     border: 2px solid rgb(21, 21, 21);
     box-shadow: 0 2px 2px black;
+
+    position: absolute;
+    display: inline-block;
+    height: var(--checkbox-height);
+    width: var(--checkbox-width);
+    left: calc(-1 * (var(--checkbox-width) + var(--checkbox-margin)));
+
     transition: all 250ms;
 }
 
-input[type="checkbox"]:checked::before {
+/* Changes the checkbox's background color when checked */
+input[type="checkbox"]:checked + label::before {
     background-color: var(--input-success-color);
 }
 
-input[type="checkbox"]::after {
+/* Styles the checkbox's little notch */
+input[type="checkbox"] + label::after {
     content: '';
-    visibility: visible;
-    left: 0;
-    top: 0;
-    position: absolute;
-    background-color: blueviolet;
+    background-color: var(--input-color);
     border-radius: 100%;
-    height: 100%;
-    width: 50%;
     box-shadow: 0 2px 2px black;
+
+    height: var(--checkbox-height);
+    width: calc(var(--checkbox-width) * 0.5);
+    position: absolute;
+    left: calc(-1 * (var(--checkbox-width) + var(--checkbox-margin)));
+    top: 0;
+
     transition: all 250ms;
 }
 
-input[type="checkbox"]:checked::after {
-    left: 50%;
+/* Shifts the notch over to the other side of the checkbox when it is 
+checked */
+input[type="checkbox"]:checked + label::after {
+    left: calc(-1 * (var(--checkbox-width) + var(--checkbox-margin)) + (var(--checkbox-width)) * 0.5);
 }
 
 div:has(input[type="checkbox"]:checked) + .reminder-override {

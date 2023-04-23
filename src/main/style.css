@@ -135,13 +135,18 @@ section {
     min-width: fit-content;
 }
 
+.reminder p {
+    font-weight: bold;
+}
+
 .reminder > * {
     margin: 10px;
 }
 
-.next-timer-play {
+.reminder .next-timer-play {
     text-decoration: underline blueviolet;
     font-style: normal;
+    font-weight: normal;
 }
 
 input,

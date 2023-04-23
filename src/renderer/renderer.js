@@ -98,12 +98,12 @@ function getEditReminder() {
     return activeReminders[editIndex] || null;
 }
 function listActiveReminders() {
-    const reminderList = document.getElementById("reminder-list");
-    let reminders = [reminderList.children[0]];
+    const reminderList = document.getElementById("reminder-list").children[1];
+    let reminders = [];
     activeReminders.forEach(reminder => {
         // Create the base div
-        let reminderDiv = document.createElement("div");
-        reminderDiv.classList.add('reminder');
+        let reminderListElement = document.createElement("li");
+        reminderListElement.classList.add('reminder');
         // Create the display text
         let text = document.createElement('p');
         text.innerHTML = "Next Reminder: ";
@@ -117,11 +117,13 @@ function listActiveReminders() {
         // Create the delete button
         let deleteButton = document.createElement('button');
         deleteButton.innerHTML = "Delete";
+        deleteButton.setAttribute("action", "destructive");
         deleteButton.addEventListener('click', () => {
             const index = activeReminders.indexOf(reminder);
             activeReminders[index].cancel();
             if (index >= 0)
                 activeReminders.splice(index, 1);
+            saveActiveReminders();
             window.dispatchEvent(new Event('update-reminder-list'));
         });
         // Create the edit button
@@ -155,11 +157,11 @@ function listActiveReminders() {
             }
         });
         // Finish building the ui element
-        reminderDiv.append(text);
-        reminderDiv.append(pauseButton);
-        reminderDiv.append(editButton);
-        reminderDiv.append(deleteButton);
-        reminders.push(reminderDiv);
+        reminderListElement.append(text);
+        reminderListElement.append(pauseButton);
+        reminderListElement.append(editButton);
+        reminderListElement.append(deleteButton);
+        reminders.push(reminderListElement);
     });
     reminderList.replaceChildren(...reminders);
 }
@@ -213,6 +215,8 @@ function loadReminderCreationPage() {
     const reminderPenaltyCheckbox = document.getElementById("enable-ignore-reminder-penalty");
     const ignoredReminderPenalty = document.getElementById("reminder-ignore");
     //#endregion interactive fields
+    isOverrideEnabled.onchange = () => { startOverrideInput.disabled = !startOverrideInput.disabled; };
+    reminderPenaltyCheckbox.onchange = () => { ignoredReminderPenalty.disabled = !ignoredReminderPenalty.disabled; };
     // Update display if the user is editing
     const editIndex = parseInt(sessionStorage.getItem('edit-reminder-index') || '-1');
     if (editIndex >= 0) {
@@ -221,8 +225,10 @@ function loadReminderCreationPage() {
         titleField.value = editReminder.title;
         intervalInput.value = (editReminder.reminderIntervalAmount * Constants.MS_TO_MINUTES).toString();
         isOverrideEnabled.checked = editReminder.reminderStartOverrideAmount > 0;
+        startOverrideInput.disabled = !isOverrideEnabled.checked;
         startOverrideInput.value = (editReminder.reminderStartOverrideAmount * Constants.MS_TO_MINUTES).toString();
         reminderPenaltyCheckbox.checked = editReminder.ignoredReminderIntervalAmount > 0;
+        ignoredReminderPenalty.disabled = !reminderPenaltyCheckbox.checked;
         ignoredReminderPenalty.value = (editReminder.ignoredReminderIntervalAmount * Constants.MS_TO_MINUTES).toString();
         createButton.innerHTML = createButton.getAttribute('when-editing') || createButton.innerHTML;
     }

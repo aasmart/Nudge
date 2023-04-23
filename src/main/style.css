@@ -1,8 +1,18 @@
 :root {
-    --bg-color: rgb(31, 31, 39);
+    --bg-color: #1f1f27;
     --input-color: rgb(90, 87, 87);
     --input-invalid-color: #FA2333;
     --input-success-color: #22F095;
+    --header-height: 5rem;
+
+    --checkbox-height: 1.75rem;
+    --checkbox-width: 3.5rem;
+    --checkbox-margin: 8px;
+
+    --focus-visible-outline: 3px solid blanchedalmond;;
+
+    --input-font-size: 1.25rem;
+    --input-char-size: 40ch;
 }
 
 *, *::before, *::after {
@@ -11,57 +21,132 @@
 }
 
 body {
-    background:var(--bg-color) !important;
+    background: var(--bg-color) !important;
     min-block-size: 100dvh;
     margin: auto;
+    height: 100dvh;
+}
+
+main {
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: calc(100dvh - var(--header-height));
 }
 
 header {
     color: white;
     background: #8a2be2;
-    width: 100%;
     display: flex;
     justify-content: center;
+    align-items: center;
+
+    height: var(--header-height);
+    min-width: 100%;
 }
 
 section {
     display: flex;
-    justify-content: center;
+    justify-content: start;
     align-items: center;
     color: white;
     flex-direction: column;
 }
 
-section > * {
+.user-input > div {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: start;
+    margin: 10px;
+}
+
+.user-input > div:has(input[type="checkbox"]) {
+    justify-content: start;
+    align-items: start;
+    font-size: var(--input-font-size);
+    width: var(--input-char-size);
+    gap: 4px;
+}
+
+.user-input > div:last-of-type {
+    flex-direction: row;
+    gap: 10px;
+}
+
+.user-input label {
+    font-size: 1.2rem;
+}
+
+#reminder-list {
+    height: 100%;
+
+    width: 90%;
+    min-width: fit-content;
+    max-width: 800px;
+
+    margin: 0 10px;
+}
+
+#reminder-list > * {
+    font-size: 1.35rem;
+}
+
+#reminder-list > * {
     margin: 16px;
 }
 
-.user-input > div {
+#reminder-list > ul {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    background: #282833;
+    border-radius: 12px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 10px;
+    justify-content: unset;
+    list-style: none;
+    list-style-type: none;
+    margin: 0;
+
+    min-height: 6.5rem;
+    width: 100%;
+}
+
+#reminder-list > button {
+    width: 100%;
+}
+
+.reminder {
     display: flex;
     flex-direction: row;
     justify-content: center;
     align-items: center;
-}
-
-section div > * {
-    margin: 0px 8px;
-}
-
-section * {
-    font-size: 1.35rem;
-}
-
-.reminder {
-    flex-direction: row;
-    border: 2px solid black;
-    border-radius: 6px;
+    
+    border-radius: 8px;
     padding: 10px;
-    margin: 4px;
-    box-shadow: 0 2px 2px black;
+    margin: 6px;
+    box-shadow: 0 1px 2px black;
+    background: #383873;
+    width: 100%;
+    min-width: fit-content;
+}
+
+.reminder p {
+    font-weight: bold;
 }
 
 .reminder > * {
-    display: inline-block;
+    margin: 10px;
+}
+
+.reminder .next-timer-play {
+    text-decoration: underline blueviolet;
+    font-style: normal;
+    font-weight: normal;
 }
 
 input,
@@ -72,9 +157,26 @@ textarea {
     color: white;
     transition: all 250ms;
     padding: 8px;
-    font-size: 1.25rem;
-    border: 2px solid rgb(21, 21, 21);
-    box-shadow: 0 2px 2px black;
+    font-size: var(--input-font-size);
+    border: 1.5px solid rgb(21, 21, 21);
+    box-shadow: 0 1px 4px black;
+    transition: opacity 250ms;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type=number] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+
+input, 
+textarea {
+    width: var(--input-char-size);
 }
 
 button {
@@ -83,74 +185,92 @@ button {
     position: relative;
 }
 
-#reminder-list div > button {
+#reminder-list li > button {
     min-width: 100px;
     padding: 15px;
     margin: 0px 4px;
 }
 
-button:focus-visible, button:hover {
-    background-color: blueviolet;
+button:focus-visible, 
+button:hover,
+input[type="checkbox"]:focus-visible + label::after,
+input[type="checkbox"]:hover + label::after {
+    background-color: #8a2be2;
 }
 
-.reminder-override, .reminder-penalty { 
-    opacity: 0;
-    position: absolute;
-    visibility: hidden;
+button:focus-visible, 
+input[type="checkbox"]:focus-visible + label::after {
+    outline: var(--focus-visible-outline);
+}
+
+button[action="destructive"]:focus-visible, 
+button[action="destructive"]:hover {
+    background-color: var(--input-invalid-color);
+}
+
+input:disabled { 
+    opacity: 0.5;
 }
 
 input[type="checkbox"] {
-    visibility: hidden;
-    position: relative;
-    height: 1.75rem;
-    width: 3.5rem;
+    opacity: 0;
+    position: absolute;
 }
 
-input[type="checkbox"]::before {
+input[type="checkbox"] + label {
+    position: relative;
+    height: 100%;
+    line-height: 150%;
+    text-align: center;
+    display: inline-block;
+
+    left: calc((var(--checkbox-width) + var(--checkbox-margin)));
+}
+
+/* Styles the checkbox's background */
+input[type="checkbox"] + label::before {
     content: '';
-    visibility: visible;
-    inset: 0;
-    position: absolute;
+    top: 0;
     background-color: var(--input-invalid-color);
     border-radius: 20px;
     line-height: 20px;
     border: 2px solid rgb(21, 21, 21);
     box-shadow: 0 2px 2px black;
+
+    position: absolute;
+    display: inline-block;
+    height: var(--checkbox-height);
+    width: var(--checkbox-width);
+    left: calc(-1 * (var(--checkbox-width) + var(--checkbox-margin)));
+
     transition: all 250ms;
 }
 
-input[type="checkbox"]:checked::before {
+/* Changes the checkbox's background color when checked */
+input[type="checkbox"]:checked + label::before {
     background-color: var(--input-success-color);
 }
 
-input[type="checkbox"]::after {
+/* Styles the checkbox's little notch */
+input[type="checkbox"] + label::after {
     content: '';
-    visibility: visible;
-    left: 0;
-    top: 0;
-    position: absolute;
-    background-color: blueviolet;
+    background-color: var(--input-color);
     border-radius: 100%;
-    height: 100%;
-    width: 50%;
     box-shadow: 0 2px 2px black;
+
+    height: var(--checkbox-height);
+    width: calc(var(--checkbox-width) * 0.5);
+    position: absolute;
+    left: calc(-1 * (var(--checkbox-width) + var(--checkbox-margin)));
+    top: 0;
+
     transition: all 250ms;
 }
 
-input[type="checkbox"]:checked::after {
-    left: 50%;
-}
-
-div:has(input[type="checkbox"]:checked) + .reminder-override {
-    opacity: 1;
-    position: relative;
-    visibility: visible;
-}
-
-div:has(input[type="checkbox"]:checked) + .reminder-penalty {
-    opacity: 1;
-    position: relative;
-    visibility: visible;
+/* Shifts the notch over to the other side of the checkbox when it is 
+checked */
+input[type="checkbox"]:checked + label::after {
+    left: calc(-1 * (var(--checkbox-width) + var(--checkbox-margin)) + (var(--checkbox-width)) * 0.5);
 }
 
 .user-input textarea {
@@ -158,23 +278,12 @@ div:has(input[type="checkbox"]:checked) + .reminder-penalty {
     resize: none;
 }
 
-.user-input .message-input {
-    flex-direction: column;
-    justify-items: center;
-    align-items: center;
-}
-
 .user-input input:invalid {
     border-color: var(--input-invalid-color);
 }
 
-.next-timer-play {
-    text-decoration: underline blueviolet;
-    font-style: normal;
-}
-
 .popup-container {
-    position: absolute;
+    position: fixed;
     inset: 0;
     display: flex;
     flex-direction: column;
@@ -191,19 +300,16 @@ div:has(input[type="checkbox"]:checked) + .reminder-penalty {
     border-radius: 16px;
     border: blueviolet 1px solid;
 
-    justify-content: space-between;
-
     width: 40%;
-    min-width: 100px;
+    min-width: fit-content;
     max-width: 500px;
 
     height: 30%;
-    min-height: 100px;
+    min-height: 220px;
     max-height: 350px;
 }
 
 .popup-container > section > * {
-    margin: 4px;
     text-align: center;
 }
 
@@ -213,7 +319,12 @@ div:has(input[type="checkbox"]:checked) + .reminder-penalty {
     text-decoration: underline;
 }
 
+.popup-container p {
+    font-size: 1.35rem;
+}
+
 .popup-button {
+    margin-top: auto;
     visibility: inherit;
 }
 

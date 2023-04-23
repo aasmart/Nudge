@@ -51,23 +51,29 @@ section {
     flex-direction: column;
 }
 
-section > * {
-    margin: 16px;
-}
-
 .user-input > div {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     justify-content: center;
-    align-items: center;
+    align-items: start;
+    margin: 10px;
 }
 
-section div > * {
-    margin: 0px 8px;
+.user-input > div:has(input[type="checkbox"]) {
+    justify-content: start;
+    align-items: start;
+    font-size: 1.25rem;
+    width: 40ch;
+    gap: 10px;
 }
 
-section * {
-    font-size: 1.35rem;
+.user-input > div:last-of-type {
+    flex-direction: row;
+    gap: 10px;
+}
+
+.user-input label {
+    font-size: 1.2rem;
 }
 
 #reminder-list {
@@ -76,6 +82,16 @@ section * {
     width: 90%;
     min-width: fit-content;
     max-width: 800px;
+
+    margin: 0 10px;
+}
+
+#reminder-list > * {
+    font-size: 1.35rem;
+}
+
+#reminder-list > * {
+    margin: 16px;
 }
 
 #reminder-list > ul {
@@ -116,8 +132,13 @@ section * {
     min-width: fit-content;
 }
 
-.reminder > *{
+.reminder > * {
     margin: 10px;
+}
+
+.next-timer-play {
+    text-decoration: underline blueviolet;
+    font-style: normal;
 }
 
 input,
@@ -131,6 +152,12 @@ textarea {
     font-size: 1.25rem;
     border: 1.5px solid rgb(21, 21, 21);
     box-shadow: 0 1px 4px black;
+    transition: opacity 250ms;
+}
+
+input, 
+textarea {
+    width: 40ch;
 }
 
 button {
@@ -162,25 +189,29 @@ button[action="destructive"]:hover {
     background-color: var(--input-invalid-color);
 }
 
-.reminder-override, .reminder-penalty { 
-    opacity: 0;
-    position: absolute;
-    visibility: hidden;
+input:disabled { 
+    opacity: 0.5;
 }
 
 input[type="checkbox"] {
     opacity: 0;
-    height: var(--checkbox-height);
-    width: var(--checkbox-width);
+    position: absolute;
 }
 
 input[type="checkbox"] + label {
     position: relative;
+    height: 100%;
+    line-height: 150%;
+    text-align: center;
+    display: inline-block;
+
+    left: calc((var(--checkbox-width) + var(--checkbox-margin)));
 }
 
 /* Styles the checkbox's background */
 input[type="checkbox"] + label::before {
     content: '';
+    top: 0;
     background-color: var(--input-invalid-color);
     border-radius: 20px;
     line-height: 20px;
@@ -223,36 +254,13 @@ input[type="checkbox"]:checked + label::after {
     left: calc(-1 * (var(--checkbox-width) + var(--checkbox-margin)) + (var(--checkbox-width)) * 0.5);
 }
 
-div:has(input[type="checkbox"]:checked) + .reminder-override {
-    opacity: 1;
-    position: relative;
-    visibility: visible;
-}
-
-div:has(input[type="checkbox"]:checked) + .reminder-penalty {
-    opacity: 1;
-    position: relative;
-    visibility: visible;
-}
-
 .user-input textarea {
     display: block;
     resize: none;
 }
 
-.user-input .message-input {
-    flex-direction: column;
-    justify-items: center;
-    align-items: center;
-}
-
 .user-input input:invalid {
     border-color: var(--input-invalid-color);
-}
-
-.next-timer-play {
-    text-decoration: underline blueviolet;
-    font-style: normal;
 }
 
 .popup-container {

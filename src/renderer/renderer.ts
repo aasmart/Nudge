@@ -292,17 +292,22 @@ function loadReminderCreationPage() {
     const ignoredReminderPenalty = document.getElementById("reminder-ignore") as HTMLInputElement
     //#endregion interactive fields
 
+    isOverrideEnabled.onchange = () => { startOverrideInput.disabled = !startOverrideInput.disabled }
+    reminderPenaltyCheckbox.onchange = () => { ignoredReminderPenalty.disabled = !ignoredReminderPenalty.disabled }
+
     // Update display if the user is editing
     const editIndex = parseInt(sessionStorage.getItem('edit-reminder-index') || '-1')
     if(editIndex >= 0) {
         const editReminder = activeReminders[editIndex]
 
-        messageField.value = editReminder.message;
-        titleField.value = editReminder.title;
-        intervalInput.value = (editReminder.reminderIntervalAmount * Constants.MS_TO_MINUTES).toString();
+        messageField.value = editReminder.message
+        titleField.value = editReminder.title
+        intervalInput.value = (editReminder.reminderIntervalAmount * Constants.MS_TO_MINUTES).toString()
         isOverrideEnabled.checked = editReminder.reminderStartOverrideAmount > 0;
+        startOverrideInput.disabled = !isOverrideEnabled.checked
         startOverrideInput.value = (editReminder.reminderStartOverrideAmount * Constants.MS_TO_MINUTES).toString()
-        reminderPenaltyCheckbox.checked = editReminder.ignoredReminderIntervalAmount > 0;
+        reminderPenaltyCheckbox.checked = editReminder.ignoredReminderIntervalAmount > 0
+        ignoredReminderPenalty.disabled = !reminderPenaltyCheckbox.checked
         ignoredReminderPenalty.value = (editReminder.ignoredReminderIntervalAmount * Constants.MS_TO_MINUTES).toString()
         createButton.innerHTML = createButton.getAttribute('when-editing') || createButton.innerHTML
     }

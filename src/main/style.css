@@ -319,6 +319,10 @@ input[type="checkbox"]:checked + label::after {
     text-decoration: underline;
 }
 
+.popup-container p {
+    font-size: 1.35rem;
+}
+
 .popup-button {
     margin-top: auto;
     visibility: inherit;

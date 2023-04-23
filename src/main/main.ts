@@ -34,6 +34,8 @@ const createWindow = () => {
     win = new BrowserWindow({
         width: 1000,
         height: 900,
+        minWidth: 550,
+        minHeight: 375,
         icon: 'assets/icon.png',
         autoHideMenuBar: true,
         webPreferences: {

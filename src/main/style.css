@@ -7,9 +7,12 @@
 
     --checkbox-height: 1.75rem;
     --checkbox-width: 3.5rem;
-    --checkbox-margin: 16px;
+    --checkbox-margin: 8px;
 
     --focus-visible-outline: 3px solid blanchedalmond;;
+
+    --input-font-size: 1.25rem;
+    --input-char-size: 40ch;
 }
 
 *, *::before, *::after {
@@ -62,9 +65,9 @@ section {
 .user-input > div:has(input[type="checkbox"]) {
     justify-content: start;
     align-items: start;
-    font-size: 1.25rem;
-    width: 40ch;
-    gap: 10px;
+    font-size: var(--input-font-size);
+    width: var(--input-char-size);
+    gap: 4px;
 }
 
 .user-input > div:last-of-type {
@@ -149,7 +152,7 @@ textarea {
     color: white;
     transition: all 250ms;
     padding: 8px;
-    font-size: 1.25rem;
+    font-size: var(--input-font-size);
     border: 1.5px solid rgb(21, 21, 21);
     box-shadow: 0 1px 4px black;
     transition: opacity 250ms;
@@ -157,7 +160,7 @@ textarea {
 
 input, 
 textarea {
-    width: 40ch;
+    width: var(--input-char-size);
 }
 
 button {

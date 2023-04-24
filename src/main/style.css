@@ -147,6 +147,14 @@ section {
     width: var(--input-char-size);
 }
 
+.user-input button:first-of-type {
+    flex: 3;
+}
+
+.user-input button:last-of-type {
+    flex: 1;
+}
+
 .user-input label {
     font-size: 1.2rem;
 }

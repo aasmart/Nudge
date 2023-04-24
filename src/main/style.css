@@ -54,31 +54,6 @@ section {
     flex-direction: column;
 }
 
-.user-input > div {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: start;
-    margin: 10px;
-}
-
-.user-input > div:has(input[type="checkbox"]) {
-    justify-content: start;
-    align-items: start;
-    font-size: var(--input-font-size);
-    width: var(--input-char-size);
-    gap: 4px;
-}
-
-.user-input > div:last-of-type {
-    flex-direction: row;
-    gap: 10px;
-}
-
-.user-input label {
-    font-size: 1.2rem;
-}
-
 #reminder-list {
     height: 100%;
 
@@ -149,6 +124,33 @@ section {
     font-weight: normal;
 }
 
+.user-input > div {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: start;
+    margin: 8px;
+}
+
+.user-input > div:has(input[type="checkbox"]) {
+    justify-content: start;
+    align-items: start;
+    font-size: var(--input-font-size);
+    width: var(--input-char-size);
+    gap: 4px;
+}
+
+.user-input > div:last-of-type {
+    flex-direction: row;
+    gap: 10px;
+    font-size: var(--input-font-size);
+    width: var(--input-char-size);
+}
+
+.user-input label {
+    font-size: 1.2rem;
+}
+
 input,
 button,
 textarea {
@@ -183,6 +185,7 @@ button {
     padding: 20px;
     border-radius: 10px;
     position: relative;
+    transition: all 250ms;
 }
 
 #reminder-list li > button {

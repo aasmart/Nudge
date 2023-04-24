@@ -38,6 +38,7 @@ const createWindow = () => {
         minHeight: 375,
         icon: 'assets/icon.png',
         autoHideMenuBar: true,
+        center: true,
         webPreferences: {
           preload: path.join(app.getAppPath(), 'src/preload/preload.js'),
           nodeIntegration: true,
@@ -45,6 +46,7 @@ const createWindow = () => {
         }
     })
     
+    win.maximize();
     win.loadFile('src/main/index.html')
 
     win.on('close', (event: any) => {

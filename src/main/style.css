@@ -140,7 +140,7 @@ section {
     gap: 4px;
 }
 
-.user-input > div:last-of-type {
+.user-input > div:has(button) {
     flex-direction: row;
     gap: 10px;
     font-size: var(--input-font-size);

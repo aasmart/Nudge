@@ -102,6 +102,6 @@
   },
   "files": [
     "src/renderer/renderer.ts",
-    "src/main/main.ts"
+    "src/main/main.ts",
   ]
 }

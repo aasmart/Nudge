@@ -10,6 +10,43 @@ Date.prototype.addMilliseconds = function (milliseconds) {
     return new Date(date.getTime() + milliseconds);
 };
 class InputForm {
+    constructor(formClass) {
+        this.inputs = new Map();
+        this.buttons = new Map();
+        this.textareas = new Map();
+        this.container = document.getElementsByClassName(formClass)[0];
+        Array.from(this.container.getElementsByTagName('input')).forEach(e => {
+            const id = e.getAttribute('id');
+            if (id == null)
+                return;
+            this.inputs.set(id, e);
+        });
+        Array.from(this.container.getElementsByTagName('button')).forEach(e => {
+            const id = e.getAttribute('id');
+            if (id == null)
+                return;
+            this.buttons.set(id, e);
+        });
+        Array.from(this.container.getElementsByTagName('textarea')).forEach(e => {
+            const id = e.getAttribute('id');
+            if (id == null)
+                return;
+            this.textareas.set(id, e);
+        });
+    }
+    setValue(input, value) {
+        const element = this.inputs.get(input) || null;
+        if (element != null)
+            element.value = value;
+    }
+    getValue(input) {
+        var _a;
+        return ((_a = this.inputs.get(input)) === null || _a === void 0 ? void 0 : _a.value) || '';
+    }
+    getValueAsNumber(input) {
+        var _a;
+        return ((_a = this.inputs.get(input)) === null || _a === void 0 ? void 0 : _a.valueAsNumber) || 0;
+    }
 }
 class Reminder {
     constructor(reminderIntervalAmount, reminderStartOverrideAmount, ignoredReminderIntervalAmount, message, title, isPaused = false, pausedTime = new Date()) {
@@ -206,6 +243,7 @@ function loadCreateRemindersPage() {
     window.dispatchEvent(new Event('update-reminder-list'));
 }
 function loadReminderCreationPage() {
+    const form = new InputForm('user-input');
     //#region interactive fields
     const createButton = document.getElementById("start-timer");
     const cancelButton = document.getElementById("cancel-reminder");
@@ -244,7 +282,7 @@ function loadReminderCreationPage() {
             sendPopup('Cannot Create Reminder', 'One or more inputs are invalid');
             return;
         }
-        const reminderIntervalAmount = Constants.MINUTES_TO_MS * intervalInput.valueAsNumber;
+        const reminderIntervalAmount = Constants.MINUTES_TO_MS * form.getValueAsNumber('reminder-interval');
         const ignoredReminderIntervalAmount = (reminderPenaltyCheckbox.checked && hasInput(ignoredReminderPenalty)) ? (ignoredReminderPenalty.valueAsNumber * Constants.MINUTES_TO_MS) : 0;
         const startDelta = (isOverrideEnabled.checked && hasInput(startOverrideInput)) ? (startOverrideInput.valueAsNumber * Constants.MINUTES_TO_MS) : reminderIntervalAmount;
         let reminder = new Reminder(reminderIntervalAmount, startOverrideInput.valueAsNumber * Constants.MINUTES_TO_MS, ignoredReminderIntervalAmount, messageField.value, titleField.value, false);

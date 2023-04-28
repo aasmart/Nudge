@@ -15,7 +15,58 @@ Date.prototype.addMilliseconds = function(milliseconds: number): Date {
 }
 
 class InputForm {
+    container: HTMLElement
+    inputs: Map<String, HTMLInputElement>
+    buttons: Map<String, HTMLElement>
+    textareas: Map<String, HTMLElement>
 
+    constructor(formClass: string) {
+        this.inputs = new Map()
+        this.buttons = new Map()
+        this.textareas = new Map()
+        this.container = document.getElementsByClassName(formClass)[0] as HTMLElement
+
+        Array.from(this.container.getElementsByTagName('input')).forEach(e => {
+            const id = e.getAttribute('id');
+
+            if(id == null)
+                return;
+
+            this.inputs.set(id, e)
+        })
+
+        Array.from(this.container.getElementsByTagName('button')).forEach(e => {
+            const id = e.getAttribute('id');
+
+            if(id == null)
+                return;
+
+            this.buttons.set(id, e)
+        })
+
+        Array.from(this.container.getElementsByTagName('textarea')).forEach(e => {
+            const id = e.getAttribute('id');
+
+            if(id == null)
+                return;
+
+            this.textareas.set(id, e)
+        })
+    }
+
+    setValue(input: string, value: any) {
+        const element: any = this.inputs.get(input) || null
+        if(element != null)
+            element.value = value;
+    }
+
+    getValue(input: string) {
+        return this.inputs.get(input)?.value || ''
+    }
+
+    getValueAsNumber(input: string) {
+        return this.inputs.get(input)?.valueAsNumber || 0
+    }
 }
 
 class Reminder {
@@ -284,6 +335,8 @@ function loadCreateRemindersPage() {
 }
 
 function loadReminderCreationPage() {
+    const form = new InputForm('user-input')
+
     //#region interactive fields
     const createButton = document.getElementById("start-timer") as HTMLButtonElement
     const cancelButton = document.getElementById("cancel-reminder") as HTMLButtonElement
@@ -328,7 +381,7 @@ function loadReminderCreationPage() {
             return;
         }
 
-        const reminderIntervalAmount = Constants.MINUTES_TO_MS * intervalInput.valueAsNumber;
+        const reminderIntervalAmount = Constants.MINUTES_TO_MS * form.getValueAsNumber('reminder-interval');
         const ignoredReminderIntervalAmount = (reminderPenaltyCheckbox.checked && hasInput(ignoredReminderPenalty)) ? (ignoredReminderPenalty.valueAsNumber * Constants.MINUTES_TO_MS) : 0;
 
         const startDelta = (isOverrideEnabled.checked && hasInput(startOverrideInput)) ? (startOverrideInput.valueAsNumber * Constants.MINUTES_TO_MS) : reminderIntervalAmount;

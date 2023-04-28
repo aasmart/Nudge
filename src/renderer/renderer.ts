@@ -14,6 +14,10 @@ Date.prototype.addMilliseconds = function(milliseconds: number): Date {
     return new Date(date.getTime() + milliseconds)
 }
 
+class InputForm {
+
+}
+
 class Reminder {
     reminderTimeout!: ReturnType<typeof setInterval>
     nextReminder!: Date
@@ -281,8 +285,8 @@ function loadCreateRemindersPage() {
 
 function loadReminderCreationPage() {
     //#region interactive fields
-    const createButton = document.getElementsByClassName("start-timer")[0] as HTMLButtonElement
-    const cancelButton = document.getElementsByClassName("cancel-reminder")[0] as HTMLButtonElement
+    const createButton = document.getElementById("start-timer") as HTMLButtonElement
+    const cancelButton = document.getElementById("cancel-reminder") as HTMLButtonElement
     const messageField = document.getElementById("reminder-message") as HTMLTextAreaElement
     const titleField = document.getElementById("reminder-title") as HTMLInputElement
     const intervalInput = document.getElementById("reminder-interval") as HTMLInputElement

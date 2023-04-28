@@ -9,6 +9,8 @@ Date.prototype.addMilliseconds = function (milliseconds) {
     const date = this;
     return new Date(date.getTime() + milliseconds);
 };
+class InputForm {
+}
 class Reminder {
     constructor(reminderIntervalAmount, reminderStartOverrideAmount, ignoredReminderIntervalAmount, message, title, isPaused = false, pausedTime = new Date()) {
         this.reminderIntervalAmount = reminderIntervalAmount;
@@ -205,8 +207,8 @@ function loadCreateRemindersPage() {
 }
 function loadReminderCreationPage() {
     //#region interactive fields
-    const createButton = document.getElementsByClassName("start-timer")[0];
-    const cancelButton = document.getElementsByClassName("cancel-reminder")[0];
+    const createButton = document.getElementById("start-timer");
+    const cancelButton = document.getElementById("cancel-reminder");
     const messageField = document.getElementById("reminder-message");
     const titleField = document.getElementById("reminder-title");
     const intervalInput = document.getElementById("reminder-interval");

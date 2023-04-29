@@ -58,6 +58,9 @@ class Reminder {
 
     private sendBreakNotification(message: string) {
         new Notification(this.title, { body: message }).onclick =() => { 
+            if(this === null)
+                return
+
             if(this.ignoredReminderIntervalAmount > 0)
                 this.setNextReminderTimeout(this.reminderIntervalAmount)
             ipcRenderer.send('show-window', 'main')

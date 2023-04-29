@@ -61,6 +61,9 @@ class InputForm {
         var _a;
         return ((_a = this.inputs.get(input)) === null || _a === void 0 ? void 0 : _a.valueAsNumber) || 0;
     }
+    hasRequiredFields() {
+        return Array.from(this.inputs.values()).filter(e => !e.checkValidity()).length <= 0;
+    }
 }
 class Reminder {
     constructor(reminderIntervalAmount, reminderStartOverrideAmount, ignoredReminderIntervalAmount, message, title, isPaused = false, pausedTime = new Date()) {
@@ -288,10 +291,7 @@ function loadReminderCreationPage() {
     }
     // Events -------------------------------
     createButton.addEventListener('click', () => {
-        if (!intervalInput.checkValidity()
-            || (isOverrideEnabled.checked && !startOverrideInput.checkValidity())
-            || (reminderPenaltyCheckbox.checked && !ignoredReminderPenalty.checkValidity())
-            || (!titleField.checkValidity())) {
+        if (!form.hasRequiredFields()) {
             createButton.blur();
             sendPopup('Cannot Create Reminder', 'One or more inputs are invalid');
             return;

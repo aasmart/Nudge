@@ -84,6 +84,10 @@ class InputForm {
     getValueAsNumber(input: string) {
         return this.inputs.get(input)?.valueAsNumber || 0
     }
+
+    hasRequiredFields(): boolean {
+        return Array.from(this.inputs.values()).filter(e => !e.checkValidity()).length <= 0
+    }
 }
 
 class Reminder {
@@ -388,11 +392,7 @@ function loadReminderCreationPage() {
 
     // Events -------------------------------
     createButton.addEventListener('click', () => {
-        if(!intervalInput.checkValidity() 
-            || (isOverrideEnabled.checked && !startOverrideInput.checkValidity())
-            || (reminderPenaltyCheckbox.checked && !ignoredReminderPenalty.checkValidity())
-            || (!titleField.checkValidity())
-        ) {
+        if(!form.hasRequiredFields()) {
             createButton.blur()
             sendPopup('Cannot Create Reminder', 'One or more inputs are invalid')
             return;

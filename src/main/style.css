@@ -46,7 +46,8 @@ header {
     min-width: 100%;
 }
 
-section {
+section,
+form {
     display: flex;
     justify-content: start;
     align-items: center;

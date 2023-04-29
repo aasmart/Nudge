@@ -16,7 +16,7 @@
         <h1>Take a Break</h1>
     </header>
     <main>
-        <section class="user-input">
+        <form class="user-input">
             <div title="The duration, in minutes, between each reminder">
                 <label for="reminder-interval">Reminder Interval</label>
                 <input type="number" step="0.01" id="reminder-interval" name="reminder-interval" min="0.1" placeholder="Reminder interval (minutes)" required>
@@ -48,7 +48,7 @@
                 <button id="start-timer" when-editing="Update Reminder">Create Reminder</button>
                 <button id="cancel-reminder" action="destructive">Cancel</button>
             </div>
-        </section>
+        </form>
     </main>
 
     <div class="popup-container">

@@ -73,8 +73,14 @@ class InputForm {
 
     setValue(input: string, value: any) {
         const element: any = this.getInputElement(input)
-        if(element != null)
+
+        if(element == null)
+            return
+
+        if(!element.disabled)
             element.value = value.toString();
+        else
+            element.value = ''
     }
 
     getValue(input: string, checkActive: boolean = false) {
@@ -208,10 +214,6 @@ class Reminder {
             pausedTime: this.pausedTime,
         }
     }
-}
-
-function hasInput(inputElement: HTMLInputElement): boolean {
-    return inputElement.value.length > 0; 
 }
 
 let activeReminders: Array<Reminder> = []

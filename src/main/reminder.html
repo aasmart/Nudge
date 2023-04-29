@@ -23,13 +23,13 @@
             </div>
 
             <div title="The delay, in minutes, until the first reminder is sent">
-                <input type="checkbox" id="enable-reminder-start-override" name="enable-reminder-start-override">
+                <input type="checkbox" id="enable-reminder-start-override" name="enable-reminder-start-override" toggles="reminder-start-override">
                 <label for="enable-reminder-start-override">First Reminder Delay Override</label>
                 <input type="number" id="reminder-start-override" name="reminder-start-override" step="0.01"  min="0.1" placeholder="Reminder start override (minutes)" required disabled>
             </div>
 
             <div title="If the notification isn't clicked, another notification will be sent after a given amount of minutes">
-                <input type="checkbox" id="enable-ignore-reminder-penalty" name="enable-ignore-reminder-penalty">
+                <input type="checkbox" id="enable-ignore-reminder-penalty" name="enable-ignore-reminder-penalty" toggles="reminder-ignore">
                 <label for="enable-ignore-reminder-penalty">Ignored Reminder Replay Interval</label>
                 <input type="number" id="reminder-ignore" name="reminder-ignore" step="0.01"  min="0.1" placeholder="Ignored reminder interval (minutes)" required disabled>
             </div>
@@ -48,7 +48,6 @@
                 <button id="start-timer" when-editing="Update Reminder">Create Reminder</button>
                 <button id="cancel-reminder" action="destructive">Cancel</button>
             </div>
-
         </section>
     </main>
 

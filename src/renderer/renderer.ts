@@ -72,17 +72,23 @@ class InputForm {
     }
 
     setValue(input: string, value: any) {
-        const element: any = this.inputs.get(input) || null
+        const element: any = this.getInputElement(input)
         if(element != null)
             element.value = value.toString();
     }
 
-    getValue(input: string) {
-        return this.inputs.get(input)?.value || ''
+    getValue(input: string, checkActive: boolean = false) {
+        if(checkActive && !this.activeAndFilled(input))
+            return ''
+
+        return this.getInputElement(input)?.value || ''
     }
 
-    getValueAsNumber(input: string) {
-        return this.inputs.get(input)?.valueAsNumber || 0
+    getValueAsNumber(input: string, checkActive: boolean = false) {
+        if(checkActive && !this.activeAndFilled(input))
+            return ''
+
+        return this.getInputElement(input)?.valueAsNumber || ''
     }
 
     hasRequiredFields(): boolean {
@@ -94,7 +100,7 @@ class InputForm {
     }
 
     activeAndFilled(input: string): boolean {
-        const inputElement = this.inputs.get(input)
+        const inputElement = this.getInputElement(input)
         if(inputElement == null)
             return false;
 
@@ -108,6 +114,13 @@ class InputForm {
         
         element.checked = checked
         element.dispatchEvent(new Event('change'))
+    }
+
+    getInputElement(input: String): any {
+        return this.inputs.get(input) 
+            || this.textareas.get(input) 
+            || this.buttons.get(input) 
+            || null
     }
 }
 
@@ -389,10 +402,6 @@ function loadReminderCreationPage() {
     const START_OVERRIDE_INPUT = 'reminder-start-override'
     const REMINDER_PENALTY_CHECKBOX = 'enable-ignore-reminder-penalty'
     const IGNORED_REMINDER_PENALTY_INPUT = 'reminder-ignore'
-
-    const createButton = document.getElementById("start-timer") as HTMLButtonElement
-    const cancelButton = document.getElementById("cancel-reminder") as HTMLButtonElement
-    const messageField = document.getElementById("reminder-message") as HTMLTextAreaElement
     //#endregion interactive fields
 
     // Update display if the user is editing
@@ -400,26 +409,27 @@ function loadReminderCreationPage() {
     if(editIndex >= 0) {
         const editReminder = activeReminders[editIndex]
 
-        messageField.value = editReminder.message
+        form.setValue(MESSAGE_INPUT, editReminder.message)
         form.setValue(TITLE_INPUT, editReminder.title)
         form.setValue(REMINDER_INTERVAL_INPUT, editReminder.reminderIntervalAmount * Constants.MS_TO_MINUTES)
         form.setChecked(START_OVERRIDE_CHECKBOX, editReminder.reminderStartOverrideAmount > 0)
         form.setValue(START_OVERRIDE_INPUT, editReminder.reminderStartOverrideAmount * Constants.MS_TO_MINUTES)
         form.setChecked(REMINDER_PENALTY_CHECKBOX, editReminder.ignoredReminderIntervalAmount > 0)
         form.setValue(IGNORED_REMINDER_PENALTY_INPUT, editReminder.ignoredReminderIntervalAmount * Constants.MS_TO_MINUTES)
+
+        const createButton = form.getInputElement(CREATE_BUTTON)
         createButton.innerHTML = createButton.getAttribute('when-editing') || createButton.innerHTML
     }
 
     // Events -------------------------------
-    createButton.addEventListener('click', () => {
+    form.getInputElement(CREATE_BUTTON)?.addEventListener('click', () => {
         if(!form.hasRequiredFields()) {
-            createButton.blur()
             sendPopup('Cannot Create Reminder', 'One or more inputs are invalid')
             return;
         }
 
         const reminderIntervalAmount = Constants.MINUTES_TO_MS * form.getValueAsNumber(REMINDER_INTERVAL_INPUT);
-        const ignoredReminderIntervalAmount = form.activeAndFilled(IGNORED_REMINDER_PENALTY_INPUT) ? form.getValueAsNumber(IGNORED_REMINDER_PENALTY_INPUT) * Constants.MINUTES_TO_MS : 0;
+        const ignoredReminderIntervalAmount = form.getValueAsNumber(IGNORED_REMINDER_PENALTY_INPUT, true) * Constants.MINUTES_TO_MS;
 
         const startDelta = form.activeAndFilled(START_OVERRIDE_INPUT) ? form.getValueAsNumber(START_OVERRIDE_INPUT) * Constants.MINUTES_TO_MS : reminderIntervalAmount;
 
@@ -427,7 +437,7 @@ function loadReminderCreationPage() {
             reminderIntervalAmount, 
             form.getValueAsNumber(START_OVERRIDE_INPUT) * Constants.MINUTES_TO_MS, 
             ignoredReminderIntervalAmount, 
-            messageField.value,
+            form.getValue(MESSAGE_INPUT),
             form.getValue(TITLE_INPUT),
             false
         )
@@ -441,14 +451,12 @@ function loadReminderCreationPage() {
 
         saveActiveReminders()
 
-        createButton.blur()
         ipcRenderer.send('open-page', 'index');
     })
 
-    cancelButton.addEventListener('click', () => {
+    form.getInputElement(CANCEL_BUTTON)?.addEventListener('click', () => {
         sessionStorage.setItem('edit-reminder-index', '-1')
         saveActiveReminders()
-        createButton.blur()
         ipcRenderer.send('open-page', 'index');
     })
 }

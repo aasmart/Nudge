@@ -49,17 +49,21 @@ class InputForm {
         });
     }
     setValue(input, value) {
-        const element = this.inputs.get(input) || null;
+        const element = this.getInputElement(input);
         if (element != null)
             element.value = value.toString();
     }
-    getValue(input) {
+    getValue(input, checkActive = false) {
         var _a;
-        return ((_a = this.inputs.get(input)) === null || _a === void 0 ? void 0 : _a.value) || '';
+        if (checkActive && !this.activeAndFilled(input))
+            return '';
+        return ((_a = this.getInputElement(input)) === null || _a === void 0 ? void 0 : _a.value) || '';
     }
-    getValueAsNumber(input) {
+    getValueAsNumber(input, checkActive = false) {
         var _a;
-        return ((_a = this.inputs.get(input)) === null || _a === void 0 ? void 0 : _a.valueAsNumber) || 0;
+        if (checkActive && !this.activeAndFilled(input))
+            return '';
+        return ((_a = this.getInputElement(input)) === null || _a === void 0 ? void 0 : _a.valueAsNumber) || '';
     }
     hasRequiredFields() {
         return Array.from(this.inputs.values()).filter(e => !e.checkValidity()).length <= 0;
@@ -69,7 +73,7 @@ class InputForm {
         return (((_b = (_a = this.inputs.get(input)) === null || _a === void 0 ? void 0 : _a.value) === null || _b === void 0 ? void 0 : _b.length) || 0) > 0;
     }
     activeAndFilled(input) {
-        const inputElement = this.inputs.get(input);
+        const inputElement = this.getInputElement(input);
         if (inputElement == null)
             return false;
         return !inputElement.disabled && inputElement.value.length > 0;
@@ -80,6 +84,12 @@ class InputForm {
             return;
         element.checked = checked;
         element.dispatchEvent(new Event('change'));
+    }
+    getInputElement(input) {
+        return this.inputs.get(input)
+            || this.textareas.get(input)
+            || this.buttons.get(input)
+            || null;
     }
 }
 class Reminder {
@@ -277,6 +287,7 @@ function loadCreateRemindersPage() {
     window.dispatchEvent(new Event('update-reminder-list'));
 }
 function loadReminderCreationPage() {
+    var _a, _b;
     const form = new InputForm('user-input');
     //#region interactive fields
     const CREATE_BUTTON = 'start-timer';
@@ -288,34 +299,31 @@ function loadReminderCreationPage() {
     const START_OVERRIDE_INPUT = 'reminder-start-override';
     const REMINDER_PENALTY_CHECKBOX = 'enable-ignore-reminder-penalty';
     const IGNORED_REMINDER_PENALTY_INPUT = 'reminder-ignore';
-    const createButton = document.getElementById("start-timer");
-    const cancelButton = document.getElementById("cancel-reminder");
-    const messageField = document.getElementById("reminder-message");
     //#endregion interactive fields
     // Update display if the user is editing
     const editIndex = parseInt(sessionStorage.getItem('edit-reminder-index') || '-1');
     if (editIndex >= 0) {
         const editReminder = activeReminders[editIndex];
-        messageField.value = editReminder.message;
+        form.setValue(MESSAGE_INPUT, editReminder.message);
         form.setValue(TITLE_INPUT, editReminder.title);
         form.setValue(REMINDER_INTERVAL_INPUT, editReminder.reminderIntervalAmount * Constants.MS_TO_MINUTES);
         form.setChecked(START_OVERRIDE_CHECKBOX, editReminder.reminderStartOverrideAmount > 0);
         form.setValue(START_OVERRIDE_INPUT, editReminder.reminderStartOverrideAmount * Constants.MS_TO_MINUTES);
         form.setChecked(REMINDER_PENALTY_CHECKBOX, editReminder.ignoredReminderIntervalAmount > 0);
         form.setValue(IGNORED_REMINDER_PENALTY_INPUT, editReminder.ignoredReminderIntervalAmount * Constants.MS_TO_MINUTES);
+        const createButton = form.getInputElement(CREATE_BUTTON);
         createButton.innerHTML = createButton.getAttribute('when-editing') || createButton.innerHTML;
     }
     // Events -------------------------------
-    createButton.addEventListener('click', () => {
+    (_a = form.getInputElement(CREATE_BUTTON)) === null || _a === void 0 ? void 0 : _a.addEventListener('click', () => {
         if (!form.hasRequiredFields()) {
-            createButton.blur();
             sendPopup('Cannot Create Reminder', 'One or more inputs are invalid');
             return;
         }
         const reminderIntervalAmount = Constants.MINUTES_TO_MS * form.getValueAsNumber(REMINDER_INTERVAL_INPUT);
-        const ignoredReminderIntervalAmount = form.activeAndFilled(IGNORED_REMINDER_PENALTY_INPUT) ? form.getValueAsNumber(IGNORED_REMINDER_PENALTY_INPUT) * Constants.MINUTES_TO_MS : 0;
+        const ignoredReminderIntervalAmount = form.getValueAsNumber(IGNORED_REMINDER_PENALTY_INPUT, true) * Constants.MINUTES_TO_MS;
         const startDelta = form.activeAndFilled(START_OVERRIDE_INPUT) ? form.getValueAsNumber(START_OVERRIDE_INPUT) * Constants.MINUTES_TO_MS : reminderIntervalAmount;
-        let reminder = new Reminder(reminderIntervalAmount, form.getValueAsNumber(START_OVERRIDE_INPUT) * Constants.MINUTES_TO_MS, ignoredReminderIntervalAmount, messageField.value, form.getValue(TITLE_INPUT), false);
+        let reminder = new Reminder(reminderIntervalAmount, form.getValueAsNumber(START_OVERRIDE_INPUT) * Constants.MINUTES_TO_MS, ignoredReminderIntervalAmount, form.getValue(MESSAGE_INPUT), form.getValue(TITLE_INPUT), false);
         reminder.setNextReminderTimeout(startDelta);
         if (editIndex >= 0) {
             activeReminders[editIndex] = reminder;
@@ -324,13 +332,11 @@ function loadReminderCreationPage() {
         else
             activeReminders.push(reminder);
         saveActiveReminders();
-        createButton.blur();
         ipcRenderer.send('open-page', 'index');
     });
-    cancelButton.addEventListener('click', () => {
+    (_b = form.getInputElement(CANCEL_BUTTON)) === null || _b === void 0 ? void 0 : _b.addEventListener('click', () => {
         sessionStorage.setItem('edit-reminder-index', '-1');
         saveActiveReminders();
-        createButton.blur();
         ipcRenderer.send('open-page', 'index');
     });
 }

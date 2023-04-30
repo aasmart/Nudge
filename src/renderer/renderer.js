@@ -9,6 +9,93 @@ Date.prototype.addMilliseconds = function (milliseconds) {
     const date = this;
     return new Date(date.getTime() + milliseconds);
 };
+class InputForm {
+    constructor(formClass) {
+        this.inputs = new Map();
+        this.buttons = new Map();
+        this.textareas = new Map();
+        this.container = document.getElementsByClassName(formClass)[0];
+        Array.from(this.container.getElementsByTagName('input')).forEach(e => {
+            const id = e.getAttribute('id');
+            const type = e.getAttribute('type');
+            if (id == null)
+                return;
+            switch (type) {
+                case 'checkbox':
+                    const toggles = e.getAttribute('toggles');
+                    if (toggles == null)
+                        break;
+                    e.onchange = () => {
+                        const input = this.inputs.get(toggles);
+                        if (input == null)
+                            return;
+                        input.disabled = !e.checked;
+                    };
+                    break;
+            }
+            this.inputs.set(id, e);
+        });
+        Array.from(this.container.getElementsByTagName('button')).forEach(e => {
+            const id = e.getAttribute('id');
+            if (id == null)
+                return;
+            this.buttons.set(id, e);
+        });
+        Array.from(this.container.getElementsByTagName('textarea')).forEach(e => {
+            const id = e.getAttribute('id');
+            if (id == null)
+                return;
+            this.textareas.set(id, e);
+        });
+    }
+    setValue(input, value) {
+        const element = this.getInputElement(input);
+        if (element == null)
+            return;
+        if (!element.disabled)
+            element.value = value.toString();
+        else
+            element.value = '';
+    }
+    getValue(input, checkActive = false) {
+        var _a;
+        if (checkActive && !this.activeAndFilled(input))
+            return '';
+        return ((_a = this.getInputElement(input)) === null || _a === void 0 ? void 0 : _a.value) || '';
+    }
+    getValueAsNumber(input, checkActive = false) {
+        var _a;
+        if (checkActive && !this.activeAndFilled(input))
+            return '';
+        return ((_a = this.getInputElement(input)) === null || _a === void 0 ? void 0 : _a.valueAsNumber) || '';
+    }
+    hasRequiredFields() {
+        return Array.from(this.inputs.values()).filter(e => !e.checkValidity()).length <= 0;
+    }
+    hasValue(input) {
+        var _a, _b;
+        return (((_b = (_a = this.inputs.get(input)) === null || _a === void 0 ? void 0 : _a.value) === null || _b === void 0 ? void 0 : _b.length) || 0) > 0;
+    }
+    activeAndFilled(input) {
+        const inputElement = this.getInputElement(input);
+        if (inputElement == null)
+            return false;
+        return !inputElement.disabled && inputElement.value.length > 0;
+    }
+    setChecked(input, checked) {
+        const element = this.inputs.get(input);
+        if (element == null || element.getAttribute('type') !== 'checkbox')
+            return;
+        element.checked = checked;
+        element.dispatchEvent(new Event('change'));
+    }
+    getInputElement(input) {
+        return this.inputs.get(input)
+            || this.textareas.get(input)
+            || this.buttons.get(input)
+            || null;
+    }
+}
 class Reminder {
     constructor(reminderIntervalAmount, reminderStartOverrideAmount, ignoredReminderIntervalAmount, message, title, isPaused = false, pausedTime = new Date()) {
         this.reminderIntervalAmount = reminderIntervalAmount;
@@ -68,9 +155,6 @@ class Reminder {
             pausedTime: this.pausedTime,
         };
     }
-}
-function hasInput(inputElement) {
-    return inputElement.value.length > 0;
 }
 let activeReminders = [];
 function saveActiveReminders() {
@@ -221,48 +305,41 @@ function loadCreateRemindersPage() {
     window.dispatchEvent(new Event('update-reminder-list'));
 }
 function loadReminderCreationPage() {
-    //#region interactive fields
-    const createButton = document.getElementsByClassName("start-timer")[0];
-    const cancelButton = document.getElementsByClassName("cancel-reminder")[0];
-    const messageField = document.getElementById("reminder-message");
-    const titleField = document.getElementById("reminder-title");
-    const intervalInput = document.getElementById("reminder-interval");
-    const isOverrideEnabled = document.getElementById("enable-reminder-start-override");
-    const startOverrideInput = document.getElementById("reminder-start-override");
-    const reminderPenaltyCheckbox = document.getElementById("enable-ignore-reminder-penalty");
-    const ignoredReminderPenalty = document.getElementById("reminder-ignore");
-    //#endregion interactive fields
-    isOverrideEnabled.onchange = () => { startOverrideInput.disabled = !startOverrideInput.disabled; };
-    reminderPenaltyCheckbox.onchange = () => { ignoredReminderPenalty.disabled = !ignoredReminderPenalty.disabled; };
+    var _a, _b;
+    const form = new InputForm('reminder-form');
+    const CREATE_BUTTON = 'create-reminder';
+    const CANCEL_BUTTON = 'cancel';
+    const MESSAGE_INPUT = 'reminder-message';
+    const TITLE_INPUT = 'reminder-title';
+    const REMINDER_INTERVAL_INPUT = 'reminder-interval';
+    const START_OVERRIDE_CHECKBOX = 'toggle-reminder-start-override';
+    const START_OVERRIDE_INPUT = 'reminder-start-override';
+    const REMINDER_PENALTY_CHECKBOX = 'toggle-ignore-reminder-penalty';
+    const IGNORED_REMINDER_INTERVAL_INPUT = 'ignored-reminder-interval';
     // Update display if the user is editing
     const editIndex = parseInt(sessionStorage.getItem('edit-reminder-index') || '-1');
     if (editIndex >= 0) {
         const editReminder = activeReminders[editIndex];
-        messageField.value = editReminder.message;
-        titleField.value = editReminder.title;
-        intervalInput.value = (editReminder.reminderIntervalAmount * Constants.MS_TO_MINUTES).toString();
-        isOverrideEnabled.checked = editReminder.reminderStartOverrideAmount > 0;
-        startOverrideInput.disabled = !isOverrideEnabled.checked;
-        startOverrideInput.value = (editReminder.reminderStartOverrideAmount * Constants.MS_TO_MINUTES).toString();
-        reminderPenaltyCheckbox.checked = editReminder.ignoredReminderIntervalAmount > 0;
-        ignoredReminderPenalty.disabled = !reminderPenaltyCheckbox.checked;
-        ignoredReminderPenalty.value = (editReminder.ignoredReminderIntervalAmount * Constants.MS_TO_MINUTES).toString();
+        form.setValue(MESSAGE_INPUT, editReminder.message);
+        form.setValue(TITLE_INPUT, editReminder.title);
+        form.setValue(REMINDER_INTERVAL_INPUT, editReminder.reminderIntervalAmount * Constants.MS_TO_MINUTES);
+        form.setChecked(START_OVERRIDE_CHECKBOX, editReminder.reminderStartOverrideAmount > 0);
+        form.setValue(START_OVERRIDE_INPUT, editReminder.reminderStartOverrideAmount * Constants.MS_TO_MINUTES);
+        form.setChecked(REMINDER_PENALTY_CHECKBOX, editReminder.ignoredReminderIntervalAmount > 0);
+        form.setValue(IGNORED_REMINDER_INTERVAL_INPUT, editReminder.ignoredReminderIntervalAmount * Constants.MS_TO_MINUTES);
+        const createButton = form.getInputElement(CREATE_BUTTON);
         createButton.innerHTML = createButton.getAttribute('when-editing') || createButton.innerHTML;
     }
     // Events -------------------------------
-    createButton.addEventListener('click', () => {
-        if (!intervalInput.checkValidity()
-            || (isOverrideEnabled.checked && !startOverrideInput.checkValidity())
-            || (reminderPenaltyCheckbox.checked && !ignoredReminderPenalty.checkValidity())
-            || (!titleField.checkValidity())) {
-            createButton.blur();
+    (_a = form.getInputElement(CREATE_BUTTON)) === null || _a === void 0 ? void 0 : _a.addEventListener('click', () => {
+        if (!form.hasRequiredFields()) {
             sendPopup('Cannot Create Reminder', 'One or more inputs are invalid');
             return;
         }
-        const reminderIntervalAmount = Constants.MINUTES_TO_MS * intervalInput.valueAsNumber;
-        const ignoredReminderIntervalAmount = (reminderPenaltyCheckbox.checked && hasInput(ignoredReminderPenalty)) ? (ignoredReminderPenalty.valueAsNumber * Constants.MINUTES_TO_MS) : 0;
-        const startDelta = (isOverrideEnabled.checked && hasInput(startOverrideInput)) ? (startOverrideInput.valueAsNumber * Constants.MINUTES_TO_MS) : reminderIntervalAmount;
-        let reminder = new Reminder(reminderIntervalAmount, startOverrideInput.valueAsNumber * Constants.MINUTES_TO_MS, ignoredReminderIntervalAmount, messageField.value, titleField.value, false);
+        const reminderIntervalAmount = Constants.MINUTES_TO_MS * form.getValueAsNumber(REMINDER_INTERVAL_INPUT);
+        const ignoredReminderIntervalAmount = form.getValueAsNumber(IGNORED_REMINDER_INTERVAL_INPUT, true) * Constants.MINUTES_TO_MS;
+        const startDelta = form.activeAndFilled(START_OVERRIDE_INPUT) ? form.getValueAsNumber(START_OVERRIDE_INPUT) * Constants.MINUTES_TO_MS : reminderIntervalAmount;
+        let reminder = new Reminder(reminderIntervalAmount, form.getValueAsNumber(START_OVERRIDE_INPUT) * Constants.MINUTES_TO_MS, ignoredReminderIntervalAmount, form.getValue(MESSAGE_INPUT), form.getValue(TITLE_INPUT), false);
         reminder.setNextReminderTimeout(startDelta);
         if (editIndex >= 0) {
             activeReminders[editIndex] = reminder;
@@ -271,15 +348,17 @@ function loadReminderCreationPage() {
         else
             activeReminders.push(reminder);
         saveActiveReminders();
-        createButton.blur();
         ipcRenderer.send('open-page', 'index');
     });
-    cancelButton.addEventListener('click', () => {
+    (_b = form.getInputElement(CANCEL_BUTTON)) === null || _b === void 0 ? void 0 : _b.addEventListener('click', () => {
         sessionStorage.setItem('edit-reminder-index', '-1');
         saveActiveReminders();
-        createButton.blur();
         ipcRenderer.send('open-page', 'index');
     });
+}
+function clearPreloads() {
+    const preloads = document.getElementsByClassName('preload');
+    Array.from(preloads).forEach(e => e.classList.toggle('preload'));
 }
 window.onload = () => {
     let location = window.location.href.split("/");
@@ -292,4 +371,5 @@ window.onload = () => {
             loadReminderCreationPage();
             break;
     }
+    setTimeout(clearPreloads, 1);
 };

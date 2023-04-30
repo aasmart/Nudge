@@ -125,7 +125,7 @@ form {
     font-weight: normal;
 }
 
-.user-input > div {
+.reminder-form > div {
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -133,7 +133,7 @@ form {
     margin: 8px;
 }
 
-.user-input > div:has(input[type="checkbox"]) {
+.reminder-form > div:has(input[type="checkbox"]) {
     justify-content: start;
     align-items: start;
     font-size: var(--input-font-size);
@@ -141,22 +141,22 @@ form {
     gap: 4px;
 }
 
-.user-input > div:has(button) {
+.reminder-form > div:has(button) {
     flex-direction: row;
     gap: 10px;
     font-size: var(--input-font-size);
     width: var(--input-char-size);
 }
 
-.user-input button:first-of-type {
+.reminder-form button:first-of-type {
     flex: 3;
 }
 
-.user-input button:last-of-type {
+.reminder-form button:last-of-type {
     flex: 1;
 }
 
-.user-input label {
+.reminder-form label {
     font-size: 1.2rem;
 }
 
@@ -285,12 +285,12 @@ input[type="checkbox"]:checked + label::after {
     left: calc(-1 * (var(--checkbox-width) + var(--checkbox-margin)) + (var(--checkbox-width)) * 0.5);
 }
 
-.user-input textarea {
+.reminder-form textarea {
     display: block;
     resize: none;
 }
 
-.user-input input:invalid {
+.reminder-form input:invalid {
     border-color: var(--input-invalid-color);
 }
 

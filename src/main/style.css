@@ -35,6 +35,12 @@ main {
     height: calc(100dvh - var(--header-height));
 }
 
+.preload *,
+.preload *::after,
+.preload *::before {
+    transition: none !important;
+}
+
 header {
     color: white;
     background: #8a2be2;

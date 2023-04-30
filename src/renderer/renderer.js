@@ -339,6 +339,10 @@ function loadReminderCreationPage() {
         ipcRenderer.send('open-page', 'index');
     });
 }
+function clearPreloads() {
+    const preloads = document.getElementsByClassName('preload');
+    Array.from(preloads).forEach(e => e.classList.toggle('preload'));
+}
 window.onload = () => {
     let location = window.location.href.split("/");
     loadActiveReminders();
@@ -350,4 +354,5 @@ window.onload = () => {
             loadReminderCreationPage();
             break;
     }
+    setTimeout(clearPreloads, 1);
 };

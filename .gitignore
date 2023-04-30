@@ -9167,3 +9167,7 @@ out/take-a-break-win32-x64/resources/app/src/main/new_reminder.html
 out/make/squirrel.windows/x64/Setup.exe
 todo.txt
 out/take-a-break-win32-x64/resources/app/src/main/main.ts
+out/take-a-break-win32-x64/resources/app/src/main/images/delete.svg
+out/take-a-break-win32-x64/resources/app/src/main/images/edit.svg
+out/take-a-break-win32-x64/resources/app/src/main/images/pause.svg
+out/take-a-break-win32-x64/resources/app/src/main/images/play.svg

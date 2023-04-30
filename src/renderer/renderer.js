@@ -208,6 +208,7 @@ function listActiveReminders() {
         let deleteButton = document.createElement('button');
         deleteButton.append(deleteImg);
         deleteButton.setAttribute("action", "destructive");
+        deleteButton.title = 'Delete reminder';
         deleteButton.addEventListener('click', () => {
             const index = activeReminders.indexOf(reminder);
             activeReminders[index].cancel();
@@ -223,6 +224,7 @@ function listActiveReminders() {
         editImg.alt = 'Edit reminder';
         let editButton = document.createElement('button');
         editButton.append(editImg);
+        editButton.title = 'Edit reminder';
         editButton.addEventListener('click', () => {
             const index = activeReminders.indexOf(reminder);
             if (index < 0) {
@@ -243,18 +245,21 @@ function listActiveReminders() {
         let pauseButton = document.createElement('button');
         pauseButton.setAttribute('aria-label', reminder.paused ? 'Unpause' : 'Pause');
         pauseButton.append(stateImage);
+        pauseButton.title = reminder.paused ? 'Unpause reminder' : 'Pause reminder';
         pauseButton.addEventListener('click', () => {
             if (pauseButton.getAttribute('aria-label') === 'Pause') {
                 pauseButton.setAttribute('aria-label', 'Unpause');
+                pauseButton.title = 'Pause reminder';
                 reminder.setPaused(true);
                 stateImage.src = PAUSE_SVG_PATH;
                 stateImage.alt = 'Pause reminder';
             }
             else {
                 pauseButton.setAttribute('aria-label', 'Pause');
+                pauseButton.title = 'Unpause reminder';
                 reminder.setPaused(false);
                 stateImage.src = PLAY_SVG_PATH;
-                stateImage.alt = 'Play reminder';
+                stateImage.alt = 'Unpause reminder';
             }
         });
         // Finish building the ui element

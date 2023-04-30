@@ -173,8 +173,13 @@ function listActiveReminders() {
         text.append(textSpan)
 
         // Create the delete button
+        const DELETE_SVG_PATH = './images/delete.svg'
+        const deleteImg = document.createElement('img')
+        deleteImg.src = DELETE_SVG_PATH
+        deleteImg.alt = 'Delete reminder'
+
         let deleteButton = document.createElement('button')
-        deleteButton.innerHTML = "Delete"
+        deleteButton.append(deleteImg)
         deleteButton.setAttribute("action", "destructive")
 
         deleteButton.addEventListener('click', () => {
@@ -187,8 +192,13 @@ function listActiveReminders() {
         })
 
         // Create the edit button
+        const EDIT_SVG_PATH = './images/edit.svg'
+        const editImg = document.createElement('img')
+        editImg.src = EDIT_SVG_PATH
+        editImg.alt = 'Edit reminder'
+
         let editButton = document.createElement('button')
-        editButton.innerHTML = "Edit"
+        editButton.append(editImg)
 
         editButton.addEventListener('click', () => {
             const index = activeReminders.indexOf(reminder)
@@ -203,20 +213,28 @@ function listActiveReminders() {
             ipcRenderer.send('open-page', 'reminder')
         })
 
+        const PLAY_SVG_PATH = './images/play.svg'
+        const PAUSE_SVG_PATH = './images/pause.svg'
+        const stateImage = document.createElement('img')
+        stateImage.src = reminder.paused ? PLAY_SVG_PATH : PAUSE_SVG_PATH
+        stateImage.alt = reminder.paused ? 'Play reminder' : 'Pause Reminder'
+
         // Create the pause button
         let pauseButton = document.createElement('button')
         pauseButton.setAttribute('aria-label', reminder.paused ? 'Unpause' : 'Pause')
-        pauseButton.innerHTML = reminder.paused ? 'Unpause' : 'Pause'
+        pauseButton.append(stateImage)
 
         pauseButton.addEventListener('click', () => {
             if(pauseButton.getAttribute('aria-label') === 'Pause') {
                 pauseButton.setAttribute('aria-label', 'Unpause')
                 reminder.setPaused(true)
-                pauseButton.innerHTML = 'Unpause'
+                stateImage.src = PAUSE_SVG_PATH
+                stateImage.alt = 'Pause reminder'
             } else {
                 pauseButton.setAttribute('aria-label', 'Pause')
                 reminder.setPaused(false)
-                pauseButton.innerHTML = 'Pause'
+                stateImage.src = PLAY_SVG_PATH
+                stateImage.alt = 'Play reminder'
             }
         })
 

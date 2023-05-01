@@ -1,5 +1,6 @@
 :root {
     --bg-color: #1f1f27;
+    --reminder-list-bg-color: #383841;
     --input-color: rgb(90, 87, 87);
     --input-invalid-color: #FA2333;
     --input-success-color: #22F095;
@@ -84,7 +85,7 @@ form {
     flex-direction: column;
     align-items: center;
 
-    background: #282833;
+    background: var(--reminder-list-bg-color);
     border-radius: 12px;
     overflow-y: auto;
     overflow-x: hidden;

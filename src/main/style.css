@@ -179,8 +179,8 @@ textarea {
     transition: all 250ms;
     padding: 8px;
     font-size: var(--input-font-size);
-    border: 1.5px solid rgb(21, 21, 21);
-    box-shadow: 0 1px 4px black;
+    border: 1px solid rgb(21, 21, 21);
+    box-shadow: 0 0.75px 3px black;
     transition: opacity 250ms;
 }
 

@@ -86,7 +86,7 @@ form {
     align-items: center;
 
     background: var(--reminder-list-bg-color);
-    border-radius: 12px;
+    border-radius: 8px;
     overflow-y: auto;
     overflow-x: hidden;
     padding: 10px;

@@ -6,7 +6,7 @@ let tray: any = null
 let win: any = null
 
 function createTray () {
-  const icon = path.join(app.getAppPath(), 'assets/icon.png')
+  const icon = path.join(__dirname, '../../assets/icon.png')
   const trayicon = nativeImage.createFromPath(icon)
   trayicon.resize({ width: 16 })
   trayicon.setTemplateImage(true)
@@ -28,6 +28,7 @@ function createTray () {
     },
   ])
 
+  tray.setToolTip('Take a Break')
   tray.setContextMenu(contextMenu)
 }
 

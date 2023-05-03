@@ -5,9 +5,11 @@ const path = require('path');
 let tray = null;
 let win = null;
 function createTray() {
-    const icon = path.join('assets/icon.png'); // required.
+    const icon = path.join(__dirname, '../../assets/icon.png');
     const trayicon = nativeImage.createFromPath(icon);
-    tray = new Tray(trayicon.resize({ width: 16 }));
+    trayicon.resize({ width: 16 });
+    trayicon.setTemplateImage(true);
+    tray = new Tray(trayicon);
     const contextMenu = Menu.buildFromTemplate([
         {
             label: 'Show App',
@@ -22,6 +24,7 @@ function createTray() {
             }
         },
     ]);
+    tray.setToolTip('Take a Break');
     tray.setContextMenu(contextMenu);
 }
 const createWindow = () => {

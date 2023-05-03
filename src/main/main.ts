@@ -6,9 +6,13 @@ let tray: any = null
 let win: any = null
 
 function createTray () {
-  const icon = path.join('assets/icon.png') // required.
+  const icon = path.join(app.getAppPath(), 'assets/icon.png')
   const trayicon = nativeImage.createFromPath(icon)
-  tray = new Tray(trayicon.resize({ width: 16 }))
+  trayicon.resize({ width: 16 })
+  trayicon.setTemplateImage(true)
+
+  tray = new Tray(trayicon)
+
   const contextMenu = Menu.buildFromTemplate([
     {
       label: 'Show App',

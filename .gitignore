@@ -16,8 +16,8 @@ node_modules/@electron/get/dist/cjs/artifact-utils.js
 node_modules/@electron/get/dist/cjs/artifact-utils.js.map
 node_modules/@electron/get/dist/cjs/Cache.d.ts
 node_modules/@electron/get/dist/cjs/Cache.js
-node_modules/@electron/get/dist/cjs/Cache.js.map
 node_modules/@electron/get/dist/cjs/downloader-resolver.d.ts
+node_modules/@electron/get/dist/cjs/Cache.js.map
 node_modules/@electron/get/dist/cjs/downloader-resolver.js
 node_modules/@electron/get/dist/cjs/downloader-resolver.js.map
 node_modules/@electron/get/dist/cjs/Downloader.d.ts

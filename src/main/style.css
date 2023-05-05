@@ -4,7 +4,7 @@
     --input-color: rgb(90, 87, 87);
     --input-invalid-color: #FA2333;
     --input-success-color: #22F095;
-    --header-height: 5rem;
+    --header-fallback-height: 1rem;
 
     --checkbox-height: 1.75rem;
     --checkbox-width: 3.5rem;
@@ -42,14 +42,21 @@ main {
     transition: none !important;
 }
 
-header {
+.titlebar {
     color: white;
     background: #8a2be2;
     display: flex;
-    justify-content: center;
     align-items: center;
+    font-size: .75em;
+    font-weight: bold;
 
-    height: var(--header-height);
+    padding-left: calc(env(titlebar-area-x, 0) + 4px);
+
+    -webkit-app-region: drag;
+    user-select: none;
+    -webkit-user-select: none;
+
+    height: env(titlebar-area-height, var(--header-fallback-height));
     min-width: 100%;
 }
 

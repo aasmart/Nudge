@@ -103,5 +103,6 @@
   "files": [
     "src/renderer/renderer.ts",
     "src/main/main.ts",
+    "src/preload/preload.ts"
   ]
 }

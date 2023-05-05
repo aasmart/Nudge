@@ -9171,3 +9171,4 @@ out/take-a-break-win32-x64/resources/app/src/main/images/delete.svg
 out/take-a-break-win32-x64/resources/app/src/main/images/edit.svg
 out/take-a-break-win32-x64/resources/app/src/main/images/pause.svg
 out/take-a-break-win32-x64/resources/app/src/main/images/play.svg
+/public/static/**/*.js

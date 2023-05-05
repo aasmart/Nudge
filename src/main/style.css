@@ -4,7 +4,7 @@
     --input-color: rgb(90, 87, 87);
     --input-invalid-color: #FA2333;
     --input-success-color: #22F095;
-    --header-height: 5rem;
+    --header-fallback-height: 1rem;
 
     --checkbox-height: 1.75rem;
     --checkbox-width: 3.5rem;
@@ -26,6 +26,7 @@ body {
     min-block-size: 100dvh;
     margin: auto;
     height: 100dvh;
+    overflow: hidden;
 }
 
 main {
@@ -33,7 +34,8 @@ main {
     display: flex;
     flex-direction: column;
     align-items: center;
-    height: calc(100dvh - var(--header-height));
+    height: calc(100dvh - env(titlebar-area-height, var(--header-fallback-height)));
+    overflow: auto;
 }
 
 .preload *,
@@ -42,15 +44,24 @@ main {
     transition: none !important;
 }
 
-header {
+.titlebar {
     color: white;
     background: #8a2be2;
     display: flex;
-    justify-content: center;
     align-items: center;
+    font-size: .75em;
+    font-weight: bold;
+    position: relative;
 
-    height: var(--header-height);
-    min-width: 100%;
+    padding-left: calc(env(titlebar-area-x, 0) + 8px);
+
+    -webkit-app-region: drag;
+    user-select: none;
+    -webkit-user-select: none;
+
+    top: env(titlebar-area-y, 0);
+    height: env(titlebar-area-height, var(--header-fallback-height));
+    min-width: env(titlebar-area-width, 100%);
 }
 
 section,

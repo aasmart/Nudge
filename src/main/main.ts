@@ -15,18 +15,14 @@ function createTray () {
 
   const contextMenu = Menu.buildFromTemplate([
     {
-      label: 'Show App',
-      click: () => {
-        win.show()
-      }
-    },
-    {
-      label: 'Quit',
+      label: 'Quit App',
       click: () => {
         app.quit() // actually quit the app.
       }
     },
   ])
+
+  tray.on('click', () => win.show())
 
   tray.setToolTip('Take a Break')
   tray.setContextMenu(contextMenu)

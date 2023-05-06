@@ -9173,3 +9173,5 @@ out/take-a-break-win32-x64/resources/app/src/main/images/pause.svg
 out/take-a-break-win32-x64/resources/app/src/main/images/play.svg
 src/**/*.js
 src/**/*.map
+out/take-a-break-win32-x64/resources/app/src/@types/bridge.d.ts
+out/take-a-break-win32-x64/resources/app/src/preload/preload.ts

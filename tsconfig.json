@@ -103,6 +103,7 @@
   "files": [
     "src/renderer/renderer.ts",
     "src/main/main.ts",
-    "src/preload/preload.ts"
+    "src/preload/preload.ts",
+    "src/@types/bridge.d.ts"
   ]
 }

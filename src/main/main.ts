@@ -53,7 +53,7 @@ const createWindow = () => {
         webPreferences: {
           preload: path.join(app.getAppPath(), 'src/preload/preload.js'),
           nodeIntegration: true,
-          contextIsolation: false,
+          contextIsolation: true,
         }
     })
     
@@ -77,6 +77,8 @@ const createWindow = () => {
     ipcMain.on('show-window', (event: any, name: any) => {
       if(name === 'main') win.show()
     })
+
+    ipcMain.handle('app-name', () => app.getName())
 }
 
 app.whenReady().then(() => {

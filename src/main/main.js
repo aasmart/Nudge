@@ -38,10 +38,16 @@ const createWindow = () => {
         icon: 'assets/icon.png',
         autoHideMenuBar: true,
         center: true,
+        frame: false,
+        titleBarStyle: 'hidden',
+        titleBarOverlay: {
+            color: '#8a2be2',
+            symbolColor: '#ffffff',
+        },
         webPreferences: {
             preload: path.join(app.getAppPath(), 'src/preload/preload.js'),
             nodeIntegration: true,
-            contextIsolation: false,
+            contextIsolation: true,
         }
     });
     win.maximize();
@@ -61,6 +67,7 @@ const createWindow = () => {
         if (name === 'main')
             win.show();
     });
+    ipcMain.handle('app-name', () => app.getName());
 };
 app.whenReady().then(() => {
     createWindow();

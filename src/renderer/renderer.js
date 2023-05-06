@@ -1,5 +1,4 @@
 "use strict";
-let { ipcRenderer } = require('electron');
 var Constants;
 (function (Constants) {
     Constants.MINUTES_TO_MS = 60000;
@@ -121,7 +120,7 @@ class Reminder {
                 return;
             if (this.ignoredReminderIntervalAmount > 0)
                 this.setNextReminderTimeout(this.reminderIntervalAmount);
-            ipcRenderer.send('show-window', 'main');
+            window.api.showWindow('main');
         };
     }
     start() {
@@ -234,7 +233,7 @@ function listActiveReminders() {
             }
             setEditReminder(index);
             saveActiveReminders();
-            ipcRenderer.send('open-page', 'reminder');
+            window.api.openPage('reminder');
         });
         const PLAY_SVG_PATH = './images/play.svg';
         const PAUSE_SVG_PATH = './images/pause.svg';
@@ -304,7 +303,7 @@ function loadCreateRemindersPage() {
     const createNewReminder = document.getElementById("create-new-reminder");
     createNewReminder.addEventListener('click', () => {
         saveActiveReminders();
-        ipcRenderer.send('open-page', 'reminder');
+        window.api.openPage('reminder');
     });
     window.addEventListener('update-reminder-list', () => listActiveReminders());
     window.dispatchEvent(new Event('update-reminder-list'));
@@ -353,12 +352,12 @@ function loadReminderCreationPage() {
         else
             activeReminders.push(reminder);
         saveActiveReminders();
-        ipcRenderer.send('open-page', 'index');
+        window.api.openPage('index');
     });
     (_b = form.getInputElement(CANCEL_BUTTON)) === null || _b === void 0 ? void 0 : _b.addEventListener('click', () => {
         sessionStorage.setItem('edit-reminder-index', '-1');
         saveActiveReminders();
-        ipcRenderer.send('open-page', 'index');
+        window.api.openPage('index');
     });
 }
 function clearPreloads() {

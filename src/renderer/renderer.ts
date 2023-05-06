@@ -1,5 +1,3 @@
-let { ipcRenderer } = require('electron')
-
 namespace Constants {
     export const MINUTES_TO_MS = 60000
     export const MS_TO_MINUTES = 1 / MINUTES_TO_MS
@@ -180,7 +178,7 @@ class Reminder {
 
             if(this.ignoredReminderIntervalAmount > 0)
                 this.setNextReminderTimeout(this.reminderIntervalAmount)
-            ipcRenderer.send('show-window', 'main')
+            window.api.showWindow('main')
         };
     }
 
@@ -325,7 +323,7 @@ function listActiveReminders() {
 
             setEditReminder(index)
             saveActiveReminders()
-            ipcRenderer.send('open-page', 'reminder')
+            window.api.openPage('reminder')
         })
 
         const PLAY_SVG_PATH = './images/play.svg'
@@ -410,7 +408,7 @@ function loadCreateRemindersPage() {
 
     createNewReminder.addEventListener('click', () => {
         saveActiveReminders()
-        ipcRenderer.send('open-page', 'reminder')
+        window.api.openPage('reminder')
     })
 
     window.addEventListener('update-reminder-list', () => listActiveReminders())
@@ -478,13 +476,13 @@ function loadReminderCreationPage() {
 
         saveActiveReminders()
 
-        ipcRenderer.send('open-page', 'index');
+        window.api.openPage('index')
     })
 
     form.getInputElement(CANCEL_BUTTON)?.addEventListener('click', () => {
         sessionStorage.setItem('edit-reminder-index', '-1')
         saveActiveReminders()
-        ipcRenderer.send('open-page', 'index');
+        window.api.openPage('index')
     })
 }
 

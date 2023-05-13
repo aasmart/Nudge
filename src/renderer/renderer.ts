@@ -13,16 +13,18 @@ Date.prototype.addMilliseconds = function(milliseconds: number): Date {
 }
 
 class InputForm {
-    container: HTMLElement
+    container: HTMLFormElement
     inputs: Map<String, HTMLInputElement>
     buttons: Map<String, HTMLElement>
     textareas: Map<String, HTMLElement>
 
-    constructor(formClass: string) {
+    constructor(formClass: string, onSubmit: (e: Event) => boolean) {
         this.inputs = new Map()
         this.buttons = new Map()
         this.textareas = new Map()
-        this.container = document.getElementsByClassName(formClass)[0] as HTMLElement
+        this.container = <HTMLFormElement>document.getElementsByClassName(formClass)[0]
+
+        this.container.addEventListener('submit', e => onSubmit(e))
 
         Array.from(this.container.getElementsByTagName('input')).forEach(e => {
             const id = e.getAttribute('id');
@@ -417,8 +419,6 @@ function loadCreateRemindersPage() {
 }
 
 function loadReminderCreationPage() {
-    const form = new InputForm('reminder-form')
-
     const CREATE_BUTTON = 'create-reminder'
     const CANCEL_BUTTON = 'cancel'
     const MESSAGE_INPUT = 'reminder-message'
@@ -428,6 +428,38 @@ function loadReminderCreationPage() {
     const START_OVERRIDE_INPUT = 'reminder-start-override'
     const REMINDER_PENALTY_CHECKBOX = 'toggle-ignore-reminder-penalty'
     const IGNORED_REMINDER_INTERVAL_INPUT = 'ignored-reminder-interval'
+
+    const form = new InputForm('reminder-form', (e: Event): boolean => {
+        e.preventDefault()
+
+        const reminderIntervalAmount = Constants.MINUTES_TO_MS * form.getValueAsNumber(REMINDER_INTERVAL_INPUT);
+        const ignoredReminderIntervalAmount = form.getValueAsNumber(IGNORED_REMINDER_INTERVAL_INPUT, true) * Constants.MINUTES_TO_MS;
+
+        const startDelta = form.activeAndFilled(START_OVERRIDE_INPUT) ? form.getValueAsNumber(START_OVERRIDE_INPUT) * Constants.MINUTES_TO_MS : reminderIntervalAmount;
+
+        let reminder = new Reminder(
+            reminderIntervalAmount, 
+            form.getValueAsNumber(START_OVERRIDE_INPUT) * Constants.MINUTES_TO_MS, 
+            ignoredReminderIntervalAmount, 
+            form.getValue(MESSAGE_INPUT),
+            form.getValue(TITLE_INPUT),
+            false
+        )
+
+        reminder.setNextReminderTimeout(startDelta)
+
+        if(editIndex >= 0) {
+            activeReminders[editIndex] = reminder;
+            sessionStorage.setItem('edit-reminder-index', '-1')
+        } else
+            activeReminders.push(reminder)
+
+        saveActiveReminders()
+
+        window.api.openPage('index')
+
+        return false;
+    })
 
     // Update display if the user is editing
     const editIndex = parseInt(sessionStorage.getItem('edit-reminder-index') || '-1')
@@ -447,38 +479,6 @@ function loadReminderCreationPage() {
     }
 
     // Events -------------------------------
-    form.getInputElement(CREATE_BUTTON)?.addEventListener('click', () => {
-        if(!form.hasRequiredFields()) {
-            sendPopup('Cannot Create Reminder', 'One or more inputs are invalid')
-            return;
-        }
-
-        const reminderIntervalAmount = Constants.MINUTES_TO_MS * form.getValueAsNumber(REMINDER_INTERVAL_INPUT);
-        const ignoredReminderIntervalAmount = form.getValueAsNumber(IGNORED_REMINDER_INTERVAL_INPUT, true) * Constants.MINUTES_TO_MS;
-
-        const startDelta = form.activeAndFilled(START_OVERRIDE_INPUT) ? form.getValueAsNumber(START_OVERRIDE_INPUT) * Constants.MINUTES_TO_MS : reminderIntervalAmount;
-
-        let reminder = new Reminder(
-            reminderIntervalAmount, 
-            form.getValueAsNumber(START_OVERRIDE_INPUT) * Constants.MINUTES_TO_MS, 
-            ignoredReminderIntervalAmount, 
-            form.getValue(MESSAGE_INPUT),
-            form.getValue(TITLE_INPUT),
-            false
-        )
-        reminder.setNextReminderTimeout(startDelta)
-
-        if(editIndex >= 0) {
-            activeReminders[editIndex] = reminder;
-            sessionStorage.setItem('edit-reminder-index', '-1')
-        } else
-            activeReminders.push(reminder)
-
-        saveActiveReminders()
-
-        window.api.openPage('index')
-    })
-
     form.getInputElement(CANCEL_BUTTON)?.addEventListener('click', () => {
         sessionStorage.setItem('edit-reminder-index', '-1')
         saveActiveReminders()

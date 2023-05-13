@@ -9,11 +9,12 @@ Date.prototype.addMilliseconds = function (milliseconds) {
     return new Date(date.getTime() + milliseconds);
 };
 class InputForm {
-    constructor(formClass) {
+    constructor(formClass, onSubmit) {
         this.inputs = new Map();
         this.buttons = new Map();
         this.textareas = new Map();
         this.container = document.getElementsByClassName(formClass)[0];
+        this.container.addEventListener('submit', e => onSubmit(e));
         Array.from(this.container.getElementsByTagName('input')).forEach(e => {
             const id = e.getAttribute('id');
             const type = e.getAttribute('type');
@@ -309,8 +310,7 @@ function loadCreateRemindersPage() {
     window.dispatchEvent(new Event('update-reminder-list'));
 }
 function loadReminderCreationPage() {
-    var _a, _b;
-    const form = new InputForm('reminder-form');
+    var _a;
     const CREATE_BUTTON = 'create-reminder';
     const CANCEL_BUTTON = 'cancel';
     const MESSAGE_INPUT = 'reminder-message';
@@ -320,6 +320,23 @@ function loadReminderCreationPage() {
     const START_OVERRIDE_INPUT = 'reminder-start-override';
     const REMINDER_PENALTY_CHECKBOX = 'toggle-ignore-reminder-penalty';
     const IGNORED_REMINDER_INTERVAL_INPUT = 'ignored-reminder-interval';
+    const form = new InputForm('reminder-form', (e) => {
+        e.preventDefault();
+        const reminderIntervalAmount = Constants.MINUTES_TO_MS * form.getValueAsNumber(REMINDER_INTERVAL_INPUT);
+        const ignoredReminderIntervalAmount = form.getValueAsNumber(IGNORED_REMINDER_INTERVAL_INPUT, true) * Constants.MINUTES_TO_MS;
+        const startDelta = form.activeAndFilled(START_OVERRIDE_INPUT) ? form.getValueAsNumber(START_OVERRIDE_INPUT) * Constants.MINUTES_TO_MS : reminderIntervalAmount;
+        let reminder = new Reminder(reminderIntervalAmount, form.getValueAsNumber(START_OVERRIDE_INPUT) * Constants.MINUTES_TO_MS, ignoredReminderIntervalAmount, form.getValue(MESSAGE_INPUT), form.getValue(TITLE_INPUT), false);
+        reminder.setNextReminderTimeout(startDelta);
+        if (editIndex >= 0) {
+            activeReminders[editIndex] = reminder;
+            sessionStorage.setItem('edit-reminder-index', '-1');
+        }
+        else
+            activeReminders.push(reminder);
+        saveActiveReminders();
+        window.api.openPage('index');
+        return false;
+    });
     // Update display if the user is editing
     const editIndex = parseInt(sessionStorage.getItem('edit-reminder-index') || '-1');
     if (editIndex >= 0) {
@@ -335,26 +352,7 @@ function loadReminderCreationPage() {
         createButton.innerHTML = createButton.getAttribute('when-editing') || createButton.innerHTML;
     }
     // Events -------------------------------
-    (_a = form.getInputElement(CREATE_BUTTON)) === null || _a === void 0 ? void 0 : _a.addEventListener('click', () => {
-        if (!form.hasRequiredFields()) {
-            sendPopup('Cannot Create Reminder', 'One or more inputs are invalid');
-            return;
-        }
-        const reminderIntervalAmount = Constants.MINUTES_TO_MS * form.getValueAsNumber(REMINDER_INTERVAL_INPUT);
-        const ignoredReminderIntervalAmount = form.getValueAsNumber(IGNORED_REMINDER_INTERVAL_INPUT, true) * Constants.MINUTES_TO_MS;
-        const startDelta = form.activeAndFilled(START_OVERRIDE_INPUT) ? form.getValueAsNumber(START_OVERRIDE_INPUT) * Constants.MINUTES_TO_MS : reminderIntervalAmount;
-        let reminder = new Reminder(reminderIntervalAmount, form.getValueAsNumber(START_OVERRIDE_INPUT) * Constants.MINUTES_TO_MS, ignoredReminderIntervalAmount, form.getValue(MESSAGE_INPUT), form.getValue(TITLE_INPUT), false);
-        reminder.setNextReminderTimeout(startDelta);
-        if (editIndex >= 0) {
-            activeReminders[editIndex] = reminder;
-            sessionStorage.setItem('edit-reminder-index', '-1');
-        }
-        else
-            activeReminders.push(reminder);
-        saveActiveReminders();
-        window.api.openPage('index');
-    });
-    (_b = form.getInputElement(CANCEL_BUTTON)) === null || _b === void 0 ? void 0 : _b.addEventListener('click', () => {
+    (_a = form.getInputElement(CANCEL_BUTTON)) === null || _a === void 0 ? void 0 : _a.addEventListener('click', () => {
         sessionStorage.setItem('edit-reminder-index', '-1');
         saveActiveReminders();
         window.api.openPage('index');

@@ -255,8 +255,12 @@ function setEditReminder(index: number) {
     sessionStorage.setItem('edit-reminder-index', index.toString())
 }
 
+function getEditIndex(): number {
+    return parseInt(sessionStorage.getItem('edit-reminder-index') || '-1')
+}
+
 function getEditReminder(): Reminder {
-    const editIndex = parseInt(sessionStorage.getItem('edit-reminder-index') || '-1')
+    const editIndex = getEditIndex()
     return activeReminders[editIndex] || null
 }
 
@@ -430,7 +434,7 @@ function loadReminderCreationPage() {
     const IGNORED_REMINDER_INTERVAL_INPUT = 'ignored-reminder-interval'
 
     // Update display if the user is editing
-    const editIndex = parseInt(sessionStorage.getItem('edit-reminder-index') || '-1')
+    const editIndex = getEditIndex()
     if(editIndex >= 0) {
         const editReminder = activeReminders[editIndex]
 
@@ -470,7 +474,7 @@ function loadReminderCreationPage() {
 
         if(editIndex >= 0) {
             activeReminders[editIndex] = reminder;
-            sessionStorage.setItem('edit-reminder-index', '-1')
+            setEditReminder(-1)
         } else
             activeReminders.push(reminder)
 
@@ -480,7 +484,7 @@ function loadReminderCreationPage() {
     })
 
     form.getInputElement(CANCEL_BUTTON)?.addEventListener('click', () => {
-        sessionStorage.setItem('edit-reminder-index', '-1')
+        setEditReminder(-1)
         saveActiveReminders()
         window.api.openPage('index')
     })

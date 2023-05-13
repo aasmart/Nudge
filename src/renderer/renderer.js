@@ -178,8 +178,11 @@ function loadActiveReminders() {
 function setEditReminder(index) {
     sessionStorage.setItem('edit-reminder-index', index.toString());
 }
+function getEditIndex() {
+    return parseInt(sessionStorage.getItem('edit-reminder-index') || '-1');
+}
 function getEditReminder() {
-    const editIndex = parseInt(sessionStorage.getItem('edit-reminder-index') || '-1');
+    const editIndex = getEditIndex();
     return activeReminders[editIndex] || null;
 }
 function listActiveReminders() {
@@ -321,7 +324,7 @@ function loadReminderCreationPage() {
     const REMINDER_PENALTY_CHECKBOX = 'toggle-ignore-reminder-penalty';
     const IGNORED_REMINDER_INTERVAL_INPUT = 'ignored-reminder-interval';
     // Update display if the user is editing
-    const editIndex = parseInt(sessionStorage.getItem('edit-reminder-index') || '-1');
+    const editIndex = getEditIndex();
     if (editIndex >= 0) {
         const editReminder = activeReminders[editIndex];
         form.setValue(MESSAGE_INPUT, editReminder.message);
@@ -347,7 +350,7 @@ function loadReminderCreationPage() {
         reminder.setNextReminderTimeout(startDelta);
         if (editIndex >= 0) {
             activeReminders[editIndex] = reminder;
-            sessionStorage.setItem('edit-reminder-index', '-1');
+            setEditReminder(-1);
         }
         else
             activeReminders.push(reminder);
@@ -355,7 +358,7 @@ function loadReminderCreationPage() {
         window.api.openPage('index');
     });
     (_b = form.getInputElement(CANCEL_BUTTON)) === null || _b === void 0 ? void 0 : _b.addEventListener('click', () => {
-        sessionStorage.setItem('edit-reminder-index', '-1');
+        setEditReminder(-1);
         saveActiveReminders();
         window.api.openPage('index');
     });

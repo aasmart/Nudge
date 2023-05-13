@@ -17,7 +17,7 @@
         <p class="app-name"></p>
     </header>
     <main class="preload">
-        <section class="reminder-form">
+        <form action="" method="" class="reminder-form">
             <div title="The duration, in minutes, between each reminder">
                 <label for="reminder-interval">Reminder Interval</label>
                 <input type="number" step="0.01" id="reminder-interval" name="reminder-interval" min="0.1" placeholder="Reminder interval (minutes)" required>
@@ -46,10 +46,10 @@
             </div>
 
             <div>
-                <button id="create-reminder" when-editing="Update Reminder">Create Reminder</button>
-                <button id="cancel" action="destructive">Cancel</button>
+                <button id="create-reminder" when-editing="Update Reminder" type="submit">Create Reminder</button>
+                <button id="cancel" action="destructive" type="button">Cancel</button>
             </div>
-        </section>
+        </form>
     </main>
 
     <!-- TODO convert to dialog -->

@@ -13,13 +13,41 @@ Date.prototype.addMilliseconds = function(milliseconds: number): Date {
 }
 
 interface HTMLFormElement {
+    fromJSON(json: string): void,
     toJSON(): string
 }
 
 HTMLFormElement.prototype.toJSON = function(): string {
     const formData = new FormData(this)
+    const json = Object.fromEntries(formData.entries())
 
-    return JSON.stringify(Object.fromEntries(formData.entries()))
+    for(let key in json) {
+        const keyArr = key.split("-")
+        const keyNew: string = (keyArr.slice(0,1)
+            .concat(keyArr.slice(1)
+            .flatMap(s => s.substring(0,1).toUpperCase().concat(s.substring(1))))
+            ).join("")
+
+        if(keyNew === key)
+            continue;
+
+        json[keyNew] = json[key]
+        delete json[key]
+    }
+
+    return JSON.stringify(json)    
+}
+
+HTMLFormElement.prototype.fromJSON = function(json: string): void {
+    const camelCaseRegex = /.([a-z])+/g
+
+    const obj = JSON.parse(json)
+    for(let key in obj) {
+        const id = key.match(camelCaseRegex)?.flatMap(s => s.toLowerCase()).join('-') || ''
+        const element = <HTMLInputElement>document.getElementById(id)
+        if(element != null && element as HTMLInputElement | HTMLTextAreaElement)
+            element.value = obj[key]
+    }
 }
 
 class InputForm {
@@ -438,29 +466,23 @@ function loadCreateRemindersPage() {
 function loadReminderCreationPage() {
     const CREATE_BUTTON = 'create-reminder'
     const CANCEL_BUTTON = 'cancel'
-    const MESSAGE_INPUT = 'message'
-    const TITLE_INPUT = 'title'
     const REMINDER_INTERVAL_INPUT = 'reminder-interval-amount'
-    const START_OVERRIDE_CHECKBOX = 'toggle-reminder-start-override'
     const START_OVERRIDE_INPUT = 'reminder-start-override-amount'
-    const REMINDER_PENALTY_CHECKBOX = 'toggle-ignore-reminder-penalty'
-    const IGNORED_REMINDER_INTERVAL_INPUT = 'ignored-reminder-interval-amount'
 
     const form = new InputForm('reminder-form', (e: Event): boolean => {
         e.preventDefault()
 
         const reminderIntervalAmount = form.getValueAsNumber(REMINDER_INTERVAL_INPUT);
-        const ignoredReminderIntervalAmount = form.getValueAsNumber(IGNORED_REMINDER_INTERVAL_INPUT, true);
 
         const startDelta = form.activeAndFilled(START_OVERRIDE_INPUT) ? form.getValueAsNumber(START_OVERRIDE_INPUT) : reminderIntervalAmount;
 
-        let reminder = new Reminder(
-            reminderIntervalAmount, 
-            form.getValueAsNumber(START_OVERRIDE_INPUT), 
-            ignoredReminderIntervalAmount, 
-            form.getValue(MESSAGE_INPUT),
-            form.getValue(TITLE_INPUT),
-            false
+        const reminderFormJson: Reminder = JSON.parse(form.element.toJSON())
+        const reminder = new Reminder(
+            reminderFormJson?.reminderIntervalAmount,
+            reminderFormJson?.reminderStartOverrideAmount,
+            reminderFormJson?.reminderIntervalAmount,
+            reminderFormJson?.message,
+            reminderFormJson?.title
         )
 
         reminder.setNextReminderTimeout(startDelta)
@@ -483,13 +505,15 @@ function loadReminderCreationPage() {
     if(editIndex >= 0) {
         const editReminder = activeReminders[editIndex]
 
-        form.setValue(MESSAGE_INPUT, editReminder.message)
-        form.setValue(TITLE_INPUT, editReminder.title)
-        form.setValue(REMINDER_INTERVAL_INPUT, editReminder.reminderIntervalAmount)
-        form.setChecked(START_OVERRIDE_CHECKBOX, editReminder.reminderStartOverrideAmount > 0)
-        form.setValue(START_OVERRIDE_INPUT, editReminder.reminderStartOverrideAmount)
-        form.setChecked(REMINDER_PENALTY_CHECKBOX, editReminder.ignoredReminderIntervalAmount > 0)
-        form.setValue(IGNORED_REMINDER_INTERVAL_INPUT, editReminder.ignoredReminderIntervalAmount)
+        form.element.fromJSON(JSON.stringify(editReminder))
+
+        // form.setValue(MESSAGE_INPUT, editReminder.message)
+        // form.setValue(TITLE_INPUT, editReminder.title)
+        // form.setValue(REMINDER_INTERVAL_INPUT, editReminder.reminderIntervalAmount)
+        // form.setChecked(START_OVERRIDE_CHECKBOX, editReminder.reminderStartOverrideAmount > 0)
+        // form.setValue(START_OVERRIDE_INPUT, editReminder.reminderStartOverrideAmount)
+        // form.setChecked(REMINDER_PENALTY_CHECKBOX, editReminder.ignoredReminderIntervalAmount > 0)
+        // form.setValue(IGNORED_REMINDER_INTERVAL_INPUT, editReminder.ignoredReminderIntervalAmount)
 
         const createButton = form.getInputElement(CREATE_BUTTON)
         createButton.innerHTML = createButton.getAttribute('when-editing') || createButton.innerHTML

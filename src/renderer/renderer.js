@@ -379,13 +379,6 @@ function loadReminderCreationPage() {
     if (editIndex >= 0) {
         const editReminder = activeReminders[editIndex];
         form.setFromJson(JSON.stringify(editReminder));
-        // form.setValue(MESSAGE_INPUT, editReminder.message)
-        // form.setValue(TITLE_INPUT, editReminder.title)
-        // form.setValue(REMINDER_INTERVAL_INPUT, editReminder.reminderIntervalAmount)
-        // form.setChecked(START_OVERRIDE_CHECKBOX, editReminder.reminderStartOverrideAmount > 0)
-        // form.setValue(START_OVERRIDE_INPUT, editReminder.reminderStartOverrideAmount)
-        // form.setChecked(REMINDER_PENALTY_CHECKBOX, editReminder.ignoredReminderIntervalAmount > 0)
-        // form.setValue(IGNORED_REMINDER_INTERVAL_INPUT, editReminder.ignoredReminderIntervalAmount)
         const createButton = form.getInputElement(CREATE_BUTTON);
         createButton.innerHTML = createButton.getAttribute('when-editing') || createButton.innerHTML;
     }

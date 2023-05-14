@@ -175,7 +175,7 @@ class Reminder {
     }
     toJSON() {
         return {
-            nextReminder: this.nextReminder.valueOf(),
+            nextReminder: this.nextReminder,
             reminderIntervalAmount: this.reminderIntervalAmount,
             reminderStartOverrideAmount: this.reminderStartOverrideAmount,
             ignoredReminderIntervalAmount: this.ignoredReminderIntervalAmount,
@@ -343,14 +343,12 @@ function loadReminderCreationPage() {
     var _a;
     const CREATE_BUTTON = 'create-reminder';
     const CANCEL_BUTTON = 'cancel';
-    const REMINDER_INTERVAL_INPUT = 'reminder-interval-amount';
-    const START_OVERRIDE_INPUT = 'reminder-start-override-amount';
     const form = new InputForm('reminder-form', (e) => {
+        var _a;
         e.preventDefault();
-        const reminderIntervalAmount = form.getValueAsNumber(REMINDER_INTERVAL_INPUT);
-        const startDelta = form.activeAndFilled(START_OVERRIDE_INPUT) ? form.getValueAsNumber(START_OVERRIDE_INPUT) : reminderIntervalAmount;
         const reminderFormJson = JSON.parse(form.element.toJSON());
-        const reminder = new Reminder(reminderFormJson === null || reminderFormJson === void 0 ? void 0 : reminderFormJson.reminderIntervalAmount, reminderFormJson === null || reminderFormJson === void 0 ? void 0 : reminderFormJson.reminderStartOverrideAmount, reminderFormJson === null || reminderFormJson === void 0 ? void 0 : reminderFormJson.reminderIntervalAmount, reminderFormJson === null || reminderFormJson === void 0 ? void 0 : reminderFormJson.message, reminderFormJson === null || reminderFormJson === void 0 ? void 0 : reminderFormJson.title);
+        const reminder = new Reminder(reminderFormJson === null || reminderFormJson === void 0 ? void 0 : reminderFormJson.reminderIntervalAmount, reminderFormJson === null || reminderFormJson === void 0 ? void 0 : reminderFormJson.reminderStartOverrideAmount, reminderFormJson === null || reminderFormJson === void 0 ? void 0 : reminderFormJson.ignoredReminderIntervalAmount, reminderFormJson === null || reminderFormJson === void 0 ? void 0 : reminderFormJson.message, reminderFormJson === null || reminderFormJson === void 0 ? void 0 : reminderFormJson.title);
+        const startDelta = (_a = reminder === null || reminder === void 0 ? void 0 : reminder.reminderStartOverrideAmount) !== null && _a !== void 0 ? _a : reminder.reminderIntervalAmount;
         reminder.setNextReminderTimeout(startDelta);
         if (editIndex >= 0) {
             activeReminders[editIndex] = reminder;

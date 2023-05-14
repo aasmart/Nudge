@@ -253,7 +253,7 @@ class Reminder {
 
     toJSON() {
         return {
-            nextReminder: this.nextReminder.valueOf(),
+            nextReminder: this.nextReminder,
             reminderIntervalAmount: this.reminderIntervalAmount,
             reminderStartOverrideAmount: this.reminderStartOverrideAmount,
             ignoredReminderIntervalAmount: this.ignoredReminderIntervalAmount,
@@ -466,15 +466,9 @@ function loadCreateRemindersPage() {
 function loadReminderCreationPage() {
     const CREATE_BUTTON = 'create-reminder'
     const CANCEL_BUTTON = 'cancel'
-    const REMINDER_INTERVAL_INPUT = 'reminder-interval-amount'
-    const START_OVERRIDE_INPUT = 'reminder-start-override-amount'
 
     const form = new InputForm('reminder-form', (e: Event): boolean => {
         e.preventDefault()
-
-        const reminderIntervalAmount = form.getValueAsNumber(REMINDER_INTERVAL_INPUT);
-
-        const startDelta = form.activeAndFilled(START_OVERRIDE_INPUT) ? form.getValueAsNumber(START_OVERRIDE_INPUT) : reminderIntervalAmount;
 
         const reminderFormJson: Reminder = JSON.parse(form.element.toJSON())
         const reminder = new Reminder(
@@ -485,6 +479,7 @@ function loadReminderCreationPage() {
             reminderFormJson?.title
         )
 
+        const startDelta = reminder?.reminderStartOverrideAmount ?? reminder.reminderIntervalAmount
         reminder.setNextReminderTimeout(startDelta)
 
         if(editIndex >= 0) {

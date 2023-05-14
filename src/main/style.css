@@ -69,8 +69,7 @@ main {
     height: 16px;
 }
 
-section,
-form {
+section {
     display: flex;
     justify-content: start;
     align-items: center;
@@ -151,39 +150,39 @@ form {
     text-align: center;
 }
 
-.reminder-form > div {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: start;
+.reminder-form {
+    color: white;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px 8px;
+    font-size: var(--input-font-size);
+    width: var(--input-char-size);
     margin: 8px;
 }
 
-.reminder-form > div:has(input[type="checkbox"]) {
-    justify-content: start;
-    align-items: start;
-    font-size: var(--input-font-size);
-    width: var(--input-char-size);
-    gap: 4px;
+.reminder-form * {
+    grid-column: 1 / span 3;
 }
 
-.reminder-form > div:has(button) {
-    flex-direction: row;
-    gap: 10px;
-    font-size: var(--input-font-size);
-    width: var(--input-char-size);
+.reminder-form > input[type="checkbox"] + label {
+    justify-self: start;
 }
 
 .reminder-form button:first-of-type {
-    flex: 3;
+    grid-column: 1 / span 2;
 }
 
 .reminder-form button:last-of-type {
-    flex: 1;
+    grid-column: 3 / span 1;
 }
 
 .reminder-form label {
     font-size: 1.2rem;
+}
+
+.reminder-form input,
+.reminder-form textarea {
+    margin-bottom: 6px;
 }
 
 input,
@@ -213,7 +212,7 @@ input[type=number] {
 
 input, 
 textarea {
-    width: var(--input-char-size);
+    width: 100%;
 }
 
 button {

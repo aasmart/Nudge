@@ -23,17 +23,6 @@ HTMLFormElement.prototype.toJSON = function () {
     }
     return JSON.stringify(json);
 };
-HTMLFormElement.prototype.fromJSON = function (json) {
-    var _a;
-    const camelCaseRegex = /.([a-z])+/g;
-    const obj = JSON.parse(json);
-    for (let key in obj) {
-        const id = ((_a = key.match(camelCaseRegex)) === null || _a === void 0 ? void 0 : _a.flatMap(s => s.toLowerCase()).join('-')) || '';
-        const element = document.getElementById(id);
-        if (element != null && element)
-            element.value = obj[key];
-    }
-};
 class InputForm {
     constructor(formClass, onSubmit) {
         this.inputs = new Map();
@@ -41,6 +30,7 @@ class InputForm {
         this.textareas = new Map();
         this.element = document.getElementsByClassName(formClass)[0];
         this.element.addEventListener('submit', e => onSubmit(e));
+        this.formState = 'default';
         Array.from(this.element.getElementsByTagName('input')).forEach(e => {
             const id = e.getAttribute('id');
             const type = e.getAttribute('type');
@@ -120,6 +110,30 @@ class InputForm {
             || this.textareas.get(input)
             || this.buttons.get(input)
             || null;
+    }
+    setFromJson(json) {
+        var _a;
+        const camelCaseRegex = /.([a-z])+/g;
+        // Set all the fields
+        const obj = JSON.parse(json);
+        for (let key in obj) {
+            const id = ((_a = key.match(camelCaseRegex)) === null || _a === void 0 ? void 0 : _a.flatMap(s => s.toLowerCase()).join('-')) || '';
+            const element = document.getElementById(id);
+            if (element == null)
+                continue;
+            if (element) { }
+            element.value = obj[key];
+        }
+        // Set the toggle checkboxes
+        Array.from(this.inputs.values()).forEach(input => {
+            const type = input.getAttribute('type');
+            if (type !== 'checkbox')
+                return;
+            const toggles = input.getAttribute('toggles');
+            if (toggles == null)
+                return;
+            this.setChecked(input.id, this.hasValue(toggles));
+        });
     }
 }
 class Reminder {
@@ -364,7 +378,7 @@ function loadReminderCreationPage() {
     const editIndex = parseInt(sessionStorage.getItem('edit-reminder-index') || '-1');
     if (editIndex >= 0) {
         const editReminder = activeReminders[editIndex];
-        form.element.fromJSON(JSON.stringify(editReminder));
+        form.setFromJson(JSON.stringify(editReminder));
         // form.setValue(MESSAGE_INPUT, editReminder.message)
         // form.setValue(TITLE_INPUT, editReminder.title)
         // form.setValue(REMINDER_INTERVAL_INPUT, editReminder.reminderIntervalAmount)

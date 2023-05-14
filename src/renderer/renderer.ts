@@ -13,7 +13,6 @@ Date.prototype.addMilliseconds = function(milliseconds: number): Date {
 }
 
 interface HTMLFormElement {
-    fromJSON(json: string): void,
     toJSON(): string
 }
 
@@ -38,20 +37,9 @@ HTMLFormElement.prototype.toJSON = function(): string {
     return JSON.stringify(json)    
 }
 
-HTMLFormElement.prototype.fromJSON = function(json: string): void {
-    const camelCaseRegex = /.([a-z])+/g
-
-    const obj = JSON.parse(json)
-    for(let key in obj) {
-        const id = key.match(camelCaseRegex)?.flatMap(s => s.toLowerCase()).join('-') || ''
-        const element = <HTMLInputElement>document.getElementById(id)
-        if(element != null && element as HTMLInputElement | HTMLTextAreaElement)
-            element.value = obj[key]
-    }
-}
-
 class InputForm {
     element: HTMLFormElement
+    formState: string
     inputs: Map<String, HTMLInputElement>
     buttons: Map<String, HTMLElement>
     textareas: Map<String, HTMLElement>
@@ -63,6 +51,7 @@ class InputForm {
         this.element = <HTMLFormElement>document.getElementsByClassName(formClass)[0]
 
         this.element.addEventListener('submit', e => onSubmit(e))
+        this.formState = 'default'
 
         Array.from(this.element.getElementsByTagName('input')).forEach(e => {
             const id = e.getAttribute('id');
@@ -166,6 +155,36 @@ class InputForm {
             || this.textareas.get(input) 
             || this.buttons.get(input) 
             || null
+    }
+
+    setFromJson(json: string): void {
+        const camelCaseRegex = /.([a-z])+/g
+    
+        // Set all the fields
+        const obj = JSON.parse(json)
+        for(let key in obj) {
+            const id = key.match(camelCaseRegex)?.flatMap(s => s.toLowerCase()).join('-') || ''
+            const element = <HTMLInputElement>document.getElementById(id)
+
+            if(element == null)
+                continue
+
+            if(element as HTMLInputElement | HTMLTextAreaElement) {}
+                element.value = obj[key]
+        }
+
+        // Set the toggle checkboxes
+        Array.from(this.inputs.values()).forEach(input => {
+            const type = input.getAttribute('type') 
+            if(type !== 'checkbox')
+                return
+            
+            const toggles = input.getAttribute('toggles')
+            if(toggles == null)
+                return
+
+            this.setChecked(input.id, this.hasValue(toggles))
+        })
     }
 }
 
@@ -500,7 +519,7 @@ function loadReminderCreationPage() {
     if(editIndex >= 0) {
         const editReminder = activeReminders[editIndex]
 
-        form.element.fromJSON(JSON.stringify(editReminder))
+        form.setFromJson(JSON.stringify(editReminder))
 
         // form.setValue(MESSAGE_INPUT, editReminder.message)
         // form.setValue(TITLE_INPUT, editReminder.title)

@@ -480,7 +480,7 @@ function loadReminderCreationPage() {
         const reminder = new Reminder(
             reminderFormJson?.reminderIntervalAmount,
             reminderFormJson?.reminderStartOverrideAmount,
-            reminderFormJson?.reminderIntervalAmount,
+            reminderFormJson?.ignoredReminderIntervalAmount,
             reminderFormJson?.message,
             reminderFormJson?.title
         )

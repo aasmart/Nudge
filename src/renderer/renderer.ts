@@ -262,7 +262,7 @@ class Reminder {
             this.cancel()
             this.pausedTime = new Date()
         } else if(this.paused && !paused) {
-            const nextPlay = this.nextReminder.valueOf() - this.pausedTime.valueOf();
+            const nextPlay = (this.nextReminder.valueOf() - this.pausedTime.valueOf()) * Constants.MS_TO_MINUTES;
             this.setNextReminderTimeout(nextPlay)
         }
 

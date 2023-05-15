@@ -26,8 +26,6 @@ HTMLFormElement.prototype.toJSON = function () {
 class InputForm {
     constructor(formClass, onSubmit, onReset) {
         this.inputs = new Map();
-        this.buttons = new Map();
-        this.textareas = new Map();
         this.element = document.getElementsByClassName(formClass)[0];
         this.element.addEventListener('submit', e => onSubmit(e));
         this.element.addEventListener('reset', e => onReset(e));
@@ -56,13 +54,13 @@ class InputForm {
             const id = e.getAttribute('id');
             if (id == null)
                 return;
-            this.buttons.set(id, e);
+            this.inputs.set(id, e);
         });
         Array.from(this.element.getElementsByTagName('textarea')).forEach(e => {
             const id = e.getAttribute('id');
             if (id == null)
                 return;
-            this.textareas.set(id, e);
+            this.inputs.set(id, e);
         });
     }
     setValue(input, value) {
@@ -81,10 +79,12 @@ class InputForm {
         return ((_a = this.getInputElement(input)) === null || _a === void 0 ? void 0 : _a.value) || '';
     }
     getValueAsNumber(input, checkActive = false) {
-        var _a;
         if (checkActive && !this.activeAndFilled(input))
             return '';
-        return ((_a = this.getInputElement(input)) === null || _a === void 0 ? void 0 : _a.valueAsNumber) || '';
+        const element = this.getInputElement(input);
+        if (!element || !(element instanceof HTMLInputElement))
+            return '';
+        return element.valueAsNumber;
     }
     hasRequiredFields() {
         return Array.from(this.inputs.values()).filter(e => !e.checkValidity()).length <= 0;
@@ -101,16 +101,13 @@ class InputForm {
     }
     setChecked(input, checked) {
         const element = this.inputs.get(input);
-        if (element == null || element.getAttribute('type') !== 'checkbox')
+        if (!element || !(element instanceof HTMLInputElement) || element.getAttribute('type') !== 'checkbox')
             return;
         element.checked = checked;
         element.dispatchEvent(new Event('change'));
     }
     getInputElement(input) {
-        return this.inputs.get(input)
-            || this.textareas.get(input)
-            || this.buttons.get(input)
-            || null;
+        return this.inputs.get(input) || undefined;
     }
     setFromJson(json) {
         var _a;
@@ -385,6 +382,8 @@ function loadReminderCreationPage() {
         const editReminder = activeReminders[editIndex];
         form.setFromJson(JSON.stringify(editReminder));
         const createButton = form.getInputElement(CREATE_BUTTON);
+        if (!createButton)
+            return;
         createButton.innerHTML = createButton.getAttribute('when-editing') || createButton.innerHTML;
     }
 }

@@ -40,14 +40,10 @@ HTMLFormElement.prototype.toJSON = function(): string {
 class InputForm {
     element: HTMLFormElement
     formState: string
-    inputs: Map<String, HTMLInputElement>
-    buttons: Map<String, HTMLElement>
-    textareas: Map<String, HTMLElement>
+    inputs: Map<String, HTMLInputElement | HTMLTextAreaElement | HTMLButtonElement>
 
     constructor(formClass: string, onSubmit: (e: Event) => boolean, onReset: (e: Event) => boolean) {
         this.inputs = new Map()
-        this.buttons = new Map()
-        this.textareas = new Map()
         this.element = <HTMLFormElement>document.getElementsByClassName(formClass)[0]
 
         this.element.addEventListener('submit', e => onSubmit(e))
@@ -87,7 +83,7 @@ class InputForm {
             if(id == null)
                 return;
 
-            this.buttons.set(id, e)
+            this.inputs.set(id, e)
         })
 
         Array.from(this.element.getElementsByTagName('textarea')).forEach(e => {
@@ -96,7 +92,7 @@ class InputForm {
             if(id == null)
                 return;
 
-            this.textareas.set(id, e)
+            this.inputs.set(id, e)
         })
     }
 
@@ -123,7 +119,11 @@ class InputForm {
         if(checkActive && !this.activeAndFilled(input))
             return ''
 
-        return this.getInputElement(input)?.valueAsNumber || ''
+        const element = this.getInputElement(input)
+        if(!element || !(element instanceof HTMLInputElement))
+            return ''
+
+        return element.valueAsNumber
     }
 
     hasRequiredFields(): boolean {
@@ -144,18 +144,15 @@ class InputForm {
 
     setChecked(input: String, checked: boolean) {
         const element = this.inputs.get(input)
-        if(element == null || element.getAttribute('type') !== 'checkbox')
+        if(!element || !(element instanceof HTMLInputElement) || element.getAttribute('type') !== 'checkbox')
             return
         
         element.checked = checked
         element.dispatchEvent(new Event('change'))
     }
 
-    getInputElement(input: String): any {
-        return this.inputs.get(input) 
-            || this.textareas.get(input) 
-            || this.buttons.get(input) 
-            || null
+    getInputElement(input: String): HTMLInputElement | HTMLTextAreaElement | HTMLButtonElement | undefined  {
+        return this.inputs.get(input) || undefined
     }
 
     setFromJson(json: string): void {
@@ -530,6 +527,9 @@ function loadReminderCreationPage() {
         form.setFromJson(JSON.stringify(editReminder))
 
         const createButton = form.getInputElement(CREATE_BUTTON)
+        if(!createButton)
+            return
+            
         createButton.innerHTML = createButton.getAttribute('when-editing') || createButton.innerHTML
     }
 }

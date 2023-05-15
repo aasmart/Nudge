@@ -113,10 +113,6 @@ class InputForm {
         return element.valueAsNumber
     }
 
-    hasRequiredFields(): boolean {
-        return Array.from(this.inputs.values()).filter(e => !e.checkValidity()).length <= 0
-    }
-
     hasValue(input: string) {
         return (this.inputs.get(input)?.value?.length || 0) > 0
     }

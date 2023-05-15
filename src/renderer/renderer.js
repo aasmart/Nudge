@@ -77,9 +77,6 @@ class InputForm {
             return '';
         return element.valueAsNumber;
     }
-    hasRequiredFields() {
-        return Array.from(this.inputs.values()).filter(e => !e.checkValidity()).length <= 0;
-    }
     hasValue(input) {
         var _a, _b;
         return (((_b = (_a = this.inputs.get(input)) === null || _a === void 0 ? void 0 : _a.value) === null || _b === void 0 ? void 0 : _b.length) || 0) > 0;

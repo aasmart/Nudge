@@ -50,7 +50,10 @@ class InputForm {
         this.element.addEventListener('reset', e => onReset(e))
         this.formState = 'default'
 
-        Array.from(this.element.getElementsByTagName('input')).forEach(e => {
+        const inputElements: Array<HTMLInputElement | HTMLTextAreaElement | HTMLButtonElement>
+             = Array.from(this.element.querySelectorAll('input,button,textarea'))
+
+        inputElements.forEach(e => {
             const id = e.getAttribute('id');
             const type = e.getAttribute('type')
 
@@ -60,7 +63,7 @@ class InputForm {
             switch(type) {
                 case 'checkbox':
                     const toggles = e.getAttribute('toggles')
-                    if(toggles == null)
+                    if(toggles == null || !(e instanceof HTMLInputElement))
                         break
 
                     e.onchange = () => { 
@@ -72,25 +75,9 @@ class InputForm {
                     }
 
                     break
+                default:
+                    break
             }
-
-            this.inputs.set(id, e)
-        })
-
-        Array.from(this.element.getElementsByTagName('button')).forEach(e => {
-            const id = e.getAttribute('id');
-
-            if(id == null)
-                return;
-
-            this.inputs.set(id, e)
-        })
-
-        Array.from(this.element.getElementsByTagName('textarea')).forEach(e => {
-            const id = e.getAttribute('id');
-
-            if(id == null)
-                return;
 
             this.inputs.set(id, e)
         })
@@ -529,7 +516,7 @@ function loadReminderCreationPage() {
         const createButton = form.getInputElement(CREATE_BUTTON)
         if(!createButton)
             return
-            
+
         createButton.innerHTML = createButton.getAttribute('when-editing') || createButton.innerHTML
     }
 }

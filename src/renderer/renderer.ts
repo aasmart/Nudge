@@ -38,20 +38,28 @@ HTMLFormElement.prototype.toJSON = function(): string {
 }
 
 class InputForm {
-    element: HTMLFormElement
+    formElement: HTMLFormElement
     formState: string
     inputs: Map<String, HTMLInputElement | HTMLTextAreaElement | HTMLButtonElement>
 
     constructor(formClass: string, onSubmit: (e: Event) => boolean, onReset: (e: Event) => boolean) {
         this.inputs = new Map()
-        this.element = <HTMLFormElement>document.getElementsByClassName(formClass)[0]
+        this.formElement = <HTMLFormElement>document.getElementsByClassName(formClass)[0]
 
-        this.element.addEventListener('submit', e => onSubmit(e))
-        this.element.addEventListener('reset', e => onReset(e))
+        this.formElement.addEventListener('submit', e => onSubmit(e))
+        this.formElement.addEventListener('reset', e => onReset(e))
         this.formState = 'default'
 
+        const invalid = (e: Event) => {
+            const element: HTMLElement = e.target as HTMLFormElement
+            element.classList.add('shake')
+            element.addEventListener('animationend', (e) => {
+                if(e.animationName === 'shake') element.classList.remove('shake')
+            })
+        }
+
         const inputElements: Array<HTMLInputElement | HTMLTextAreaElement | HTMLButtonElement>
-             = Array.from(this.element.querySelectorAll('input,button,textarea'))
+             = Array.from(this.formElement.querySelectorAll('input,button,textarea'))
 
         inputElements.forEach(e => {
             const id = e.getAttribute('id');
@@ -78,6 +86,8 @@ class InputForm {
                 default:
                     break
             }
+
+            e.addEventListener('invalid', invalid)
 
             this.inputs.set(id, e)
         })
@@ -469,7 +479,7 @@ function loadReminderCreationPage() {
     const form = new InputForm('reminder-form', (e: Event): boolean => {
         e.preventDefault()
 
-        const reminderFormJson: Reminder = JSON.parse(form.element.toJSON())
+        const reminderFormJson: Reminder = JSON.parse(form.formElement.toJSON())
         const reminder = new Reminder(
             reminderFormJson?.reminderIntervalAmount,
             reminderFormJson?.reminderStartOverrideAmount,

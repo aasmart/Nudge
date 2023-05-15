@@ -325,7 +325,7 @@ input[type="checkbox"]:checked + label::after {
     resize: none;
 }
 
-.reminder-form input:invalid {
+.reminder-form input:not(:placeholder-shown):not(:focus):invalid {
     border-color: var(--input-invalid-color);
 }
 
@@ -410,4 +410,26 @@ input[type="checkbox"]:checked + label::after {
     100% {
         visibility: hidden;
     }
+}
+
+@keyframes shake {
+    0% {
+        transform: translateX(0);
+    }
+
+    30% {
+        transform: translateX(1%);
+    }
+
+    70% {
+        transform: translateX(-1%);
+    }
+
+    100% {
+        transform: translateX(0);
+    }
+}
+
+.shake {
+    animation: shake 250ms ease-out normal;
 }

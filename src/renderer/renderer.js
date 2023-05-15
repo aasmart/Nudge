@@ -26,11 +26,19 @@ HTMLFormElement.prototype.toJSON = function () {
 class InputForm {
     constructor(formClass, onSubmit, onReset) {
         this.inputs = new Map();
-        this.element = document.getElementsByClassName(formClass)[0];
-        this.element.addEventListener('submit', e => onSubmit(e));
-        this.element.addEventListener('reset', e => onReset(e));
+        this.formElement = document.getElementsByClassName(formClass)[0];
+        this.formElement.addEventListener('submit', e => onSubmit(e));
+        this.formElement.addEventListener('reset', e => onReset(e));
         this.formState = 'default';
-        const inputElements = Array.from(this.element.querySelectorAll('input,button,textarea'));
+        const invalid = (e) => {
+            const element = e.target;
+            element.classList.add('shake');
+            element.addEventListener('animationend', (e) => {
+                if (e.animationName === 'shake')
+                    element.classList.remove('shake');
+            });
+        };
+        const inputElements = Array.from(this.formElement.querySelectorAll('input,button,textarea'));
         inputElements.forEach(e => {
             const id = e.getAttribute('id');
             const type = e.getAttribute('type');
@@ -51,6 +59,7 @@ class InputForm {
                 default:
                     break;
             }
+            e.addEventListener('invalid', invalid);
             this.inputs.set(id, e);
         });
     }
@@ -344,7 +353,7 @@ function loadReminderCreationPage() {
     const form = new InputForm('reminder-form', (e) => {
         var _a;
         e.preventDefault();
-        const reminderFormJson = JSON.parse(form.element.toJSON());
+        const reminderFormJson = JSON.parse(form.formElement.toJSON());
         const reminder = new Reminder(reminderFormJson === null || reminderFormJson === void 0 ? void 0 : reminderFormJson.reminderIntervalAmount, reminderFormJson === null || reminderFormJson === void 0 ? void 0 : reminderFormJson.reminderStartOverrideAmount, reminderFormJson === null || reminderFormJson === void 0 ? void 0 : reminderFormJson.ignoredReminderIntervalAmount, reminderFormJson === null || reminderFormJson === void 0 ? void 0 : reminderFormJson.message, reminderFormJson === null || reminderFormJson === void 0 ? void 0 : reminderFormJson.title);
         const startDelta = (_a = reminder === null || reminder === void 0 ? void 0 : reminder.reminderStartOverrideAmount) !== null && _a !== void 0 ? _a : reminder.reminderIntervalAmount;
         reminder.setNextReminderTimeout(startDelta);

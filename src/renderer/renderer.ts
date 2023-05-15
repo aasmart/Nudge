@@ -44,13 +44,14 @@ class InputForm {
     buttons: Map<String, HTMLElement>
     textareas: Map<String, HTMLElement>
 
-    constructor(formClass: string, onSubmit: (e: Event) => boolean) {
+    constructor(formClass: string, onSubmit: (e: Event) => boolean, onReset: (e: Event) => boolean) {
         this.inputs = new Map()
         this.buttons = new Map()
         this.textareas = new Map()
         this.element = <HTMLFormElement>document.getElementsByClassName(formClass)[0]
 
         this.element.addEventListener('submit', e => onSubmit(e))
+        this.element.addEventListener('reset', e => onReset(e))
         this.formState = 'default'
 
         Array.from(this.element.getElementsByTagName('input')).forEach(e => {
@@ -484,7 +485,6 @@ function loadCreateRemindersPage() {
 
 function loadReminderCreationPage() {
     const CREATE_BUTTON = 'create-reminder'
-    const CANCEL_BUTTON = 'cancel'
 
     const form = new InputForm('reminder-form', (e: Event): boolean => {
         e.preventDefault()
@@ -512,6 +512,14 @@ function loadReminderCreationPage() {
         window.api.openPage('index')
 
         return false;
+    }, (e: Event) => {
+        e.preventDefault()
+
+        sessionStorage.setItem('edit-reminder-index', '-1')
+        saveActiveReminders()
+        window.api.openPage('index')
+
+        return false;
     })
 
     // Update display if the user is editing
@@ -524,13 +532,6 @@ function loadReminderCreationPage() {
         const createButton = form.getInputElement(CREATE_BUTTON)
         createButton.innerHTML = createButton.getAttribute('when-editing') || createButton.innerHTML
     }
-
-    // Events -------------------------------
-    form.getInputElement(CANCEL_BUTTON)?.addEventListener('click', () => {
-        sessionStorage.setItem('edit-reminder-index', '-1')
-        saveActiveReminders()
-        window.api.openPage('index')
-    })
 }
 
 function clearPreloads() {

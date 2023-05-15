@@ -24,12 +24,13 @@ HTMLFormElement.prototype.toJSON = function () {
     return JSON.stringify(json);
 };
 class InputForm {
-    constructor(formClass, onSubmit) {
+    constructor(formClass, onSubmit, onReset) {
         this.inputs = new Map();
         this.buttons = new Map();
         this.textareas = new Map();
         this.element = document.getElementsByClassName(formClass)[0];
         this.element.addEventListener('submit', e => onSubmit(e));
+        this.element.addEventListener('reset', e => onReset(e));
         this.formState = 'default';
         Array.from(this.element.getElementsByTagName('input')).forEach(e => {
             const id = e.getAttribute('id');
@@ -354,9 +355,7 @@ function loadCreateRemindersPage() {
     window.dispatchEvent(new Event('update-reminder-list'));
 }
 function loadReminderCreationPage() {
-    var _a;
     const CREATE_BUTTON = 'create-reminder';
-    const CANCEL_BUTTON = 'cancel';
     const form = new InputForm('reminder-form', (e) => {
         var _a;
         e.preventDefault();
@@ -373,6 +372,12 @@ function loadReminderCreationPage() {
         saveActiveReminders();
         window.api.openPage('index');
         return false;
+    }, (e) => {
+        e.preventDefault();
+        sessionStorage.setItem('edit-reminder-index', '-1');
+        saveActiveReminders();
+        window.api.openPage('index');
+        return false;
     });
     // Update display if the user is editing
     const editIndex = parseInt(sessionStorage.getItem('edit-reminder-index') || '-1');
@@ -382,12 +387,6 @@ function loadReminderCreationPage() {
         const createButton = form.getInputElement(CREATE_BUTTON);
         createButton.innerHTML = createButton.getAttribute('when-editing') || createButton.innerHTML;
     }
-    // Events -------------------------------
-    (_a = form.getInputElement(CANCEL_BUTTON)) === null || _a === void 0 ? void 0 : _a.addEventListener('click', () => {
-        sessionStorage.setItem('edit-reminder-index', '-1');
-        saveActiveReminders();
-        window.api.openPage('index');
-    });
 }
 function clearPreloads() {
     const preloads = document.getElementsByClassName('preload');

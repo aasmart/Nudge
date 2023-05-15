@@ -259,6 +259,9 @@ input:disabled {
 input[type="checkbox"] {
     opacity: 0;
     position: absolute;
+
+    /* So they cannot be clicked */
+    z-index: -1;
 }
 
 input[type="checkbox"] + label {

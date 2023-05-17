@@ -325,7 +325,8 @@ input[type="checkbox"]:checked + label::after {
     resize: none;
 }
 
-.reminder-form input:not(:placeholder-shown):not(:focus):invalid {
+.reminder-form input:not(:placeholder-shown):not(:focus):invalid,
+.dirty:not(:valid):not(:disabled) {
     border-color: var(--input-invalid-color);
 }
 

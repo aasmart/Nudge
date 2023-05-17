@@ -48,15 +48,8 @@ class InputForm {
 
         this.formElement.addEventListener('submit', e => onSubmit(e))
         this.formElement.addEventListener('reset', e => onReset(e))
+        this.formElement.addEventListener('invalid', e => console.log(e), true)
         this.formState = 'default'
-
-        const invalid = (e: Event) => {
-            const element: HTMLElement = e.target as HTMLFormElement
-            element.classList.add('shake')
-            element.addEventListener('animationend', (e) => {
-                if(e.animationName === 'shake') element.classList.remove('shake')
-            })
-        }
 
         const inputElements: Array<HTMLInputElement | HTMLTextAreaElement | HTMLButtonElement>
              = Array.from(this.formElement.querySelectorAll('input,button,textarea'))
@@ -87,7 +80,8 @@ class InputForm {
                     break
             }
 
-            e.addEventListener('invalid', invalid)
+            e.onkeydown = () => e.classList.add('dirty')
+            e.onmousedown = () => e.classList.add('dirty')
 
             this.inputs.set(id, e)
         })

@@ -29,15 +29,8 @@ class InputForm {
         this.formElement = document.getElementsByClassName(formClass)[0];
         this.formElement.addEventListener('submit', e => onSubmit(e));
         this.formElement.addEventListener('reset', e => onReset(e));
+        this.formElement.addEventListener('invalid', e => console.log(e), true);
         this.formState = 'default';
-        const invalid = (e) => {
-            const element = e.target;
-            element.classList.add('shake');
-            element.addEventListener('animationend', (e) => {
-                if (e.animationName === 'shake')
-                    element.classList.remove('shake');
-            });
-        };
         const inputElements = Array.from(this.formElement.querySelectorAll('input,button,textarea'));
         inputElements.forEach(e => {
             const id = e.getAttribute('id');
@@ -59,7 +52,8 @@ class InputForm {
                 default:
                     break;
             }
-            e.addEventListener('invalid', invalid);
+            e.onkeydown = () => e.classList.add('dirty');
+            e.onmousedown = () => e.classList.add('dirty');
             this.inputs.set(id, e);
         });
     }

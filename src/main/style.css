@@ -414,19 +414,19 @@ input[type="checkbox"]:checked + label::after {
 
 @keyframes shake {
     0% {
-        transform: translateX(0);
+        transform: rotateX(0);
     }
 
     30% {
-        transform: translateX(1%);
+        transform: rotateZ(1.5deg);
     }
 
     70% {
-        transform: translateX(-1%);
+        transform: rotateZ(-1.5deg);
     }
 
     100% {
-        transform: translateX(0);
+        transform: rotateZ(0);
     }
 }
 

@@ -23,17 +23,17 @@
 
             <input type="checkbox" id="toggle-reminder-start-override" name="toggle-reminder-start-override" toggles="reminder-start-override-amount">
             <label for="toggle-reminder-start-override">First Reminder Delay Override</label>
-            <input type="number" id="reminder-start-override-amount" name="reminder-start-override-amount" step="0.01"  min="0.1" placeholder="Reminder start override (minutes)" required disabled toggleable>
+            <input type="number" id="reminder-start-override-amount" name="reminder-start-override-amount" step="0.01"  min="0.1" placeholder="Reminder start override (minutes)" disabled required toggleable>
 
             <input type="checkbox" id="toggle-ignore-reminder-penalty" name="toggle-ignore-reminder-penalty" toggles="ignored-reminder-interval-amount">
             <label for="toggle-ignore-reminder-penalty">Ignored Reminder Replay Interval</label>
-            <input type="number" id="ignored-reminder-interval-amount" name="ignored-reminder-interval-amount" step="0.01"  min="0.1" placeholder="Ignored reminder interval (minutes)" required disabled toggleable>
+            <input type="number" id="ignored-reminder-interval-amount" name="ignored-reminder-interval-amount" step="0.01"  min="0.1" placeholder="Ignored reminder interval (minutes)" disabled required toggleable>
 
             <label for="title">Reminder Title</label>
-            <input type="text" minlength="1" maxlength="32" id="title" name="title" value="Time for a break!" placeholder="Reminder title" required>
+            <input type="text" minlength="1" maxlength="32" id="title" name="title" placeholder="Reminder title" required>
 
             <label for="message">Reminder Message</label>
-            <textarea cols="40" rows = "10" id="message" name="message" placeholder="Reminder message">Time for a break!</textarea>
+            <textarea cols="40" rows = "10" id="message" name="message" placeholder="Reminder message"></textarea>
 
             <button id="create-reminder" when-editing="Update Reminder" type="submit">Create Reminder</button>
             <button id="cancel" action="destructive" type="reset">Cancel</button>

@@ -161,7 +161,7 @@ section {
     margin: 8px;
 }
 
-.reminder-form * {
+.reminder-form > * {
     grid-column: 1 / span 3;
 }
 
@@ -169,11 +169,11 @@ section {
     justify-self: start;
 }
 
-.reminder-form button:first-of-type {
+.reminder-form button[type="submit"] {
     grid-column: 1 / span 2;
 }
 
-.reminder-form button:last-of-type {
+.reminder-form button[type="reset"] {
     grid-column: 3 / span 1;
 }
 
@@ -181,9 +181,22 @@ section {
     font-size: 1.2rem;
 }
 
-.reminder-form input,
-.reminder-form textarea {
+.reminder-form div {
     margin-bottom: 12px;
+}
+
+.error {
+    color: var(--input-invalid-color);
+    font-size: 1rem;
+    display: inline;
+}
+
+.reminder-form > p {
+    text-align: right;
+}
+
+.reminder-form > p span {
+    color: var(--input-invalid-color)
 }
 
 input,

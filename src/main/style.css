@@ -276,12 +276,12 @@ button[action="destructive"]:hover {
 }
 
 .reminder-form input:not(:placeholder-shown):invalid,
-.dirty:not(:valid, :disabled, :focus):is(input, textarea) {
+[dirty]:not(:valid, :disabled, :focus):is(input, textarea) {
     border-color: var(--input-invalid-color);
 }
 
 .reminder-form input:not(:placeholder-shown):invalid ~ .error,
-.dirty:not(:valid, :disabled):is(input, textarea) ~ .error {
+[dirty]:not(:valid, :disabled):is(input, textarea) ~ .error {
     display: inline;
 }
 

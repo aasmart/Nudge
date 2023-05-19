@@ -38,6 +38,22 @@ HTMLFormElement.prototype.toJSON = function(): string {
     return JSON.stringify(formJson)    
 }
 
+interface HTMLElement {
+    setDirty(isDirty: boolean): void
+    isDirty(): boolean
+}
+
+HTMLElement.prototype.setDirty = function(isDirty: boolean): void {
+    if(isDirty)
+        this.setAttribute('dirty', '')
+    else
+        this.removeAttribute('dirty')
+}
+
+HTMLElement.prototype.isDirty = function(): boolean {
+    return this.getAttribute('dirty') != null
+}
+
 class InputForm {
     formElement: HTMLFormElement
     formState: string
@@ -49,7 +65,6 @@ class InputForm {
 
         this.formElement.addEventListener('submit', e => onSubmit(e))
         this.formElement.addEventListener('reset', e => onReset(e))
-        this.formElement.addEventListener('invalid', e => console.log(e), true)
         this.formState = 'default'
 
         const inputElements: Array<HTMLInputElement | HTMLTextAreaElement | HTMLButtonElement>
@@ -75,7 +90,7 @@ class InputForm {
                 updateValidationMessage()
 
                 e.oninvalid = () => {
-                    e.classList.add('dirty')
+                    e.setDirty(true)
                     updateValidationMessage()
                 }
             }
@@ -99,8 +114,8 @@ class InputForm {
                     break
             }
 
-            e.onkeydown = () => e.classList.add('dirty')
-            e.onmousedown = () => e.classList.add('dirty')
+            e.onkeydown = () => e.setDirty(true)
+            e.onmousedown = () => e.setDirty(true)
 
             this.inputs.set(id, e)
         })

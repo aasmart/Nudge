@@ -24,13 +24,21 @@ HTMLFormElement.prototype.toJSON = function () {
     }
     return JSON.stringify(formJson);
 };
+HTMLElement.prototype.setDirty = function (isDirty) {
+    if (isDirty)
+        this.setAttribute('dirty', '');
+    else
+        this.removeAttribute('dirty');
+};
+HTMLElement.prototype.isDirty = function () {
+    return this.getAttribute('dirty') != null;
+};
 class InputForm {
     constructor(formClass, onSubmit, onReset) {
         this.inputs = new Map();
         this.formElement = document.getElementsByClassName(formClass)[0];
         this.formElement.addEventListener('submit', e => onSubmit(e));
         this.formElement.addEventListener('reset', e => onReset(e));
-        this.formElement.addEventListener('invalid', e => console.log(e), true);
         this.formState = 'default';
         const inputElements = Array.from(this.formElement.querySelectorAll('input,button,textarea'));
         inputElements.forEach(e => {
@@ -47,7 +55,7 @@ class InputForm {
                 e.onmousedown = updateValidationMessage;
                 updateValidationMessage();
                 e.oninvalid = () => {
-                    e.classList.add('dirty');
+                    e.setDirty(true);
                     updateValidationMessage();
                 };
             }
@@ -66,8 +74,8 @@ class InputForm {
                 default:
                     break;
             }
-            e.onkeydown = () => e.classList.add('dirty');
-            e.onmousedown = () => e.classList.add('dirty');
+            e.onkeydown = () => e.setDirty(true);
+            e.onmousedown = () => e.setDirty(true);
             this.inputs.set(id, e);
         });
     }

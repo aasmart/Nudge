@@ -18,9 +18,9 @@ interface HTMLFormElement {
 
 HTMLFormElement.prototype.toJSON = function(): string {
     const formData = new FormData(this)
-    const json = Object.fromEntries(formData.entries())
+    const formJson = Object.fromEntries(formData.entries())
 
-    for(let key in json) {
+    for(let key in formJson) {
         const keyArr = key.split("-")
         const keyNew: string = (keyArr.slice(0,1)
             .concat(keyArr.slice(1)
@@ -29,12 +29,13 @@ HTMLFormElement.prototype.toJSON = function(): string {
 
         if(keyNew === key)
             continue;
-
-        json[keyNew] = json[key]
-        delete json[key]
+        
+        if(formJson[key].toString().length > 0)
+            formJson[keyNew] = formJson[key]
+        delete formJson[key]
     }
 
-    return JSON.stringify(json)    
+    return JSON.stringify(formJson)    
 }
 
 class InputForm {

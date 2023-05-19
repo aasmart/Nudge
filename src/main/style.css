@@ -216,6 +216,11 @@ textarea {
     width: 100%;
 }
 
+label:has(+input:required)::after {
+    content: ' *';
+    color: var(--input-invalid-color);
+}
+
 button {
     padding: 20px;
     border-radius: 10px;

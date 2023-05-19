@@ -10,18 +10,19 @@ Date.prototype.addMilliseconds = function (milliseconds) {
 };
 HTMLFormElement.prototype.toJSON = function () {
     const formData = new FormData(this);
-    const json = Object.fromEntries(formData.entries());
-    for (let key in json) {
+    const formJson = Object.fromEntries(formData.entries());
+    for (let key in formJson) {
         const keyArr = key.split("-");
         const keyNew = (keyArr.slice(0, 1)
             .concat(keyArr.slice(1)
             .flatMap(s => s.substring(0, 1).toUpperCase().concat(s.substring(1))))).join("");
         if (keyNew === key)
             continue;
-        json[keyNew] = json[key];
-        delete json[key];
+        if (formJson[key].toString().length > 0)
+            formJson[keyNew] = formJson[key];
+        delete formJson[key];
     }
-    return JSON.stringify(json);
+    return JSON.stringify(formJson);
 };
 class InputForm {
     constructor(formClass, onSubmit, onReset) {

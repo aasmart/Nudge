@@ -62,12 +62,22 @@ class InputForm {
             if(id == null)
                 return
 
-            if(e instanceof HTMLInputElement || e instanceof HTMLTextAreaElement) {
+            if((e instanceof HTMLInputElement || e instanceof HTMLTextAreaElement) && e.required) {
                 const errorMessage = document.createElement('p')
                 errorMessage.classList.add('error')
-                errorMessage.style.display = 'none'
+
+                const updateValidationMessage = () => { errorMessage.innerHTML = e.validationMessage }
 
                 e.insertAdjacentElement("afterend", errorMessage)
+
+                e.onkeyup = updateValidationMessage
+                e.onmousedown = updateValidationMessage
+                updateValidationMessage()
+
+                e.oninvalid = () => {
+                    e.classList.add('dirty')
+                    updateValidationMessage()
+                }
             }
 
             switch(type) {

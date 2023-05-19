@@ -188,7 +188,7 @@ section {
 .error {
     color: var(--input-invalid-color);
     font-size: 1rem;
-    display: inline;
+    display: none;
 }
 
 .reminder-form > p {
@@ -270,6 +270,21 @@ button[action="destructive"]:hover {
     background-color: var(--input-invalid-color);
 }
 
+.reminder-form textarea {
+    display: block;
+    resize: none;
+}
+
+.reminder-form input:not(:placeholder-shown):invalid,
+.dirty:not(:valid, :disabled, :focus):is(input, textarea) {
+    border-color: var(--input-invalid-color);
+}
+
+.reminder-form input:not(:placeholder-shown):invalid ~ .error,
+.dirty:not(:valid, :disabled):is(input, textarea) ~ .error {
+    display: inline;
+}
+
 input:disabled { 
     opacity: 0.5;
 }
@@ -336,16 +351,6 @@ input[type="checkbox"] + label::after {
 checked */
 input[type="checkbox"]:checked + label::after {
     left: calc(-1 * (var(--checkbox-width) + var(--checkbox-margin)) + (var(--checkbox-width)) * 0.5);
-}
-
-.reminder-form textarea {
-    display: block;
-    resize: none;
-}
-
-.reminder-form input:not(:placeholder-shown):invalid,
-.dirty:not(:valid, :disabled, :focus):is(input, textarea) {
-    border-color: var(--input-invalid-color);
 }
 
 .popup-container {

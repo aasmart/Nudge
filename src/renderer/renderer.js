@@ -46,9 +46,10 @@ class InputForm {
             const type = e.getAttribute('type');
             if (id == null)
                 return;
+            // Handle the error message
             if ((e instanceof HTMLInputElement || e instanceof HTMLTextAreaElement)) {
                 const errorMessage = document.createElement('p');
-                errorMessage.classList.add('error');
+                errorMessage.classList.add('error-message');
                 const updateValidationMessage = () => { errorMessage.innerHTML = e.validationMessage; };
                 e.insertAdjacentElement("afterend", errorMessage);
                 e.onkeyup = updateValidationMessage;
@@ -58,6 +59,16 @@ class InputForm {
                     e.setDirty(true);
                     updateValidationMessage();
                 };
+            }
+            // Add unit selection dropdowns
+            if (e.getAttribute('use-units')) {
+                const dropdown = document.createElement('select');
+                dropdown.name = `${id}-units`;
+                dropdown.id = `${id}-units`;
+                e.insertAdjacentElement("afterend", dropdown);
+                const option = document.createElement('option');
+                option.innerHTML = "minutes";
+                dropdown.add(option);
             }
             switch (type) {
                 case 'checkbox':

@@ -119,6 +119,12 @@ section {
     width: 100%;
 }
 
+#reminder-list li > button {
+    min-width: 60px;
+    padding: 5px;
+    aspect-ratio: 1;
+}
+
 .reminder {
     display: grid;
     grid-template-columns: 8fr 1fr 1fr 1fr;
@@ -153,16 +159,32 @@ section {
 
 .reminder-form {
     color: white;
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 2px 8px;
     font-size: var(--input-font-size);
     width: var(--input-char-size);
     margin: 8px;
 }
 
-.reminder-form > * {
-    grid-column: 1 / span 3;
+.reminder-form div {
+    --columns: 5;
+    --select-columns: 2;
+
+    display: grid;
+    grid-template-columns: repeat(1fr, var(--columns));
+    gap: 2px 4px;
+    margin-bottom: 12px;
+    font-size: 1.2rem;
+}
+
+.reminder-form div > * {
+    grid-column: 1 / span var(--columns);
+}
+
+.reminder-form div input:has(+select) {
+    grid-column: 1 / span calc(var(--columns) - var(--select-columns));
+}
+
+.reminder-form div select {
+    grid-column: calc(var(--columns) - var(--select-columns) + 1) / span calc(var(--select-columns));
 }
 
 .reminder-form > input[type="checkbox"] + label {
@@ -177,18 +199,16 @@ section {
     grid-column: 3 / span 1;
 }
 
-.reminder-form label {
-    font-size: 1.2rem;
-}
-
-.reminder-form div {
-    margin-bottom: 12px;
-}
-
-.error {
+.error-message {
     color: var(--input-invalid-color);
     font-size: 1rem;
     display: none;
+    margin: 0;
+}
+
+.reminder-form input:not(:placeholder-shown):invalid ~ .error-message,
+[dirty]:not(:valid, :disabled):is(input, textarea) ~ .error-message {
+    display: inline;
 }
 
 .reminder-form > p {
@@ -201,7 +221,8 @@ section {
 
 input,
 button,
-textarea {
+textarea,
+select {
     background-color: var(--input-color);
     border-radius: 4px;
     color: white;
@@ -224,9 +245,12 @@ input[type=number] {
     appearance: textfield;
 }
 
-input, 
-textarea {
-    width: 100%;
+input[use-units] {
+    text-align: right;
+}
+
+input[use-units]:focus {
+    text-align: left;
 }
 
 label:has(+input:required)::after {
@@ -245,12 +269,6 @@ button img {
     filter: invert(100%);
     min-height: 2em;
     min-width: 2em;
-}
-
-#reminder-list li > button {
-    min-width: 60px;
-    padding: 5px;
-    aspect-ratio: 1;
 }
 
 button:focus-visible, 
@@ -278,11 +296,6 @@ button[action="destructive"]:hover {
 .reminder-form input:not(:placeholder-shown):invalid,
 [dirty]:not(:valid, :disabled, :focus):is(input, textarea) {
     border-color: var(--input-invalid-color);
-}
-
-.reminder-form input:not(:placeholder-shown):invalid ~ .error,
-[dirty]:not(:valid, :disabled):is(input, textarea) ~ .error {
-    display: inline;
 }
 
 input:disabled { 

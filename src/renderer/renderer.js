@@ -46,7 +46,7 @@ class InputForm {
             const type = e.getAttribute('type');
             if (id == null)
                 return;
-            if ((e instanceof HTMLInputElement || e instanceof HTMLTextAreaElement) && e.required) {
+            if ((e instanceof HTMLInputElement || e instanceof HTMLTextAreaElement)) {
                 const errorMessage = document.createElement('p');
                 errorMessage.classList.add('error');
                 const updateValidationMessage = () => { errorMessage.innerHTML = e.validationMessage; };

@@ -77,7 +77,7 @@ class InputForm {
             if(id == null)
                 return
 
-            if((e instanceof HTMLInputElement || e instanceof HTMLTextAreaElement) && e.required) {
+            if((e instanceof HTMLInputElement || e instanceof HTMLTextAreaElement)) {
                 const errorMessage = document.createElement('p')
                 errorMessage.classList.add('error')
 

@@ -575,7 +575,7 @@ function loadReminderCreationPage() {
     }
 }
 
-function clearPreloads() {
+function clearPreloads() { 
     const preloads = document.getElementsByClassName('preload')
     Array.from(preloads).forEach(e => e.classList.toggle('preload'))
 }

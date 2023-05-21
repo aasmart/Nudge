@@ -57,7 +57,6 @@ HTMLElement.prototype.isDirty = function(): boolean {
 
 class InputForm {
     formElement: HTMLFormElement
-    formState: string
     inputs: Map<String, HTMLInputElement | HTMLTextAreaElement | HTMLButtonElement>
 
     constructor(formClass: string, onSubmit: (e: Event) => boolean, onReset: (e: Event) => boolean) {
@@ -66,7 +65,6 @@ class InputForm {
 
         this.formElement.addEventListener('submit', e => onSubmit(e))
         this.formElement.addEventListener('reset', e => onReset(e))
-        this.formState = 'default'
 
         const inputElements: Array<HTMLInputElement | HTMLTextAreaElement | HTMLButtonElement>
              = Array.from(this.formElement.querySelectorAll('input,button,textarea'))
@@ -358,8 +356,12 @@ function setEditReminder(index: number) {
     sessionStorage.setItem('edit-reminder-index', index.toString())
 }
 
+function getEditIndex(): number {
+    return parseInt(sessionStorage.getItem('edit-reminder-index') || '-1')
+}
+
 function getEditReminder(): Reminder {
-    const editIndex = parseInt(sessionStorage.getItem('edit-reminder-index') || '-1')
+    const editIndex = getEditIndex()
     return activeReminders[editIndex] || null
 }
 
@@ -539,7 +541,7 @@ function loadReminderCreationPage() {
 
         if(editIndex >= 0) {
             activeReminders[editIndex] = reminder;
-            sessionStorage.setItem('edit-reminder-index', '-1')
+            setEditReminder(-1)
         } else
             activeReminders.push(reminder)
 
@@ -551,7 +553,7 @@ function loadReminderCreationPage() {
     }, (e: Event) => {
         e.preventDefault()
 
-        sessionStorage.setItem('edit-reminder-index', '-1')
+        setEditReminder(-1)
         saveActiveReminders()
         window.api.openPage('index')
 

@@ -17,39 +17,60 @@
         <p class="app-name"></p>
     </header>
     <main class="preload">
-        <section class="reminder-form">
-            <div title="The duration, in minutes, between each reminder">
-                <label for="reminder-interval">Reminder Interval</label>
-                <input type="number" step="0.01" id="reminder-interval" name="reminder-interval" min="0.1" placeholder="Reminder interval (minutes)" required>
+        <form action="" method="" class="reminder-form">
+            <div title="The amount of time between each reminder">
+                <label for="reminder-interval-amount">Reminder Interval</label>
+                <input type="number" 
+                        step="0.01" 
+                        id="reminder-interval-amount" 
+                        name="reminder-interval-amount" 
+                        placeholder=" "
+                        min="0.1" 
+                        required 
+                        use-units="time"
+                >
             </div>
 
-            <div title="The delay, in minutes, until the first reminder is sent">
-                <input type="checkbox" id="toggle-reminder-start-override" name="toggle-reminder-start-override" toggles="reminder-start-override">
+            <div title="If used, this overrides the duration until the first reminder plays">
+                <!-- <input type="checkbox" id="toggle-reminder-start-override" name="toggle-reminder-start-override" toggles="reminder-start-override-amount"> -->
                 <label for="toggle-reminder-start-override">First Reminder Delay Override</label>
-                <input type="number" id="reminder-start-override" name="reminder-start-override" step="0.01"  min="0.1" placeholder="Reminder start override (minutes)" required disabled>
+                <input type="number" 
+                        id="reminder-start-override-amount" 
+                        name="reminder-start-override-amount" 
+                        step="0.01"  
+                        min="0.1" 
+                        use-units="time"
+                >
             </div>
 
-            <div title="If the notification isn't clicked, another notification will be sent after a given amount of minutes">
-                <input type="checkbox" id="toggle-ignore-reminder-penalty" name="toggle-ignore-reminder-penalty" toggles="ignored-reminder-interval">
+            <div title="If used, this determines the duration between an ignored reminder re-sending">
+                <!-- <input type="checkbox" id="toggle-ignore-reminder-penalty" name="toggle-ignore-reminder-penalty" toggles="ignored-reminder-interval-amount"> -->
                 <label for="toggle-ignore-reminder-penalty">Ignored Reminder Replay Interval</label>
-                <input type="number" id="ignored-reminder-interval" name="ignored-reminder-interval" step="0.01"  min="0.1" placeholder="Ignored reminder interval (minutes)" required disabled>
+                <input type="number" 
+                        id="ignored-reminder-interval-amount" 
+                        name="ignored-reminder-interval-amount" 
+                        step="0.01" 
+                        min="0.1" 
+                        use-units="time"
+                >
             </div>
 
-            <div class="title-input" title="The title of the reminder (1 to 32 characters)">
-                <label for="reminder-title">Reminder Title</label>
-                <input type="text" minlength="1" maxlength="32" id="reminder-title" name="reminder-title" value="Time for a break!" placeholder="Reminder title" required>
+            <div title="The title displayed when the reminder is sent">
+                <label for="title">Reminder Title</label>
+                <input type="text" minlength="1" maxlength="32" id="title" name="title" placeholder=" " required>
             </div>
 
-            <div class="message-input" title="The message sent when receiving the reminder">
-                <label for="reminder-message">Reminder Message</label>
-                <textarea cols="40" rows = "10" id="reminder-message" name="reminder-message" placeholder="Reminder message">Time for a break!</textarea>
+            <div title="The message sent with the reminder">
+                <label for="message">Reminder Message</label>
+                <textarea cols="40" rows = "10" id="message" name="message"></textarea>
             </div>
 
             <div>
-                <button id="create-reminder" when-editing="Update Reminder">Create Reminder</button>
-                <button id="cancel" action="destructive">Cancel</button>
+                <button id="create-reminder" when-editing="Update Reminder" type="submit">Create Reminder</button>
+                <button id="cancel" action="destructive" type="reset">Cancel</button>
             </div>
-        </section>
+            <p><span>*</span> = required</p>
+        </form>
     </main>
 
     <!-- TODO convert to dialog -->

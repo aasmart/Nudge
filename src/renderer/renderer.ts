@@ -12,29 +12,109 @@ Date.prototype.addMilliseconds = function(milliseconds: number): Date {
     return new Date(date.getTime() + milliseconds)
 }
 
+interface HTMLFormElement {
+    toJSON(): string
+}
+
+HTMLFormElement.prototype.toJSON = function(): string {
+    const formData = new FormData(this)
+    const formJson = Object.fromEntries(formData.entries())
+
+    for(let key in formJson) {
+        const keyArr = key.split("-")
+        const keyNew: string = (keyArr.slice(0,1)
+            .concat(keyArr.slice(1)
+            .flatMap(s => s.substring(0,1).toUpperCase().concat(s.substring(1))))
+            ).join("")
+
+        if(keyNew === key)
+            continue;
+        
+        // Replace old keys with the new keys
+        if(formJson[key].toString().length > 0)
+            formJson[keyNew] = formJson[key]
+        delete formJson[key]
+    }
+
+    return JSON.stringify(formJson)    
+}
+
+interface HTMLElement {
+    setDirty(isDirty: boolean): void
+    isDirty(): boolean
+}
+
+HTMLElement.prototype.setDirty = function(isDirty: boolean): void {
+    if(isDirty)
+        this.setAttribute('dirty', '')
+    else
+        this.removeAttribute('dirty')
+}
+
+HTMLElement.prototype.isDirty = function(): boolean {
+    return this.getAttribute('dirty') != null
+}
+
 class InputForm {
-    container: HTMLElement
-    inputs: Map<String, HTMLInputElement>
-    buttons: Map<String, HTMLElement>
-    textareas: Map<String, HTMLElement>
+    formElement: HTMLFormElement
+    inputs: Map<String, HTMLInputElement | HTMLTextAreaElement | HTMLButtonElement>
 
-    constructor(formClass: string) {
+    constructor(formClass: string, onSubmit: (e: Event) => boolean, onReset: (e: Event) => boolean) {
         this.inputs = new Map()
-        this.buttons = new Map()
-        this.textareas = new Map()
-        this.container = document.getElementsByClassName(formClass)[0] as HTMLElement
+        this.formElement = <HTMLFormElement>document.getElementsByClassName(formClass)[0]
 
-        Array.from(this.container.getElementsByTagName('input')).forEach(e => {
+        this.formElement.addEventListener('submit', e => onSubmit(e))
+        this.formElement.addEventListener('reset', e => onReset(e))
+
+        const inputElements: Array<HTMLInputElement | HTMLTextAreaElement | HTMLButtonElement>
+             = Array.from(this.formElement.querySelectorAll('input,button,textarea'))
+
+        inputElements.forEach(e => {
             const id = e.getAttribute('id');
             const type = e.getAttribute('type')
 
             if(id == null)
                 return
 
+            // Handle the error message
+            if((e instanceof HTMLInputElement || e instanceof HTMLTextAreaElement)) {
+                const errorMessage = document.createElement('p')
+                errorMessage.classList.add('error-message')
+
+                const updateValidationMessage = () => { errorMessage.innerHTML = e.validationMessage }
+
+                e.insertAdjacentElement("afterend", errorMessage)
+
+                e.onkeyup = updateValidationMessage
+                e.onmousedown = updateValidationMessage
+                updateValidationMessage()
+
+                e.oninvalid = () => {
+                    e.setDirty(true)
+                    updateValidationMessage()
+                }
+            }
+
+            // Add unit selection dropdowns
+            const useUnits = e.getAttribute('use-units')
+            if(useUnits) {
+                switch(useUnits) {
+                    case 'time':
+                        const units = document.createElement('span')
+                        units.id = `${id}-units`
+                        units.classList.add('units')
+                        e.insertAdjacentElement("afterend", units)
+
+                        units.innerHTML = 'minutes'
+                        break;
+                }
+                
+            }
+
             switch(type) {
                 case 'checkbox':
                     const toggles = e.getAttribute('toggles')
-                    if(toggles == null)
+                    if(toggles == null || !(e instanceof HTMLInputElement))
                         break
 
                     e.onchange = () => { 
@@ -46,27 +126,14 @@ class InputForm {
                     }
 
                     break
+                default:
+                    break
             }
 
+            e.onkeydown = () => e.setDirty(true)
+            e.onmousedown = () => e.setDirty(true)
+
             this.inputs.set(id, e)
-        })
-
-        Array.from(this.container.getElementsByTagName('button')).forEach(e => {
-            const id = e.getAttribute('id');
-
-            if(id == null)
-                return;
-
-            this.buttons.set(id, e)
-        })
-
-        Array.from(this.container.getElementsByTagName('textarea')).forEach(e => {
-            const id = e.getAttribute('id');
-
-            if(id == null)
-                return;
-
-            this.textareas.set(id, e)
         })
     }
 
@@ -93,11 +160,11 @@ class InputForm {
         if(checkActive && !this.activeAndFilled(input))
             return ''
 
-        return this.getInputElement(input)?.valueAsNumber || ''
-    }
+        const element = this.getInputElement(input)
+        if(!element || !(element instanceof HTMLInputElement))
+            return ''
 
-    hasRequiredFields(): boolean {
-        return Array.from(this.inputs.values()).filter(e => !e.checkValidity()).length <= 0
+        return element.valueAsNumber
     }
 
     hasValue(input: string) {
@@ -114,18 +181,45 @@ class InputForm {
 
     setChecked(input: String, checked: boolean) {
         const element = this.inputs.get(input)
-        if(element == null || element.getAttribute('type') !== 'checkbox')
+        if(!element || !(element instanceof HTMLInputElement) || element.getAttribute('type') !== 'checkbox')
             return
         
         element.checked = checked
         element.dispatchEvent(new Event('change'))
     }
 
-    getInputElement(input: String): any {
-        return this.inputs.get(input) 
-            || this.textareas.get(input) 
-            || this.buttons.get(input) 
-            || null
+    getInputElement(input: String): HTMLInputElement | HTMLTextAreaElement | HTMLButtonElement | undefined  {
+        return this.inputs.get(input) || undefined
+    }
+
+    setFromJson(json: string): void {
+        const camelCaseRegex = /.([a-z])+/g
+    
+        // Set all the fields
+        const obj = JSON.parse(json)
+        for(let key in obj) {
+            const id = key.match(camelCaseRegex)?.flatMap(s => s.toLowerCase()).join('-') || ''
+            const element = <HTMLInputElement>document.getElementById(id)
+
+            if(element == null)
+                continue
+
+            if(element as HTMLInputElement | HTMLTextAreaElement) {}
+                element.value = obj[key]
+        }
+
+        // Set the toggle checkboxes
+        Array.from(this.inputs.values()).forEach(input => {
+            const type = input.getAttribute('type') 
+            if(type !== 'checkbox')
+                return
+            
+            const toggles = input.getAttribute('toggles')
+            if(toggles == null)
+                return
+
+            this.setChecked(input.id, this.hasValue(toggles))
+        })
     }
 }
 
@@ -159,12 +253,19 @@ class Reminder {
         this.pausedTime = pausedTime;
     }
 
-    setNextReminderTimeout(delayAmount: number) {
+    setNextReminderTimeout(delayAmountMinutes: number) {
         clearTimeout(this.reminderTimeout)
+
+        const delayAmount = delayAmountMinutes * Constants.MINUTES_TO_MS
     
         this.reminderTimeout = setTimeout(() => {
             this.sendBreakNotification(this.message)
-            this.setNextReminderTimeout(this.ignoredReminderIntervalAmount > 0 ? this.ignoredReminderIntervalAmount : this.reminderIntervalAmount)
+
+            const nextReminderDelay = this.ignoredReminderIntervalAmount > 0 ? 
+                this.ignoredReminderIntervalAmount 
+                : this.reminderIntervalAmount
+
+            this.setNextReminderTimeout(nextReminderDelay)
         }, delayAmount)
     
         this.nextReminder = new Date().addMilliseconds(delayAmount);
@@ -196,7 +297,7 @@ class Reminder {
             this.cancel()
             this.pausedTime = new Date()
         } else if(this.paused && !paused) {
-            const nextPlay = this.nextReminder.valueOf() - this.pausedTime.valueOf();
+            const nextPlay = (this.nextReminder.valueOf() - this.pausedTime.valueOf()) * Constants.MS_TO_MINUTES;
             this.setNextReminderTimeout(nextPlay)
         }
 
@@ -206,7 +307,7 @@ class Reminder {
 
     toJSON() {
         return {
-            nextReminder: this.nextReminder.valueOf(),
+            nextReminder: this.nextReminder,
             reminderIntervalAmount: this.reminderIntervalAmount,
             reminderStartOverrideAmount: this.reminderStartOverrideAmount,
             ignoredReminderIntervalAmount: this.ignoredReminderIntervalAmount,
@@ -246,7 +347,7 @@ function loadActiveReminders() {
     activeReminders.forEach(reminder => {
         if(editReminder !== null && reminder === editReminder || reminder.paused)
             return;
-        const nextStart = Math.max(reminder.nextReminder.valueOf() - new Date().valueOf(), 0)
+        const nextStart = Math.max(reminder.nextReminder.valueOf() - new Date().valueOf(), 0) * Constants.MS_TO_MINUTES
         reminder.setNextReminderTimeout(nextStart)
     })
 }
@@ -421,55 +522,21 @@ function loadCreateRemindersPage() {
 }
 
 function loadReminderCreationPage() {
-    const form = new InputForm('reminder-form')
-
     const CREATE_BUTTON = 'create-reminder'
-    const CANCEL_BUTTON = 'cancel'
-    const MESSAGE_INPUT = 'reminder-message'
-    const TITLE_INPUT = 'reminder-title'
-    const REMINDER_INTERVAL_INPUT = 'reminder-interval'
-    const START_OVERRIDE_CHECKBOX = 'toggle-reminder-start-override'
-    const START_OVERRIDE_INPUT = 'reminder-start-override'
-    const REMINDER_PENALTY_CHECKBOX = 'toggle-ignore-reminder-penalty'
-    const IGNORED_REMINDER_INTERVAL_INPUT = 'ignored-reminder-interval'
 
-    // Update display if the user is editing
-    const editIndex = getEditIndex()
-    if(editIndex >= 0) {
-        const editReminder = activeReminders[editIndex]
+    const form = new InputForm('reminder-form', (e: Event): boolean => {
+        e.preventDefault()
 
-        form.setValue(MESSAGE_INPUT, editReminder.message)
-        form.setValue(TITLE_INPUT, editReminder.title)
-        form.setValue(REMINDER_INTERVAL_INPUT, editReminder.reminderIntervalAmount * Constants.MS_TO_MINUTES)
-        form.setChecked(START_OVERRIDE_CHECKBOX, editReminder.reminderStartOverrideAmount > 0)
-        form.setValue(START_OVERRIDE_INPUT, editReminder.reminderStartOverrideAmount * Constants.MS_TO_MINUTES)
-        form.setChecked(REMINDER_PENALTY_CHECKBOX, editReminder.ignoredReminderIntervalAmount > 0)
-        form.setValue(IGNORED_REMINDER_INTERVAL_INPUT, editReminder.ignoredReminderIntervalAmount * Constants.MS_TO_MINUTES)
-
-        const createButton = form.getInputElement(CREATE_BUTTON)
-        createButton.innerHTML = createButton.getAttribute('when-editing') || createButton.innerHTML
-    }
-
-    // Events -------------------------------
-    form.getInputElement(CREATE_BUTTON)?.addEventListener('click', () => {
-        if(!form.hasRequiredFields()) {
-            sendPopup('Cannot Create Reminder', 'One or more inputs are invalid')
-            return;
-        }
-
-        const reminderIntervalAmount = Constants.MINUTES_TO_MS * form.getValueAsNumber(REMINDER_INTERVAL_INPUT);
-        const ignoredReminderIntervalAmount = form.getValueAsNumber(IGNORED_REMINDER_INTERVAL_INPUT, true) * Constants.MINUTES_TO_MS;
-
-        const startDelta = form.activeAndFilled(START_OVERRIDE_INPUT) ? form.getValueAsNumber(START_OVERRIDE_INPUT) * Constants.MINUTES_TO_MS : reminderIntervalAmount;
-
-        let reminder = new Reminder(
-            reminderIntervalAmount, 
-            form.getValueAsNumber(START_OVERRIDE_INPUT) * Constants.MINUTES_TO_MS, 
-            ignoredReminderIntervalAmount, 
-            form.getValue(MESSAGE_INPUT),
-            form.getValue(TITLE_INPUT),
-            false
+        const reminderFormJson: Reminder = JSON.parse(form.formElement.toJSON())
+        const reminder = new Reminder(
+            reminderFormJson?.reminderIntervalAmount,
+            reminderFormJson?.reminderStartOverrideAmount,
+            reminderFormJson?.ignoredReminderIntervalAmount,
+            reminderFormJson?.message,
+            reminderFormJson?.title
         )
+
+        const startDelta = reminder?.reminderStartOverrideAmount ?? reminder.reminderIntervalAmount
         reminder.setNextReminderTimeout(startDelta)
 
         if(editIndex >= 0) {
@@ -481,18 +548,35 @@ function loadReminderCreationPage() {
         saveActiveReminders()
 
         window.api.openPage('index')
-    })
 
-    form.getInputElement(CANCEL_BUTTON)?.addEventListener('click', () => {
+        return false;
+    }, (e: Event) => {
+        e.preventDefault()
+
         setEditReminder(-1)
         saveActiveReminders()
         window.api.openPage('index')
+
+        return false;
     })
+
+    // Update display if the user is editing
+    const editIndex = getEditIndex()
+    if(editIndex >= 0) {
+        const editReminder = activeReminders[editIndex]
+
+        form.setFromJson(JSON.stringify(editReminder))
+
+        const createButton = form.getInputElement(CREATE_BUTTON)
+        if(!createButton)
+            return
+
+        createButton.innerHTML = createButton.getAttribute('when-editing') || createButton.innerHTML
+    }
 }
 
 function clearPreloads() {
     const preloads = document.getElementsByClassName('preload')
-
     Array.from(preloads).forEach(e => e.classList.toggle('preload'))
 }
 

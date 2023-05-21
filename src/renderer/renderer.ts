@@ -561,7 +561,7 @@ function loadReminderCreationPage() {
     })
 
     // Update display if the user is editing
-    const editIndex = parseInt(sessionStorage.getItem('edit-reminder-index') || '-1')
+    const editIndex = getEditIndex()
     if(editIndex >= 0) {
         const editReminder = activeReminders[editIndex]
 

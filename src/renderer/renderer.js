@@ -40,7 +40,6 @@ class InputForm {
         this.formElement = document.getElementsByClassName(formClass)[0];
         this.formElement.addEventListener('submit', e => onSubmit(e));
         this.formElement.addEventListener('reset', e => onReset(e));
-        this.formState = 'default';
         const inputElements = Array.from(this.formElement.querySelectorAll('input,button,textarea'));
         inputElements.forEach(e => {
             const id = e.getAttribute('id');
@@ -249,8 +248,11 @@ function loadActiveReminders() {
 function setEditReminder(index) {
     sessionStorage.setItem('edit-reminder-index', index.toString());
 }
+function getEditIndex() {
+    return parseInt(sessionStorage.getItem('edit-reminder-index') || '-1');
+}
 function getEditReminder() {
-    const editIndex = parseInt(sessionStorage.getItem('edit-reminder-index') || '-1');
+    const editIndex = getEditIndex();
     return activeReminders[editIndex] || null;
 }
 function listActiveReminders() {
@@ -390,7 +392,7 @@ function loadReminderCreationPage() {
         reminder.setNextReminderTimeout(startDelta);
         if (editIndex >= 0) {
             activeReminders[editIndex] = reminder;
-            sessionStorage.setItem('edit-reminder-index', '-1');
+            setEditReminder(-1);
         }
         else
             activeReminders.push(reminder);
@@ -399,7 +401,7 @@ function loadReminderCreationPage() {
         return false;
     }, (e) => {
         e.preventDefault();
-        sessionStorage.setItem('edit-reminder-index', '-1');
+        setEditReminder(-1);
         saveActiveReminders();
         window.api.openPage('index');
         return false;

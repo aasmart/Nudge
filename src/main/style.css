@@ -470,25 +470,3 @@ input[type="checkbox"]:checked + label::after {
         visibility: hidden;
     }
 }
-
-@keyframes shake {
-    0% {
-        transform: rotateX(0);
-    }
-
-    30% {
-        transform: rotateZ(1.5deg);
-    }
-
-    70% {
-        transform: rotateZ(-1.5deg);
-    }
-
-    100% {
-        transform: rotateZ(0);
-    }
-}
-
-.shake {
-    animation: shake 250ms ease-out normal;
-}

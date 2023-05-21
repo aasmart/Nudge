@@ -30,6 +30,7 @@ HTMLFormElement.prototype.toJSON = function(): string {
         if(keyNew === key)
             continue;
         
+        // Replace old keys with the new keys
         if(formJson[key].toString().length > 0)
             formJson[keyNew] = formJson[key]
         delete formJson[key]
@@ -97,15 +98,19 @@ class InputForm {
             }
 
             // Add unit selection dropdowns
-            if(e.getAttribute('use-units')) {
-                const dropdown = document.createElement('select')
-                dropdown.name = `${id}-units`
-                dropdown.id = `${id}-units`
-                e.insertAdjacentElement("afterend", dropdown)
+            const useUnits = e.getAttribute('use-units')
+            if(useUnits) {
+                switch(useUnits) {
+                    case 'time':
+                        const units = document.createElement('span')
+                        units.id = `${id}-units`
+                        units.classList.add('units')
+                        e.insertAdjacentElement("afterend", units)
+
+                        units.innerHTML = 'minutes'
+                        break;
+                }
                 
-                const option = document.createElement('option')
-                option.innerHTML = "minutes"
-                dropdown.add(option)
             }
 
             switch(type) {

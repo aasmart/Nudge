@@ -18,6 +18,7 @@ HTMLFormElement.prototype.toJSON = function () {
             .flatMap(s => s.substring(0, 1).toUpperCase().concat(s.substring(1))))).join("");
         if (keyNew === key)
             continue;
+        // Replace old keys with the new keys
         if (formJson[key].toString().length > 0)
             formJson[keyNew] = formJson[key];
         delete formJson[key];
@@ -61,14 +62,17 @@ class InputForm {
                 };
             }
             // Add unit selection dropdowns
-            if (e.getAttribute('use-units')) {
-                const dropdown = document.createElement('select');
-                dropdown.name = `${id}-units`;
-                dropdown.id = `${id}-units`;
-                e.insertAdjacentElement("afterend", dropdown);
-                const option = document.createElement('option');
-                option.innerHTML = "minutes";
-                dropdown.add(option);
+            const useUnits = e.getAttribute('use-units');
+            if (useUnits) {
+                switch (useUnits) {
+                    case 'time':
+                        const units = document.createElement('span');
+                        units.id = `${id}-units`;
+                        units.classList.add('units');
+                        e.insertAdjacentElement("afterend", units);
+                        units.innerHTML = 'minutes';
+                        break;
+                }
             }
             switch (type) {
                 case 'checkbox':

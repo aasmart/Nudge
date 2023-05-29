@@ -185,6 +185,8 @@ section {
     background-image: linear-gradient(rgb(0 0 0/20%) 0 0);
     border: 1px solid rgb(21, 21, 21);
     box-shadow: 0 0.75px 3px black;
+
+    grid-column: calc(var(--columns) - var(--select-columns) + 1) / span calc(var(--select-columns));
 }
 
 .reminder-form label {
@@ -197,10 +199,6 @@ section {
 
 .reminder-form div input:has(+.units) {
     grid-column: 1 / span calc(var(--columns) - var(--select-columns));
-}
-
-.reminder-form div .units {
-    grid-column: calc(var(--columns) - var(--select-columns) + 1) / span calc(var(--select-columns));
 }
 
 .reminder-form > input[type="checkbox"] + label {
@@ -254,6 +252,7 @@ select {
 input:has(+.units) {
     border-top-right-radius: 0;
     border-bottom-right-radius: 0;
+    z-index: 1;
 }
 
 input::-webkit-outer-spin-button,

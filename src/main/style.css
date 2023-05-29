@@ -286,6 +286,8 @@ button {
     border-radius: 10px;
     position: relative;
     transition: all 250ms;
+
+    cursor: pointer;
 }
 
 button img {

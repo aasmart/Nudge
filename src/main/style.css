@@ -4,6 +4,8 @@
     --input-color: rgb(90, 87, 87);
     --input-invalid-color: #FA2333;
     --input-success-color: #22F095;
+    --primary-color: #8a2be2;
+
     --header-fallback-height: 1rem;
 
     --checkbox-height: 1.75rem;
@@ -46,7 +48,7 @@ main {
 
 .titlebar {
     color: white;
-    background: #8a2be2;
+    background: var(--primary-color);
     display: flex;
     align-items: center;
     font-size: .75em;
@@ -151,7 +153,7 @@ section {
 }
 
 .reminder .next-timer-play {
-    text-decoration: underline blueviolet;
+    text-decoration: underline var(--primary-color);
     font-style: normal;
     font-weight: normal;
     text-align: center;
@@ -296,7 +298,7 @@ button:focus-visible,
 button:hover,
 input[type="checkbox"]:focus-visible + label::after,
 input[type="checkbox"]:hover + label::after {
-    background-color: #8a2be2;
+    background-color: var(--primary-color);
 }
 
 button:focus-visible, 
@@ -403,7 +405,7 @@ input[type="checkbox"]:checked + label::after {
     background-color: var(--bg-color);
     box-shadow: 0 8px 8px black;
     border-radius: 16px;
-    border: blueviolet 1px solid;
+    border: var(--primary-color) 1px solid;
 
     width: 40%;
     min-width: fit-content;

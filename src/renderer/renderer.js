@@ -161,34 +161,48 @@ class InputForm {
         });
     }
 }
-class Reminder {
-    constructor(reminderIntervalAmount, reminderStartOverrideAmount, ignoredReminderIntervalAmount, message, title, isPaused = false, pausedTime = new Date()) {
-        this.reminderIntervalAmount = reminderIntervalAmount;
-        this.reminderStartOverrideAmount = reminderStartOverrideAmount;
-        this.ignoredReminderIntervalAmount = ignoredReminderIntervalAmount;
-        this.message = message;
-        this.title = title;
-        this.paused = isPaused;
-        this.pausedTime = pausedTime;
+class ReminderImpl {
+    constructor(reminder) {
+        this.nextReminder = reminder.nextReminder || new Date();
+        this.reminderIntervalAmount = reminder.reminderIntervalAmount;
+        this.reminderStartOverrideAmount = reminder.reminderStartOverrideAmount;
+        this.ignoredReminderIntervalAmount = reminder.ignoredReminderIntervalAmount;
+        this.maxIgnoredReminders = reminder.maxIgnoredReminders;
+        this.ignoredReminders = reminder.ignoredReminders || 0;
+        this.isIgnored = reminder.isIgnored || false;
+        this.message = reminder.message;
+        this.title = reminder.title;
+        this.paused = reminder.paused || false;
+        this.pausedTime = (reminder === null || reminder === void 0 ? void 0 : reminder.pausedTime) || new Date();
     }
     setNextReminderTimeout(delayAmountMinutes) {
         clearTimeout(this.reminderTimeout);
         const delayAmount = delayAmountMinutes * Constants.MINUTES_TO_MS;
         this.reminderTimeout = setTimeout(() => {
             this.sendBreakNotification(this.message);
-            const nextReminderDelay = this.ignoredReminderIntervalAmount > 0 ?
+            // Handles the ignored reminders
+            if (this.maxIgnoredReminders && this.ignoredReminders >= this.maxIgnoredReminders) {
+                this.isIgnored = false;
+                this.ignoredReminders = 0;
+            }
+            else if (this.ignoredReminderIntervalAmount > 0) {
+                this.isIgnored = true;
+                this.ignoredReminders += 1;
+            }
+            const nextReminderDelay = this.isIgnored ?
                 this.ignoredReminderIntervalAmount
                 : this.reminderIntervalAmount;
             this.setNextReminderTimeout(nextReminderDelay);
         }, delayAmount);
         this.nextReminder = new Date().addMilliseconds(delayAmount);
+        saveActiveReminders();
         window.dispatchEvent(new Event('update-reminder-list'));
     }
     sendBreakNotification(message) {
         new Notification(this.title, { body: message }).onclick = () => {
             if (this === null)
                 return;
-            if (this.ignoredReminderIntervalAmount > 0)
+            if (this.isIgnored)
                 this.setNextReminderTimeout(this.reminderIntervalAmount);
             window.api.showWindow('main');
         };
@@ -199,6 +213,7 @@ class Reminder {
     cancel() {
         if (this.reminderTimeout != null)
             clearTimeout(this.reminderTimeout);
+        saveActiveReminders();
     }
     setPaused(paused) {
         if (paused) {
@@ -206,10 +221,11 @@ class Reminder {
             this.pausedTime = new Date();
         }
         else if (this.paused && !paused) {
-            const nextPlay = (this.nextReminder.valueOf() - this.pausedTime.valueOf()) * Constants.MS_TO_MINUTES;
+            const nextPlay = (new Date(this.nextReminder).valueOf() - new Date(this.pausedTime).valueOf()) * Constants.MS_TO_MINUTES;
             this.setNextReminderTimeout(nextPlay);
         }
         this.paused = paused;
+        saveActiveReminders();
         window.dispatchEvent(new Event('update-reminder-list'));
     }
     toJSON() {
@@ -218,6 +234,9 @@ class Reminder {
             reminderIntervalAmount: this.reminderIntervalAmount,
             reminderStartOverrideAmount: this.reminderStartOverrideAmount,
             ignoredReminderIntervalAmount: this.ignoredReminderIntervalAmount,
+            maxIgnoredReminders: this.maxIgnoredReminders,
+            ignoredReminders: this.ignoredReminders,
+            isIgnored: this.isIgnored,
             message: this.message,
             title: this.title,
             paused: this.paused,
@@ -233,17 +252,17 @@ function loadActiveReminders() {
     var _a;
     let remindersObjs = (_a = JSON.parse(sessionStorage.getItem("active_reminders"))) !== null && _a !== void 0 ? _a : [];
     activeReminders = remindersObjs.map(obj => {
-        const reminder = new Reminder(obj.reminderIntervalAmount, obj.reminderStartOverrideAmount, obj.ignoredReminderIntervalAmount, obj.message, obj.title, obj.paused, obj.pausedTime);
-        reminder.nextReminder = new Date(obj.nextReminder.valueOf());
+        const reminder = new ReminderImpl(obj);
         return reminder;
     });
     const editReminder = getEditReminder();
     activeReminders.forEach(reminder => {
-        if (editReminder !== null && reminder === editReminder || reminder.paused)
+        if ((editReminder !== null && reminder === editReminder) || reminder.paused)
             return;
-        const nextStart = Math.max(reminder.nextReminder.valueOf() - new Date().valueOf(), 0) * Constants.MS_TO_MINUTES;
+        const nextStart = Math.max(new Date(reminder.nextReminder).valueOf() - new Date().valueOf(), 0) * Constants.MS_TO_MINUTES;
         reminder.setNextReminderTimeout(nextStart);
     });
+    saveActiveReminders();
 }
 function setEditReminder(index) {
     sessionStorage.setItem('edit-reminder-index', index.toString());
@@ -387,7 +406,14 @@ function loadReminderCreationPage() {
         var _a;
         e.preventDefault();
         const reminderFormJson = JSON.parse(form.formElement.toJSON());
-        const reminder = new Reminder(reminderFormJson === null || reminderFormJson === void 0 ? void 0 : reminderFormJson.reminderIntervalAmount, reminderFormJson === null || reminderFormJson === void 0 ? void 0 : reminderFormJson.reminderStartOverrideAmount, reminderFormJson === null || reminderFormJson === void 0 ? void 0 : reminderFormJson.ignoredReminderIntervalAmount, reminderFormJson === null || reminderFormJson === void 0 ? void 0 : reminderFormJson.message, reminderFormJson === null || reminderFormJson === void 0 ? void 0 : reminderFormJson.title);
+        const reminder = new ReminderImpl({
+            reminderIntervalAmount: reminderFormJson === null || reminderFormJson === void 0 ? void 0 : reminderFormJson.reminderIntervalAmount,
+            reminderStartOverrideAmount: reminderFormJson === null || reminderFormJson === void 0 ? void 0 : reminderFormJson.reminderStartOverrideAmount,
+            ignoredReminderIntervalAmount: reminderFormJson === null || reminderFormJson === void 0 ? void 0 : reminderFormJson.ignoredReminderIntervalAmount,
+            maxIgnoredReminders: reminderFormJson.maxIgnoredReminders,
+            message: reminderFormJson === null || reminderFormJson === void 0 ? void 0 : reminderFormJson.message,
+            title: reminderFormJson === null || reminderFormJson === void 0 ? void 0 : reminderFormJson.title
+        });
         const startDelta = (_a = reminder === null || reminder === void 0 ? void 0 : reminder.reminderStartOverrideAmount) !== null && _a !== void 0 ? _a : reminder.reminderIntervalAmount;
         reminder.setNextReminderTimeout(startDelta);
         if (editIndex >= 0) {
@@ -407,7 +433,7 @@ function loadReminderCreationPage() {
         return false;
     });
     // Update display if the user is editing
-    const editIndex = parseInt(sessionStorage.getItem('edit-reminder-index') || '-1');
+    const editIndex = getEditIndex();
     if (editIndex >= 0) {
         const editReminder = activeReminders[editIndex];
         form.setFromJson(JSON.stringify(editReminder));

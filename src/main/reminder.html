@@ -55,6 +55,16 @@
                 >
             </div>
 
+            <div title="The maximum number of times the reminder will replay if ignored. Leave empty for no limit">
+                <label for="max-ignored-reminders">Maximum Ignored Reminders</label>
+                <input type="number" 
+                        id="max-ignored-reminders" 
+                        name="max-ignored-reminders" 
+                        step="1" 
+                        min="1" 
+                >
+            </div>
+
             <div title="The title displayed when the reminder is sent">
                 <label for="title">Reminder Title</label>
                 <input type="text" minlength="1" maxlength="32" id="title" name="title" placeholder=" " required>

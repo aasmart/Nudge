@@ -1,7 +1,7 @@
 {
-  "name": "take-a-break",
+  "name": "Nudge",
   "version": "1.0.0",
-  "description": "Take a break",
+  "description": "Sometimes you just need a little nudge to get something done",
   "main": "src/main/main.js",
   "scripts": {
     "start": "electron-forge start",

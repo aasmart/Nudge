@@ -19,7 +19,7 @@ function createTray() {
         },
     ]);
     tray.on('click', () => win.show());
-    tray.setToolTip('Take a Break');
+    tray.setToolTip(app.name);
     tray.setContextMenu(contextMenu);
 }
 const createWindow = () => {
@@ -66,6 +66,8 @@ const createWindow = () => {
 };
 app.whenReady().then(() => {
     createWindow();
+    if (process.platform === 'win32')
+        app.setAppUserModelId(app.name);
     app.on('activate', () => {
         if (BrowserWindow.getAllWindows().length === 0)
             createWindow();

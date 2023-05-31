@@ -349,7 +349,7 @@ class ReminderImpl implements IReminder {
     }
 }
 
-let activeReminders: Array<ReminderImpl> = []
+let activeReminders: ReminderImpl[] = []
 
 function saveActiveReminders() {
     sessionStorage.setItem("active_reminders", JSON.stringify(activeReminders))

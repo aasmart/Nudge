@@ -1,10 +1,15 @@
 :root {
-    --bg-color: #1f1f27;
-    --reminder-list-bg-color: #383841;
-    --input-color: rgb(90, 87, 87);
+    --bg-color-start: #f4f4f4;
+    --bg-color-end: #f2f2f2;
+    --fore-color: #000000;
+    --reminder-list-bg-color: #e8e8e8;
+    --input-color: #ffffff;
     --input-invalid-color: #FA2333;
     --input-success-color: #22F095;
-    --primary-color: #8a2be2;
+    --primary-color: #984ae2;
+    --primary-color-darker: #833ec4;
+    --reminder-bg-color: #ffffff;
+    --outline-buttton-color: #ffffff;
 
     --header-fallback-height: 1rem;
 
@@ -12,10 +17,33 @@
     --checkbox-width: 3.5rem;
     --checkbox-margin: 8px;
 
-    --focus-visible-outline: 3px solid blanchedalmond;
+    --focus-visible-color: #FFEBCD;
+    --focus-visible-outline: 3px solid var(--focus-visible-color);
 
     --input-font-size: 1.25rem;
     --input-char-size: 40ch;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg-color-start: #1f1f27;
+        --bg-color-end: #1d1d22;
+        --fore-color: white;
+        --reminder-list-bg-color: #2c2c32;
+        --input-color: rgb(90, 87, 87);
+        --input-invalid-color: #FA2333;
+        --input-success-color: #22F095;
+        --reminder-bg-color: #525257;
+        --outline-buttton-color: #2c2c2f;
+    }
+
+    button img {
+        filter: invert(100%);
+    }
+
+    .reminder-form div .units {
+        background-image: linear-gradient(rgb(0 0 0/20%) 0 0);
+    }
 }
 
 *, *::before, *::after {
@@ -24,11 +52,12 @@
 }
 
 body {
-    background: var(--bg-color) !important;
+    background: linear-gradient(135deg, var(--bg-color-start), var(--bg-color-end)) !important;
     min-block-size: 100dvh;
     margin: auto;
     height: 100dvh;
     overflow: hidden;
+    color: var(--fore-color);
 }
 
 main {
@@ -75,7 +104,7 @@ section {
     display: flex;
     justify-content: start;
     align-items: center;
-    color: white;
+    color: inherit;
     flex-direction: column;
 }
 
@@ -136,7 +165,7 @@ section {
     padding: 10px;
     margin: 0 6px;
     box-shadow: 0 1px 2px black;
-    background: #383873;
+    background: var(--reminder-bg-color);
     width: 100%;
     min-width: fit-content;
     gap: 10px;
@@ -160,7 +189,7 @@ section {
 }
 
 .reminder-form {
-    color: white;
+    color: inherit;
     font-size: var(--input-font-size);
     width: var(--input-char-size);
     margin: 8px;
@@ -184,7 +213,7 @@ section {
     text-align: center;
     
     background-color: var(--input-color);
-    background-image: linear-gradient(rgb(0 0 0/20%) 0 0);
+    background-image: linear-gradient(rgb(0 0 0/10%) 0 0);
     border: 1px solid rgb(21, 21, 21);
     box-shadow: 0 0.75px 3px black;
 
@@ -284,33 +313,54 @@ label:has(+input:required)::after {
 button {
     padding: 20px;
     border-radius: 10px;
+    border-width: 2px;
     position: relative;
     transition: all 250ms;
+    font-weight: bold;
+    background-color: var(--primary-color);
 
     cursor: pointer;
 }
 
+button[action="destructive"] {
+    background-color: var(--outline-buttton-color);
+    border-color: var(--input-invalid-color);
+    color: var(--input-invalid-color)
+}
+
 button img {
-    filter: invert(100%);
     min-height: 2em;
     min-width: 2em;
+    filter: invert(100%);
+}
+
+button[action="destructive"] img {
+    filter: invert(25%) sepia(80%) saturate(5036%) hue-rotate(344deg) brightness(100%) contrast(97%);
 }
 
 button:focus-visible, 
-button:hover,
-input[type="checkbox"]:focus-visible + label::after,
-input[type="checkbox"]:hover + label::after {
-    background-color: var(--primary-color);
-}
-
-button:focus-visible, 
+textarea:focus-visible,
+select:focus-visible,
+input:focus-visible,
 input[type="checkbox"]:focus-visible + label::after {
     outline: var(--focus-visible-outline);
 }
 
-button[action="destructive"]:focus-visible, 
-button[action="destructive"]:hover {
+button:hover,
+button:focus-visible {
+    background-color: var(--primary-color-darker)
+}
+
+button[action="destructive"]:hover,
+button[action="destructive"]:focus-visible {
+    color: white;
     background-color: var(--input-invalid-color);
+}
+
+button[action="destructive"]:hover img,
+button[action="destructive"]:focus-visible img {
+    color: var(--input-color);
+    filter: invert(100%);
 }
 
 .reminder-form textarea {

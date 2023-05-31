@@ -36,7 +36,7 @@ const createWindow = () => {
         frame: false,
         titleBarStyle: 'hidden',
         titleBarOverlay: {
-            color: '#8a2be2',
+            color: '#984ae2',
             symbolColor: '#ffffff',
         },
         webPreferences: {

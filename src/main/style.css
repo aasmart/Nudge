@@ -10,6 +10,7 @@
     --primary-color-darker: #833ec4;
     --reminder-bg-color: #ffffff;
     --outline-buttton-color: #ffffff;
+    color-scheme: lig;
 
     --header-fallback-height: 1rem;
 
@@ -34,7 +35,8 @@
         --input-invalid-color: #FA2333;
         --input-success-color: #22F095;
         --reminder-bg-color: #525257;
-        --outline-buttton-color: #2c2c2f;
+        --outline-buttton-color: transparent;
+        color-scheme: dark;
     }
 
     button img {
@@ -325,7 +327,8 @@ button {
 button[action="destructive"] {
     background-color: var(--outline-buttton-color);
     border-color: var(--input-invalid-color);
-    color: var(--input-invalid-color)
+    color: var(--input-invalid-color);
+    backdrop-filter: brightness(125%);
 }
 
 button img {

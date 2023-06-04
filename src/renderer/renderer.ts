@@ -388,7 +388,7 @@ function getEditReminder(): ReminderImpl {
     return activeReminders[editIndex] || null
 }
 
-function listActiveReminders() {
+function listReminders() {
     const reminderList = (document.getElementById("reminder-list") as HTMLElement).children[1] as HTMLElement
     
     let reminders: Array<Node> = []
@@ -539,7 +539,7 @@ function loadCreateRemindersPage() {
         window.api.openPage('reminder')
     })
 
-    window.addEventListener('update-reminder-list', () => listActiveReminders())
+    window.addEventListener('update-reminder-list', () => listReminders())
 
     window.dispatchEvent(new Event('update-reminder-list'))
 }

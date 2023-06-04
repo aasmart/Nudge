@@ -50,7 +50,7 @@ class InputForm {
             if ((e instanceof HTMLInputElement || e instanceof HTMLTextAreaElement)) {
                 const errorMessage = document.createElement('p');
                 errorMessage.classList.add('error-message');
-                const updateValidationMessage = () => { errorMessage.innerHTML = e.validationMessage; };
+                const updateValidationMessage = () => { errorMessage.innerText = e.validationMessage; };
                 e.insertAdjacentElement("afterend", errorMessage);
                 e.onkeyup = updateValidationMessage;
                 e.onmousedown = updateValidationMessage;
@@ -69,7 +69,7 @@ class InputForm {
                         units.id = `${id}-units`;
                         units.classList.add('units');
                         e.insertAdjacentElement("afterend", units);
-                        units.innerHTML = 'minutes';
+                        units.innerText = 'minutes';
                         break;
                 }
             }
@@ -274,7 +274,7 @@ function getEditReminder() {
     const editIndex = getEditIndex();
     return activeReminders[editIndex] || null;
 }
-function listActiveReminders() {
+function listReminders() {
     const reminderList = document.getElementById("reminder-list").children[1];
     let reminders = [];
     activeReminders.forEach(reminder => {
@@ -283,12 +283,12 @@ function listActiveReminders() {
         reminderListElement.classList.add('reminder');
         // Create the display text
         let text = document.createElement('p');
-        text.innerHTML = "Next Reminder: ";
+        text.innerText = "Next Reminder: ";
         let textSpan = document.createElement('span');
         if (reminder.paused)
-            textSpan.innerHTML = "this reminder is paused";
+            textSpan.innerText = "this reminder is paused";
         else
-            textSpan.innerHTML = reminder.nextReminder.toLocaleString();
+            textSpan.innerText = reminder.nextReminder.toLocaleString();
         textSpan.classList.add("next-timer-play");
         text.append(textSpan);
         // Create the delete button
@@ -372,8 +372,8 @@ function sendPopup(title, content) {
     const popupTitle = section.children[0];
     const popupText = section.children[1];
     const popupButton = section.children[2];
-    popupTitle.innerHTML = title;
-    popupText.innerHTML = content;
+    popupTitle.innerText = title;
+    popupText.innerText = content;
     function handleButton() {
         section.classList.remove('show-popup');
         section.classList.add('hide-popup');
@@ -397,7 +397,7 @@ function loadCreateRemindersPage() {
         saveActiveReminders();
         window.api.openPage('reminder');
     });
-    window.addEventListener('update-reminder-list', () => listActiveReminders());
+    window.addEventListener('update-reminder-list', () => listReminders());
     window.dispatchEvent(new Event('update-reminder-list'));
 }
 function loadReminderCreationPage() {
@@ -440,7 +440,7 @@ function loadReminderCreationPage() {
         const createButton = form.getInputElement(CREATE_BUTTON);
         if (!createButton)
             return;
-        createButton.innerHTML = createButton.getAttribute('when-editing') || createButton.innerHTML;
+        createButton.innerText = createButton.getAttribute('when-editing') || createButton.innerText;
     }
 }
 function clearPreloads() {

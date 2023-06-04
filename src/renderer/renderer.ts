@@ -81,7 +81,7 @@ class InputForm {
                 const errorMessage = document.createElement('p')
                 errorMessage.classList.add('error-message')
 
-                const updateValidationMessage = () => { errorMessage.innerHTML = e.validationMessage }
+                const updateValidationMessage = () => { errorMessage.innerText = e.validationMessage }
 
                 e.insertAdjacentElement("afterend", errorMessage)
 
@@ -105,7 +105,7 @@ class InputForm {
                         units.classList.add('units')
                         e.insertAdjacentElement("afterend", units)
 
-                        units.innerHTML = 'minutes'
+                        units.innerText = 'minutes'
                         break;
                 }
                 
@@ -400,13 +400,13 @@ function listReminders() {
 
         // Create the display text
         let text = document.createElement('p')
-        text.innerHTML = "Next Reminder: "
+        text.innerText = "Next Reminder: "
 
         let textSpan = document.createElement('span')
         if(reminder.paused)
-            textSpan.innerHTML = "this reminder is paused"
+            textSpan.innerText = "this reminder is paused"
         else
-            textSpan.innerHTML = reminder.nextReminder.toLocaleString()
+            textSpan.innerText = reminder.nextReminder.toLocaleString()
         textSpan.classList.add("next-timer-play")
 
         text.append(textSpan)
@@ -507,8 +507,8 @@ function sendPopup(title: string, content: string) {
     const popupText = section.children[1] as HTMLElement
     const popupButton = section.children[2] as HTMLButtonElement
 
-    popupTitle.innerHTML = title
-    popupText.innerHTML = content
+    popupTitle.innerText = title
+    popupText.innerText = content
 
     function handleButton() {
         section.classList.remove('show-popup')
@@ -595,7 +595,7 @@ function loadReminderCreationPage() {
         if(!createButton)
             return
 
-        createButton.innerHTML = createButton.getAttribute('when-editing') || createButton.innerHTML
+        createButton.innerText = createButton.getAttribute('when-editing') || createButton.innerText
     }
 }
 

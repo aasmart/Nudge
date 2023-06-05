@@ -204,6 +204,8 @@ class ReminderImpl {
                 return;
             if (this.isIgnored)
                 this.setNextReminderTimeout(this.reminderIntervalAmount);
+            this.isIgnored = false;
+            window.dispatchEvent(new Event('update-reminder-list'));
             window.api.showWindow('main');
         };
     }
@@ -281,6 +283,8 @@ function listReminders() {
         // Create the base div
         let reminderListElement = document.createElement("li");
         reminderListElement.classList.add('reminder');
+        if (reminder.isIgnored)
+            reminderListElement.classList.add("ignored");
         // Create the display text
         let text = document.createElement('p');
         text.innerText = "Next Reminder: ";

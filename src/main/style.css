@@ -110,6 +110,10 @@ section {
     flex-direction: column;
 }
 
+/* ==================================
+REMINDER LIST
+================================== */
+
 #reminder-list {
     height: 100%;
 
@@ -158,7 +162,15 @@ section {
     aspect-ratio: 1;
 }
 
+/* ==================================
+REMINDERS
+================================== */
+
 .reminder {
+    position: relative;
+    isolation: isolate;
+    z-index: 1;
+    
     display: grid;
     grid-template-columns: 8fr 1fr 1fr 1fr;
     grid-template-rows: 100%;
@@ -189,6 +201,47 @@ section {
     font-weight: normal;
     text-align: center;
 }
+
+.reminder.ignored::after {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    inset: 0;
+    border-radius: inherit;
+    outline: 0px solid var(--input-invalid-color);
+    animation: ignored-reminder-pulse 800ms ease-out infinite;
+}
+
+@keyframes ignored-reminder-pulse {
+    0% {
+        outline-offset: 0px;
+        outline-width: 0;
+    }
+
+    10% {
+        outline-offset: 0px;
+        outline-width: 5px;
+    }
+
+    30% {
+        opacity: 1;
+    }
+
+    95% {
+        outline-offset: 10px;
+        opacity: 0;
+    }
+
+    100% {
+        outline-offset: 10px;
+        opacity: 0;
+        outline-width: 5px;
+    }
+}
+
+/* ==================================
+REMINDER FORM
+================================== */
 
 .reminder-form {
     color: inherit;
@@ -266,6 +319,10 @@ section {
 .reminder-form > p span {
     color: var(--input-invalid-color)
 }
+
+/* ==================================
+INPUTS
+================================== */
 
 input,
 button,

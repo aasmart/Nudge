@@ -10,7 +10,7 @@
     --primary-color-darker: #833ec4;
     --reminder-bg-color: #ffffff;
     --outline-buttton-color: #ffffff;
-    color-scheme: lig;
+    color-scheme: light;
 
     --header-fallback-height: 1rem;
 
@@ -273,7 +273,6 @@ textarea,
 select {
     background-color: var(--input-color);
     border-radius: 4px;
-    color: white;
     transition: all 250ms;
     padding: 8px;
     font-size: var(--input-font-size);
@@ -320,6 +319,7 @@ button {
     transition: all 250ms;
     font-weight: bold;
     background-color: var(--primary-color);
+    color: white;
 
     cursor: pointer;
 }

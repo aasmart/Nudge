@@ -170,9 +170,9 @@ REMINDERS
     position: relative;
     isolation: isolate;
     z-index: 1;
-    
+
     display: grid;
-    grid-template-columns: 8fr 1fr 1fr 1fr;
+    grid-template-columns: 7fr 1fr 1fr 1fr 1fr;
     grid-template-rows: 100%;
     
     border-radius: 8px;
@@ -212,6 +212,10 @@ REMINDERS
     animation: ignored-reminder-pulse 800ms ease-out infinite;
 }
 
+.reminder.ignored #acknowledge > img {
+    animation: shake 1000ms ease-in-out infinite;
+}
+
 @keyframes ignored-reminder-pulse {
     0% {
         outline-offset: 0px;
@@ -236,6 +240,28 @@ REMINDERS
         outline-offset: 10px;
         opacity: 0;
         outline-width: 5px;
+    }
+}
+
+@keyframes shake {
+    0% {
+        rotate: 0deg;
+    }
+
+    15% {
+        rotate: 15deg;
+    }
+
+    45% {
+        rotate: -15deg;
+    }
+
+    60% {
+        rotate: 0deg;
+    }
+
+    100% {
+        rotate: 0deg;
     }
 }
 
@@ -377,8 +403,14 @@ button {
     transition: all 250ms;
     font-weight: bold;
     background-color: var(--primary-color);
+}
 
+button:not(:disabled) {
     cursor: pointer;
+}
+
+button:disabled {
+    filter: brightness(60%);
 }
 
 button[action="destructive"] {
@@ -406,19 +438,19 @@ input[type="checkbox"]:focus-visible + label::after {
     outline: var(--focus-visible-outline);
 }
 
-button:hover,
-button:focus-visible {
+button:not(:disabled):hover,
+button:not(:disabled):focus-visible {
     background-color: var(--primary-color-darker)
 }
 
-button[action="destructive"]:hover,
-button[action="destructive"]:focus-visible {
+button[action="destructive"]:not(:disabled):hover,
+button[action="destructive"]:not(:disabled):focus-visible {
     color: white;
     background-color: var(--input-invalid-color);
 }
 
-button[action="destructive"]:hover img,
-button[action="destructive"]:focus-visible img {
+button[action="destructive"]:not(:disabled):hover img,
+button[action="destructive"]:not(:disabled):focus-visible img {
     color: var(--input-color);
     filter: invert(100%);
 }

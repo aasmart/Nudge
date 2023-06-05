@@ -230,6 +230,11 @@ class ReminderImpl {
         saveActiveReminders();
         window.dispatchEvent(new Event('update-reminder-list'));
     }
+    acknowledgeIgnored() {
+        this.isIgnored = false;
+        this.setNextReminderTimeout(this.reminderIntervalAmount);
+        window.dispatchEvent(new Event('update-reminder-list'));
+    }
     toJSON() {
         return {
             nextReminder: this.nextReminder,
@@ -341,6 +346,7 @@ function listReminders() {
         pauseButton.setAttribute('aria-label', reminder.paused ? 'Unpause' : 'Pause');
         pauseButton.append(stateImage);
         pauseButton.title = reminder.paused ? 'Unpause reminder' : 'Pause reminder';
+        pauseButton.disabled = reminder.isIgnored;
         pauseButton.addEventListener('click', () => {
             if (pauseButton.getAttribute('aria-label') === 'Pause') {
                 pauseButton.setAttribute('aria-label', 'Unpause');
@@ -357,8 +363,22 @@ function listReminders() {
                 stateImage.alt = 'Unpause reminder';
             }
         });
+        // Create the pause button
+        const REMINDER_SVG_PATH = './images/notification_important.svg';
+        const notifImg = document.createElement('img');
+        notifImg.src = REMINDER_SVG_PATH;
+        notifImg.alt = 'Acknowledge ignored reminder';
+        let acknowledgeButton = document.createElement('button');
+        acknowledgeButton.append(notifImg);
+        acknowledgeButton.title = "Acknowledge ignored reminder";
+        acknowledgeButton.id = "acknowledge";
+        acknowledgeButton.disabled = !reminder.isIgnored;
+        acknowledgeButton.addEventListener('click', () => {
+            reminder.acknowledgeIgnored();
+        });
         // Finish building the ui element
         reminderListElement.append(text);
+        reminderListElement.append(acknowledgeButton);
         reminderListElement.append(pauseButton);
         reminderListElement.append(editButton);
         reminderListElement.append(deleteButton);

@@ -1,6 +1,6 @@
 {
   "name": "Nudge",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Sometimes you just need a little nudge to get something done",
   "main": "src/main/main.js",
   "scripts": {

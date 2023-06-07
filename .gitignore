@@ -9268,3 +9268,5 @@ out/Nudge-win32-x64/resources/app/src/preload/preload.ts
 out/Nudge-win32-x64/resources/app/src/renderer/renderer.ts
 out/make/squirrel.windows/x64/Nudge-0.4.0 Setup.exe
 out/make/squirrel.windows/x64/Nudge-0.4.0-full.nupkg
+out/make/squirrel.windows/x64/Nudge-0.4.1 Setup.exe
+out/make/squirrel.windows/x64/Nudge-0.4.1-full.nupkg

@@ -1,0 +1,8 @@
+- Acknowledge ignored reminders inside the app
+
+-- Form Rework --
+* A hashmap stores all input IDs
+* Inputs/buttons/textareas are collected from a given form
+* Inputs can indicate a checkbox that needs to be true for them to be enabled
+ * using an attribute or something
+ * these checkboxes automatically recieve an onchanged field

@@ -1,0 +1,528 @@
+:root {
+    --bg-color-start: #f4f4f4;
+    --bg-color-end: #f2f2f2;
+    --fore-color: #000000;
+    --reminder-list-bg-color: #e8e8e8;
+    --input-color: #ffffff;
+    --input-invalid-color: #FA2333;
+    --input-success-color: #22F095;
+    --primary-color: #984ae2;
+    --primary-color-darker: #833ec4;
+    --reminder-bg-color: #ffffff;
+    --outline-buttton-color: #ffffff;
+    color-scheme: light;
+
+    --header-fallback-height: 1rem;
+
+    --checkbox-height: 1.75rem;
+    --checkbox-width: 3.5rem;
+    --checkbox-margin: 8px;
+
+    --focus-visible-color: #FFEBCD;
+    --focus-visible-outline: 3px solid var(--focus-visible-color);
+
+    --input-font-size: 1.25rem;
+    --input-char-size: 40ch;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg-color-start: #1f1f27;
+        --bg-color-end: #1d1d22;
+        --fore-color: white;
+        --reminder-list-bg-color: #2c2c32;
+        --input-color: rgb(90, 87, 87);
+        --input-invalid-color: #FA2333;
+        --input-success-color: #22F095;
+        --reminder-bg-color: #525257;
+        --outline-buttton-color: transparent;
+        color-scheme: dark;
+    }
+
+    button img {
+        filter: invert(100%);
+    }
+
+    .reminder-form div .units {
+        background-image: linear-gradient(rgb(0 0 0/20%) 0 0);
+    }
+}
+
+*, *::before, *::after {
+    box-sizing: border-box;
+    font-family: 'Ubuntu', sans-serif;
+}
+
+body {
+    background: linear-gradient(135deg, var(--bg-color-start), var(--bg-color-end)) !important;
+    min-block-size: 100dvh;
+    margin: auto;
+    height: 100dvh;
+    overflow: hidden;
+    color: var(--fore-color);
+}
+
+main {
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: calc(100dvh - env(titlebar-area-height, var(--header-fallback-height)));
+    overflow: auto;
+}
+
+.preload *,
+.preload *::after,
+.preload *::before {
+    transition: none !important;
+}
+
+.titlebar {
+    color: white;
+    background: var(--primary-color);
+    display: flex;
+    align-items: center;
+    font-size: .75em;
+    font-weight: bold;
+    position: relative;
+
+    padding-left: calc(env(titlebar-area-x, 0) + 4px);
+
+    -webkit-app-region: drag;
+    user-select: none;
+    -webkit-user-select: none;
+
+    top: env(titlebar-area-y, 0);
+    height: env(titlebar-area-height, var(--header-fallback-height));
+    min-width: env(titlebar-area-width, 100%);
+}
+
+.titlebar img {
+    width: 16px;
+    height: 16px;
+}
+
+section {
+    display: flex;
+    justify-content: start;
+    align-items: center;
+    color: inherit;
+    flex-direction: column;
+}
+
+#reminder-list {
+    height: 100%;
+
+    width: 90%;
+    min-width: fit-content;
+    max-width: 800px;
+
+    margin: 0 10px;
+}
+
+#reminder-list > * {
+    font-size: 1.35rem;
+}
+
+#reminder-list > * {
+    margin: 16px;
+}
+
+#reminder-list > ul {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    background: var(--reminder-list-bg-color);
+    border-radius: 8px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 10px;
+    justify-content: unset;
+    list-style: none;
+    list-style-type: none;
+    margin: 0;
+    gap: 6px;
+
+    min-height: 6.8rem;
+    width: 100%;
+}
+
+#reminder-list > button {
+    width: 100%;
+}
+
+#reminder-list li > button {
+    min-width: 60px;
+    padding: 5px;
+    aspect-ratio: 1;
+}
+
+.reminder {
+    display: grid;
+    grid-template-columns: 8fr 1fr 1fr 1fr;
+    grid-template-rows: 100%;
+    
+    border-radius: 8px;
+    padding: 10px;
+    margin: 0 6px;
+    box-shadow: 0 1px 2px black;
+    background: var(--reminder-bg-color);
+    width: 100%;
+    min-width: fit-content;
+    gap: 10px;
+}
+
+.reminder p {
+    font-weight: bold;
+    grid-column: 1 3;
+    align-self: center;
+}
+
+.reminder button {
+    align-self: center;
+}
+
+.reminder .next-timer-play {
+    text-decoration: underline var(--primary-color);
+    font-style: normal;
+    font-weight: normal;
+    text-align: center;
+}
+
+.reminder-form {
+    color: inherit;
+    font-size: var(--input-font-size);
+    width: var(--input-char-size);
+    margin: 8px;
+}
+
+.reminder-form div {
+    --columns: 10;
+    --select-columns: 1;
+
+    display: grid;
+    grid-template-columns: repeat(1fr, var(--columns));
+    gap: 2px 0;
+    margin-bottom: 12px;
+}
+
+.reminder-form div .units {
+    border-top-right-radius: 4px;
+    border-bottom-right-radius: 4px;
+    padding: 8px ;
+    font-size: var(--input-font-size);
+    text-align: center;
+    
+    background-color: var(--input-color);
+    background-image: linear-gradient(rgb(0 0 0/10%) 0 0);
+    border: 1px solid rgb(21, 21, 21);
+    box-shadow: 0 0.75px 3px black;
+
+    grid-column: calc(var(--columns) - var(--select-columns) + 1) / span calc(var(--select-columns));
+}
+
+.reminder-form label {
+    font-size: 1.2rem;
+}
+
+.reminder-form div > * {
+    grid-column: 1 / span var(--columns);
+}
+
+.reminder-form div input:has(+.units) {
+    grid-column: 1 / span calc(var(--columns) - var(--select-columns));
+}
+
+.reminder-form > input[type="checkbox"] + label {
+    justify-self: start;
+}
+
+.reminder-form button[type="submit"] {
+    grid-column: 1 / span 2;
+    margin-right: 4px;
+}
+
+.reminder-form button[type="reset"] {
+    grid-column: 3 / span 1;
+}
+
+.error-message {
+    color: var(--input-invalid-color);
+    font-size: 1rem;
+    display: none;
+    margin: 0;
+}
+
+.reminder-form input:not(:placeholder-shown):invalid ~ .error-message,
+[dirty]:not(:valid, :disabled):is(input, textarea) ~ .error-message {
+    display: inline;
+}
+
+.reminder-form > p {
+    text-align: right;
+}
+
+.reminder-form > p span {
+    color: var(--input-invalid-color)
+}
+
+input,
+button,
+textarea,
+select {
+    background-color: var(--input-color);
+    border-radius: 4px;
+    transition: all 250ms;
+    padding: 8px;
+    font-size: var(--input-font-size);
+    border: 1px solid rgb(21, 21, 21);
+    box-shadow: 0 0.75px 3px black;
+    transition: opacity 250ms;
+}
+
+input:has(+.units) {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    z-index: 1;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type=number] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+
+input[use-units] {
+    text-align: right;
+}
+
+input[use-units]:focus {
+    text-align: left;
+}
+
+label:has(+input:required)::after {
+    content: ' *';
+    color: var(--input-invalid-color);
+}
+
+button {
+    padding: 20px;
+    border-radius: 10px;
+    border-width: 2px;
+    position: relative;
+    transition: all 250ms;
+    font-weight: bold;
+    background-color: var(--primary-color);
+    color: white;
+
+    cursor: pointer;
+}
+
+button[action="destructive"] {
+    background-color: var(--outline-buttton-color);
+    border-color: var(--input-invalid-color);
+    color: var(--input-invalid-color);
+    backdrop-filter: brightness(125%);
+}
+
+button img {
+    min-height: 2em;
+    min-width: 2em;
+    filter: invert(100%);
+}
+
+button[action="destructive"] img {
+    filter: invert(25%) sepia(80%) saturate(5036%) hue-rotate(344deg) brightness(100%) contrast(97%);
+}
+
+button:focus-visible, 
+textarea:focus-visible,
+select:focus-visible,
+input:focus-visible,
+input[type="checkbox"]:focus-visible + label::after {
+    outline: var(--focus-visible-outline);
+}
+
+button:hover,
+button:focus-visible {
+    background-color: var(--primary-color-darker)
+}
+
+button[action="destructive"]:hover,
+button[action="destructive"]:focus-visible {
+    color: white;
+    background-color: var(--input-invalid-color);
+}
+
+button[action="destructive"]:hover img,
+button[action="destructive"]:focus-visible img {
+    color: var(--input-color);
+    filter: invert(100%);
+}
+
+.reminder-form textarea {
+    display: block;
+    resize: none;
+}
+
+.reminder-form input:not(:placeholder-shown):invalid,
+[dirty]:not(:valid, :disabled, :focus):is(input, textarea) {
+    border-color: var(--input-invalid-color);
+}
+
+input:disabled { 
+    opacity: 0.5;
+}
+
+input[type="checkbox"] {
+    opacity: 0;
+    position: absolute;
+
+    /* So they cannot be clicked */
+    z-index: -1;
+}
+
+input[type="checkbox"] + label {
+    position: relative;
+    height: 100%;
+    line-height: 150%;
+    text-align: center;
+    display: inline-block;
+
+    left: calc((var(--checkbox-width) + var(--checkbox-margin)));
+}
+
+/* Styles the checkbox's background */
+input[type="checkbox"] + label::before {
+    content: '';
+    top: 0;
+    background-color: var(--input-invalid-color);
+    border-radius: 20px;
+    line-height: 20px;
+    border: 2px solid rgb(21, 21, 21);
+    box-shadow: 0 2px 2px black;
+
+    position: absolute;
+    display: inline-block;
+    height: var(--checkbox-height);
+    width: var(--checkbox-width);
+    left: calc(-1 * (var(--checkbox-width) + var(--checkbox-margin)));
+
+    transition: all 250ms;
+}
+
+/* Changes the checkbox's background color when checked */
+input[type="checkbox"]:checked + label::before {
+    background-color: var(--input-success-color);
+}
+
+/* Styles the checkbox's little notch */
+input[type="checkbox"] + label::after {
+    content: '';
+    background-color: var(--input-color);
+    border-radius: 100%;
+    box-shadow: 0 2px 2px black;
+
+    height: var(--checkbox-height);
+    width: calc(var(--checkbox-width) * 0.5);
+    position: absolute;
+    left: calc(-1 * (var(--checkbox-width) + var(--checkbox-margin)));
+    top: 0;
+
+    transition: all 250ms;
+}
+
+/* Shifts the notch over to the other side of the checkbox when it is 
+checked */
+input[type="checkbox"]:checked + label::after {
+    left: calc(-1 * (var(--checkbox-width) + var(--checkbox-margin)) + (var(--checkbox-width)) * 0.5);
+}
+
+.popup-container {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: radial-gradient(rgb(0,0,0,0.2), rgb(0,0,0,0.35));
+    visibility: hidden;
+}
+
+.popup-container > section {
+    padding: 8px;
+    background-color: var(--bg-color);
+    box-shadow: 0 8px 8px black;
+    border-radius: 16px;
+    border: var(--primary-color) 1px solid;
+
+    width: 40%;
+    min-width: fit-content;
+    max-width: 500px;
+
+    height: 30%;
+    min-height: 220px;
+    max-height: 350px;
+}
+
+.popup-container > section > * {
+    text-align: center;
+}
+
+.popup-container > section > h2 {
+    font-size: 3.5ch;
+    font-weight: bold;
+    text-decoration: underline;
+}
+
+.popup-container p {
+    font-size: 1.35rem;
+}
+
+.popup-button {
+    margin-top: auto;
+    visibility: inherit;
+}
+
+.show-popup {
+    visibility: visible;
+    animation: popup-in 250ms ease-in-out;
+}
+
+.hide-popup {
+    animation: popup-out 250ms ease-in-out;
+}
+
+@keyframes popup-in {
+    from {
+        opacity: 0;
+        transform: translateY(6%);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes popup-out {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    to {
+        opacity: 0;
+        transform: translateY(6%);
+    }
+
+    100% {
+        visibility: hidden;
+    }
+}

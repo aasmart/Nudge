@@ -16,6 +16,7 @@ export default defineConfig({
                 reminder: resolve(__dirname, "src/renderer/reminder.html")
             }
         }
-    }
+    },
+    assetsInclude: ['assets']
   }
 })

@@ -74,10 +74,6 @@ const createWindow = () => {
       if(name === 'main') win.show()
     })
 
-    ipcMain.handle('resource', (_event: any, path: any) => {
-      return join(__dirname, `${path}`);
-    });
-
     ipcMain.handle('app-name', () => app.getName())
 }
 

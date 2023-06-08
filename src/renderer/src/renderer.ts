@@ -1,397 +1,16 @@
-const MINUTES_TO_MS = 60000
-const MS_TO_MINUTES = 1 / MINUTES_TO_MS
-
-interface Date {
-    addMilliseconds(milliseconds: number): Date
-}
-
-Date.prototype.addMilliseconds = function(milliseconds: number): Date {
-    const date = this;
-    return new Date(date.getTime() + milliseconds)
-}
-
-interface HTMLFormElement {
-    toJSON(): string
-}
-
-HTMLFormElement.prototype.toJSON = function(): string {
-    const formData = new FormData(this)
-    const formJson = Object.fromEntries(formData.entries())
-
-    for(let key in formJson) {
-        const keyArr = key.split("-")
-        const keyNew: string = (keyArr.slice(0,1)
-            .concat(keyArr.slice(1)
-            .flatMap(s => s.substring(0,1).toUpperCase().concat(s.substring(1))))
-            ).join("")
-
-        if(keyNew === key)
-            continue;
-        
-        // Replace old keys with the new keys
-        if(formJson[key].toString().length > 0)
-            formJson[keyNew] = formJson[key]
-        delete formJson[key]
-    }
-
-    return JSON.stringify(formJson)    
-}
-
-interface HTMLElement {
-    setDirty(isDirty: boolean): void
-    isDirty(): boolean
-}
-
-HTMLElement.prototype.setDirty = function(isDirty: boolean): void {
-    if(isDirty)
-        this.setAttribute('dirty', '')
-    else
-        this.removeAttribute('dirty')
-}
-
-HTMLElement.prototype.isDirty = function(): boolean {
-    return this.getAttribute('dirty') != null
-}
-
-class InputForm {
-    formElement: HTMLFormElement
-    inputs: Map<String, HTMLInputElement | HTMLTextAreaElement | HTMLButtonElement>
-
-    constructor(formClass: string, onSubmit: (e: Event) => boolean, onReset: (e: Event) => boolean) {
-        this.inputs = new Map()
-        this.formElement = <HTMLFormElement>document.getElementsByClassName(formClass)[0]
-
-        this.formElement.addEventListener('submit', e => onSubmit(e))
-        this.formElement.addEventListener('reset', e => onReset(e))
-
-        const inputElements: Array<HTMLInputElement | HTMLTextAreaElement | HTMLButtonElement>
-             = Array.from(this.formElement.querySelectorAll('input,button,textarea'))
-
-        inputElements.forEach(e => {
-            const id = e.getAttribute('id');
-            const type = e.getAttribute('type')
-
-            if(id == null)
-                return
-
-            // Handle the error message
-            if((e instanceof HTMLInputElement || e instanceof HTMLTextAreaElement)) {
-                const errorMessage = document.createElement('p')
-                errorMessage.classList.add('error-message')
-
-                const updateValidationMessage = () => { errorMessage.innerHTML = e.validationMessage }
-
-                e.insertAdjacentElement("afterend", errorMessage)
-
-                e.onkeyup = updateValidationMessage
-                e.onmousedown = updateValidationMessage
-                updateValidationMessage()
-
-                e.oninvalid = () => {
-                    e.setDirty(true)
-                    updateValidationMessage()
-                }
-            }
-
-            // Add unit selection dropdowns
-            const useUnits = e.getAttribute('use-units')
-            if(useUnits) {
-                switch(useUnits) {
-                    case 'time':
-                        const units = document.createElement('span')
-                        units.id = `${id}-units`
-                        units.classList.add('units')
-                        e.insertAdjacentElement("afterend", units)
-
-                        units.innerHTML = 'minutes'
-                        break;
-                }
-                
-            }
-
-            switch(type) {
-                case 'checkbox':
-                    const toggles = e.getAttribute('toggles')
-                    if(toggles == null || !(e instanceof HTMLInputElement))
-                        break
-
-                    e.onchange = () => { 
-                        const input = this.inputs.get(toggles)
-                        if(input == null)
-                            return;
-                        
-                        input.disabled = !e.checked
-                    }
-
-                    break
-                default:
-                    break
-            }
-
-            e.onkeydown = () => e.setDirty(true)
-            e.onmousedown = () => e.setDirty(true)
-
-            this.inputs.set(id, e)
-        })
-    }
-
-    setValue(input: string, value: any) {
-        const element: any = this.getInputElement(input)
-
-        if(element == null)
-            return
-
-        if(!element.disabled)
-            element.value = value.toString();
-        else
-            element.value = ''
-    }
-
-    getValue(input: string, checkActive: boolean = false) {
-        if(checkActive && !this.activeAndFilled(input))
-            return ''
-
-        return this.getInputElement(input)?.value || ''
-    }
-
-    getValueAsNumber(input: string, checkActive: boolean = false) {
-        if(checkActive && !this.activeAndFilled(input))
-            return ''
-
-        const element = this.getInputElement(input)
-        if(!element || !(element instanceof HTMLInputElement))
-            return ''
-
-        return element.valueAsNumber
-    }
-
-    hasValue(input: string) {
-        return (this.inputs.get(input)?.value?.length || 0) > 0
-    }
-
-    activeAndFilled(input: string): boolean {
-        const inputElement = this.getInputElement(input)
-        if(inputElement == null)
-            return false;
-
-        return !inputElement.disabled && inputElement.value.length > 0
-    }
-
-    setChecked(input: String, checked: boolean) {
-        const element = this.inputs.get(input)
-        if(!element || !(element instanceof HTMLInputElement) || element.getAttribute('type') !== 'checkbox')
-            return
-        
-        element.checked = checked
-        element.dispatchEvent(new Event('change'))
-    }
-
-    getInputElement(input: String): HTMLInputElement | HTMLTextAreaElement | HTMLButtonElement | undefined  {
-        return this.inputs.get(input) || undefined
-    }
-
-    setFromJson(json: string): void {
-        const camelCaseRegex = /.([a-z])+/g
-    
-        // Set all the fields
-        const obj = JSON.parse(json)
-        for(let key in obj) {
-            const id = key.match(camelCaseRegex)?.flatMap(s => s.toLowerCase()).join('-') || ''
-            const element = <HTMLInputElement>document.getElementById(id)
-
-            if(element == null)
-                continue
-
-            if(element as HTMLInputElement | HTMLTextAreaElement) {}
-                element.value = obj[key]
-        }
-
-        // Set the toggle checkboxes
-        Array.from(this.inputs.values()).forEach(input => {
-            const type = input.getAttribute('type') 
-            if(type !== 'checkbox')
-                return
-            
-            const toggles = input.getAttribute('toggles')
-            if(toggles == null)
-                return
-
-            this.setChecked(input.id, this.hasValue(toggles))
-        })
-    }
-}
-
-interface IReminder {
-    nextReminder?: Date
-    reminderIntervalAmount: number
-    reminderStartOverrideAmount: number
-    ignoredReminderIntervalAmount: number
-    maxIgnoredReminders: number
-    ignoredReminders?: number
-    isIgnored?: boolean
-    message: string
-    title: string
-    paused?: boolean
-    pausedTime?: Date
-}
-
-class ReminderImpl implements IReminder {
-    reminderTimeout!: ReturnType<typeof setInterval>
-    nextReminder: Date
-    reminderIntervalAmount: number
-    reminderStartOverrideAmount: number
-    ignoredReminderIntervalAmount: number
-    maxIgnoredReminders: number
-    ignoredReminders: number
-    isIgnored: boolean
-    message: string
-    title: string
-    paused: boolean
-    pausedTime: Date
-
-    constructor(reminder: IReminder) {
-        this.nextReminder = reminder.nextReminder || new Date()
-        this.reminderIntervalAmount = reminder.reminderIntervalAmount;
-        this.reminderStartOverrideAmount = reminder.reminderStartOverrideAmount
-        this.ignoredReminderIntervalAmount = reminder.ignoredReminderIntervalAmount;
-        this.maxIgnoredReminders = reminder.maxIgnoredReminders;
-        this.ignoredReminders = reminder.ignoredReminders || 0;
-        this.isIgnored = reminder.isIgnored || false
-        this.message = reminder.message;
-        this.title = reminder.title;
-        this.paused = reminder.paused || false;
-        this.pausedTime = reminder?.pausedTime || new Date();
-    }
-
-    setNextReminderTimeout(delayAmountMinutes: number) {
-        clearTimeout(this.reminderTimeout)
-
-        const delayAmount = delayAmountMinutes * MINUTES_TO_MS
-    
-        this.reminderTimeout = setTimeout(() => {
-            this.sendBreakNotification(this.message)
-
-            // Handles the ignored reminders
-            if(this.maxIgnoredReminders && this.ignoredReminders >= this.maxIgnoredReminders) {
-                this.isIgnored = false
-                this.ignoredReminders = 0
-            } else if(this.ignoredReminderIntervalAmount > 0) {
-                this.isIgnored = true
-                this.ignoredReminders += 1
-            }
-
-            const nextReminderDelay = this.isIgnored ? 
-                this.ignoredReminderIntervalAmount 
-                : this.reminderIntervalAmount
-
-            this.setNextReminderTimeout(nextReminderDelay)
-        }, delayAmount)
-    
-        this.nextReminder = new Date().addMilliseconds(delayAmount);
-
-        saveActiveReminders()
-        window.dispatchEvent(new Event('update-reminder-list'))
-    }
-
-    private sendBreakNotification(message: string) {
-        new Notification(this.title, { body: message }).onclick =() => { 
-            if(this === null)
-                return
-
-            if(this.isIgnored)
-                this.setNextReminderTimeout(this.reminderIntervalAmount)
-            window.api.showWindow('main')
-        };
-    }
-
-    start() {
-        this.setNextReminderTimeout(this.reminderIntervalAmount)
-    }
-
-    cancel() {
-        if(this.reminderTimeout != null)
-            clearTimeout(this.reminderTimeout)
-        
-        saveActiveReminders()
-    }
-
-    setPaused(paused: boolean) {
-        if(paused) {
-            this.cancel()
-            this.pausedTime = new Date()
-        } else if(this.paused && !paused) {
-            const nextPlay = (new Date(this.nextReminder).valueOf() - new Date(this.pausedTime).valueOf()) * MS_TO_MINUTES;
-            this.setNextReminderTimeout(nextPlay)
-        }
-
-        this.paused = paused;
-
-        saveActiveReminders()
-        window.dispatchEvent(new Event('update-reminder-list'))
-    }
-
-    toJSON(): IReminder {
-        return {
-            nextReminder: this.nextReminder,
-            reminderIntervalAmount: this.reminderIntervalAmount,
-            reminderStartOverrideAmount: this.reminderStartOverrideAmount,
-            ignoredReminderIntervalAmount: this.ignoredReminderIntervalAmount,
-            maxIgnoredReminders: this.maxIgnoredReminders,
-            ignoredReminders: this.ignoredReminders,
-            isIgnored: this.isIgnored,
-            message: this.message,
-            title: this.title,
-            paused: this.paused,
-            pausedTime: this.pausedTime,
-        }
-    }
-}
-
-let activeReminders: ReminderImpl[] = []
-
-function saveActiveReminders() {
-    sessionStorage.setItem("active_reminders", JSON.stringify(activeReminders))
-}
-
-function loadActiveReminders() {
-    let remindersObjs: Array<IReminder> = JSON.parse(sessionStorage.getItem("active_reminders")!) ?? []
-
-    activeReminders = remindersObjs.map(obj => {
-        const reminder = new ReminderImpl(obj)
-        return reminder;
-    })
-
-    const editReminder = getEditReminder()
-
-    activeReminders.forEach(reminder => {
-        if((editReminder !== null && reminder === editReminder) || reminder.paused)
-            return;
-        const nextStart = Math.max(new Date(reminder.nextReminder).valueOf() - new Date().valueOf(), 0) * MS_TO_MINUTES
-        reminder.setNextReminderTimeout(nextStart)
-    })
-
-    saveActiveReminders()
-}
-
-function setEditReminder(index: number) {
-    sessionStorage.setItem('edit-reminder-index', index.toString())
-}
-
-function getEditIndex(): number {
-    return parseInt(sessionStorage.getItem('edit-reminder-index') || '-1')
-}
-
-function getEditReminder(): ReminderImpl {
-    const editIndex = getEditIndex()
-    return activeReminders[editIndex] || null
-}
+import deleteSvg from "../assets/delete.svg"
+import editSvg from "../assets/edit.svg"
+import pauseSvg from "../assets/pause.svg"
+import playSvg from "../assets/play.svg"
+import { Reminders } from "../../common/reminder"
+import { Preloads } from "../../common/preloads"
 
 function listActiveReminders() {
     const reminderList = (document.getElementById("reminder-list") as HTMLElement).children[1] as HTMLElement
     
     let reminders: Array<Node> = []
 
-    activeReminders.forEach(reminder => {
+    Reminders.activeReminders.forEach(reminder => {
         // Create the base div
         let reminderListElement = document.createElement("li")
         reminderListElement.classList.add('reminder')
@@ -410,9 +29,8 @@ function listActiveReminders() {
         text.append(textSpan)
 
         // Create the delete button
-        const DELETE_SVG_PATH = '../assets/delete.svg'
         const deleteImg = document.createElement('img')
-        deleteImg.src = DELETE_SVG_PATH
+        deleteImg.src = deleteSvg
         deleteImg.alt = 'Delete reminder'
 
         let deleteButton = document.createElement('button')
@@ -421,18 +39,17 @@ function listActiveReminders() {
         deleteButton.title = 'Delete reminder'
 
         deleteButton.addEventListener('click', () => {
-            const index = activeReminders.indexOf(reminder)
-            activeReminders[index].cancel()
+            const index = Reminders.activeReminders.indexOf(reminder)
+            Reminders.activeReminders[index].cancel()
             if(index >= 0)
-                activeReminders.splice(index, 1)
-            saveActiveReminders()
+                Reminders.activeReminders.splice(index, 1)
+            Reminders.saveActiveReminders()
             window.dispatchEvent(new Event('update-reminder-list'))
         })
 
         // Create the edit button
-        const EDIT_SVG_PATH = '../assets/edit.svg'
         const editImg = document.createElement('img')
-        editImg.src = EDIT_SVG_PATH
+        editImg.src = editSvg
         editImg.alt = 'Edit reminder'
 
         let editButton = document.createElement('button')
@@ -440,22 +57,20 @@ function listActiveReminders() {
         editButton.title = 'Edit reminder'
 
         editButton.addEventListener('click', () => {
-            const index = activeReminders.indexOf(reminder)
+            const index = Reminders.activeReminders.indexOf(reminder)
             if(index < 0) {
                 console.error("Failed to edit reminder for it does not exist")
                 sendPopup('Encountered An Error', 'An error was encounter while trying to edit the reminder')
                 return;
             }
 
-            setEditReminder(index)
-            saveActiveReminders()
+            Reminders.setEditReminder(index)
+            Reminders.saveActiveReminders()
             window.api.openPage('reminder')
         })
 
-        const PLAY_SVG_PATH = '../assets/play.svg'
-        const PAUSE_SVG_PATH = '../assets/pause.svg'
         const stateImage = document.createElement('img')
-        stateImage.src = reminder.paused ? PLAY_SVG_PATH : PAUSE_SVG_PATH
+        stateImage.src = reminder.paused ? playSvg : pauseSvg
         stateImage.alt = reminder.paused ? 'Play reminder' : 'Pause Reminder'
 
         // Create the pause button
@@ -469,13 +84,13 @@ function listActiveReminders() {
                 pauseButton.setAttribute('aria-label', 'Unpause')
                 pauseButton.title = 'Pause reminder'
                 reminder.setPaused(true)
-                stateImage.src = PAUSE_SVG_PATH
+                stateImage.src = pauseSvg
                 stateImage.alt = 'Pause reminder'
             } else {
                 pauseButton.setAttribute('aria-label', 'Pause')
                 pauseButton.title = 'Unpause reminder'
                 reminder.setPaused(false)
-                stateImage.src = PLAY_SVG_PATH
+                stateImage.src = playSvg
                 stateImage.alt = 'Unpause reminder'
             }
         })
@@ -533,7 +148,7 @@ function loadCreateRemindersPage() {
     const createNewReminder = document.getElementById("create-new-reminder") as HTMLButtonElement
 
     createNewReminder.addEventListener('click', () => {
-        saveActiveReminders()
+        Reminders.saveActiveReminders()
         window.api.openPage('reminder')
     })
 
@@ -542,81 +157,8 @@ function loadCreateRemindersPage() {
     window.dispatchEvent(new Event('update-reminder-list'))
 }
 
-function loadReminderCreationPage() {
-    const CREATE_BUTTON = 'create-reminder'
-
-    const form = new InputForm('reminder-form', (e: Event): boolean => {
-        e.preventDefault()
-
-        const reminderFormJson: ReminderImpl = JSON.parse(form.formElement.toJSON())
-        const reminder = new ReminderImpl({
-            reminderIntervalAmount: reminderFormJson?.reminderIntervalAmount,
-            reminderStartOverrideAmount: reminderFormJson?.reminderStartOverrideAmount,
-            ignoredReminderIntervalAmount: reminderFormJson?.ignoredReminderIntervalAmount,
-            maxIgnoredReminders: reminderFormJson.maxIgnoredReminders,
-            message: reminderFormJson?.message,
-            title: reminderFormJson?.title
-        })
-
-        const startDelta = reminder?.reminderStartOverrideAmount ?? reminder.reminderIntervalAmount
-        reminder.setNextReminderTimeout(startDelta)
-
-        if(editIndex >= 0) {
-            activeReminders[editIndex] = reminder;
-            setEditReminder(-1)
-        } else
-            activeReminders.push(reminder)
-
-        saveActiveReminders()
-
-        window.api.openPage('index')
-
-        return false;
-    }, (e: Event) => {
-        e.preventDefault()
-
-        setEditReminder(-1)
-        saveActiveReminders()
-        window.api.openPage('index')
-
-        return false;
-    })
-
-    // Update display if the user is editing
-    const editIndex = getEditIndex()
-    if(editIndex >= 0) {
-        const editReminder = activeReminders[editIndex]
-
-        form.setFromJson(JSON.stringify(editReminder))
-
-        const createButton = form.getInputElement(CREATE_BUTTON)
-        if(!createButton)
-            return
-
-        createButton.innerHTML = createButton.getAttribute('when-editing') || createButton.innerHTML
-    }
-}
-
-function clearPreloads() {
-    const preloads = document.getElementsByClassName('preload')
-    Array.from(preloads).forEach(e => e.classList.toggle('preload'))
-}
-
 window.onload = () => {
-    let location = window.location.href.split("/");
-
-    console.log("test")
-
-    loadActiveReminders()
-
-    switch(location[location.length - 1]) {
-        case 'index.html':
-            loadCreateRemindersPage()
-            break;
-        case 'reminder.html':
-            loadReminderCreationPage()
-            break;
-    }
-
-    setTimeout(clearPreloads, 1)
+    Reminders.loadActiveReminders()
+    loadCreateRemindersPage()
+    setTimeout(Preloads.clearPreloads, 1)
 }

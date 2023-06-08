@@ -1,4 +1,4 @@
-import { API } from '../preload/preload'
+import { API } from './index.js'
 
 declare global {
     interface Window { api: typeof API }

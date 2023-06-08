@@ -1,4 +1,4 @@
-let { ipcRenderer, contextBridge } = require('electron')
+import { ipcRenderer, contextBridge } from "electron"
 
 export const API = {
   showWindow: (win: string) => ipcRenderer.send('show-window', win),

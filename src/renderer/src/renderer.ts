@@ -1,7 +1,5 @@
-namespace Constants {
-    export const MINUTES_TO_MS = 60000
-    export const MS_TO_MINUTES = 1 / MINUTES_TO_MS
-}
+const MINUTES_TO_MS = 60000
+const MS_TO_MINUTES = 1 / MINUTES_TO_MS
 
 interface Date {
     addMilliseconds(milliseconds: number): Date
@@ -268,7 +266,7 @@ class ReminderImpl implements IReminder {
     setNextReminderTimeout(delayAmountMinutes: number) {
         clearTimeout(this.reminderTimeout)
 
-        const delayAmount = delayAmountMinutes * Constants.MINUTES_TO_MS
+        const delayAmount = delayAmountMinutes * MINUTES_TO_MS
     
         this.reminderTimeout = setTimeout(() => {
             this.sendBreakNotification(this.message)
@@ -322,7 +320,7 @@ class ReminderImpl implements IReminder {
             this.cancel()
             this.pausedTime = new Date()
         } else if(this.paused && !paused) {
-            const nextPlay = (new Date(this.nextReminder).valueOf() - new Date(this.pausedTime).valueOf()) * Constants.MS_TO_MINUTES;
+            const nextPlay = (new Date(this.nextReminder).valueOf() - new Date(this.pausedTime).valueOf()) * MS_TO_MINUTES;
             this.setNextReminderTimeout(nextPlay)
         }
 
@@ -368,7 +366,7 @@ function loadActiveReminders() {
     activeReminders.forEach(reminder => {
         if((editReminder !== null && reminder === editReminder) || reminder.paused)
             return;
-        const nextStart = Math.max(new Date(reminder.nextReminder).valueOf() - new Date().valueOf(), 0) * Constants.MS_TO_MINUTES
+        const nextStart = Math.max(new Date(reminder.nextReminder).valueOf() - new Date().valueOf(), 0) * MS_TO_MINUTES
         reminder.setNextReminderTimeout(nextStart)
     })
 
@@ -606,6 +604,8 @@ function clearPreloads() {
 
 window.onload = () => {
     let location = window.location.href.split("/");
+
+    console.log("test")
 
     loadActiveReminders()
 

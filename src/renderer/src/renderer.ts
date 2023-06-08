@@ -410,7 +410,7 @@ function listActiveReminders() {
         text.append(textSpan)
 
         // Create the delete button
-        const DELETE_SVG_PATH = './images/delete.svg'
+        const DELETE_SVG_PATH = '../assets/delete.svg'
         const deleteImg = document.createElement('img')
         deleteImg.src = DELETE_SVG_PATH
         deleteImg.alt = 'Delete reminder'
@@ -430,7 +430,7 @@ function listActiveReminders() {
         })
 
         // Create the edit button
-        const EDIT_SVG_PATH = './images/edit.svg'
+        const EDIT_SVG_PATH = '../assets/edit.svg'
         const editImg = document.createElement('img')
         editImg.src = EDIT_SVG_PATH
         editImg.alt = 'Edit reminder'
@@ -452,8 +452,8 @@ function listActiveReminders() {
             window.api.openPage('reminder')
         })
 
-        const PLAY_SVG_PATH = './images/play.svg'
-        const PAUSE_SVG_PATH = './images/pause.svg'
+        const PLAY_SVG_PATH = '../assets/play.svg'
+        const PAUSE_SVG_PATH = '../assets/pause.svg'
         const stateImage = document.createElement('img')
         stateImage.src = reminder.paused ? PLAY_SVG_PATH : PAUSE_SVG_PATH
         stateImage.alt = reminder.paused ? 'Play reminder' : 'Pause Reminder'

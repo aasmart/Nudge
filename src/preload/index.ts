@@ -2,7 +2,10 @@ import { ipcRenderer, contextBridge } from "electron"
 
 export const API = {
   showWindow: (win: string) => ipcRenderer.send('show-window', win),
-  openPage: (page: string) => ipcRenderer.send('open-page', page)
+  openPage: (page: string) => ipcRenderer.send('open-page', page),
+  getResourcePath: async (path: string): Promise<string> => {
+    return await ipcRenderer.invoke('app-name', path);
+  }
 }
 
 contextBridge.exposeInMainWorld('api', API)

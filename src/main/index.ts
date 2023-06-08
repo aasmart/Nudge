@@ -1,13 +1,12 @@
 import { app, BrowserWindow, Menu, nativeImage, Tray, ipcMain } from 'electron'
-import { electronApp, optimizer, is } from '@electron-toolkit/utils'
-import { platform } from 'os'
+import { is } from '@electron-toolkit/utils'
 import { join } from "path"
 
 let tray: any = null
 let win: any = null
 
 function createTray () {
-  const icon = join(__dirname, '../../assets/icon.png')
+  const icon = join(__dirname, '../../resources/icon.png')
   const trayicon = nativeImage.createFromPath(icon)
   trayicon.resize({ width: 16 })
   trayicon.setTemplateImage(true)
@@ -38,7 +37,7 @@ const createWindow = () => {
         height: 900,
         minWidth: 550,
         minHeight: 375,
-        icon: 'assets/icon.png',
+        icon: '../../resources/icon.png',
         autoHideMenuBar: true,
         center: true,
         frame: false,
@@ -74,6 +73,10 @@ const createWindow = () => {
     ipcMain.on('show-window', (_event: any, name: any) => {
       if(name === 'main') win.show()
     })
+
+    ipcMain.handle('resource', (_event: any, path: any) => {
+      return join(__dirname, `${path}`);
+    });
 
     ipcMain.handle('app-name', () => app.getName())
 }

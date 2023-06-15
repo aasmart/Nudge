@@ -212,8 +212,19 @@ REMINDERS
     animation: ignored-reminder-pulse 800ms ease-out infinite;
 }
 
+
 .reminder.ignored #acknowledge > img {
     animation: shake 1000ms ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion) {
+    .reminder.ignored::after {
+        animation: ignored-reminder-pulse 2400ms ease-out infinite;
+    }
+
+    .reminder.ignored #acknowledge > img {
+        animation: shake 3000ms ease-in-out infinite;
+    }
 }
 
 @keyframes ignored-reminder-pulse {

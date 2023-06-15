@@ -1,12 +1,12 @@
-const { app, BrowserWindow, Menu, nativeImage, Tray, ipcMain } = require('electron')
-const { platform } = require('os')
-const path = require('path')
+import { app, BrowserWindow, Menu, nativeImage, Tray, ipcMain } from 'electron'
+import { is } from '@electron-toolkit/utils'
+import { join } from "path"
 
 let tray: any = null
 let win: any = null
 
 function createTray () {
-  const icon = path.join(__dirname, '../../assets/icon.png')
+  const icon = join(__dirname, '../../resources/icon.png')
   const trayicon = nativeImage.createFromPath(icon)
   trayicon.resize({ width: 16 })
   trayicon.setTemplateImage(true)
@@ -37,7 +37,7 @@ const createWindow = () => {
         height: 900,
         minWidth: 550,
         minHeight: 375,
-        icon: 'assets/icon.png',
+        icon: '../../resources/icon.png',
         autoHideMenuBar: true,
         center: true,
         frame: false,
@@ -47,17 +47,17 @@ const createWindow = () => {
           symbolColor: '#ffffff',
         },
         webPreferences: {
-          preload: path.join(app.getAppPath(), 'src/preload/preload.js'),
+          preload: join(__dirname, '../preload/index.js'),
           nodeIntegration: true,
           contextIsolation: true,
         }
     })
     
     win.maximize();
-    win.loadFile('src/main/index.html')
+    loadHtml("index")
 
     win.on('close', (event: any) => {
-        if(app.quitting) {
+        if(win.quitting) {
           win.quit() 
           return;
         }
@@ -66,11 +66,11 @@ const createWindow = () => {
         win.hide()
     })
 
-    ipcMain.on('open-page', (event: any, name: any) => {
-      win.loadFile(`src/main/${name}.html`)
+    ipcMain.on('open-page', (_event: any, name: any) => {
+      loadHtml(name);
     })
 
-    ipcMain.on('show-window', (event: any, name: any) => {
+    ipcMain.on('show-window', (_event: any, name: any) => {
       if(name === 'main') win.show()
     })
 
@@ -92,4 +92,12 @@ app.setLoginItemSettings({
   openAtLogin: true    
 })
 
-app.on('before-quit', () => app.quitting = true)
+app.on('before-quit', () => win.quitting = true)
+
+function loadHtml(fileName: string) {
+  if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
+    win.loadURL(`${process.env['ELECTRON_RENDERER_URL']}/${fileName}.html`)
+  } else {
+    win.loadFile(join(__dirname, `../renderer/${fileName}.html`))
+  }
+}

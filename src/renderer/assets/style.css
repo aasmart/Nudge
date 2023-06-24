@@ -212,6 +212,15 @@ REMINDERS
     animation: ignored-reminder-pulse 1200ms ease-out infinite;
 }
 
+.reminder.ignored::before {
+    content: '';
+    inset: 0;
+    position: absolute;
+    margin: auto;
+    border: 2px solid var(--input-invalid-color);
+    border-radius: inherit;
+}
+
 .reminder.ignored .acknowledge > img {
     animation: shake 1200ms ease-in-out infinite;
 }

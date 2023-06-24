@@ -53,7 +53,7 @@ function loadReminderCreationPage() {
         if(!createButton)
             return
 
-        createButton.innerHTML = createButton.getAttribute('when-editing') || createButton.innerHTML
+        createButton.innerText = createButton.getAttribute('when-editing') || createButton.innerText
     }
 }
 

@@ -80,6 +80,9 @@ class ReminderImpl implements IReminder {
 
             if(this.isIgnored)
                 this.setNextReminderTimeout(this.reminderIntervalAmount)
+
+            this.isIgnored = false
+            window.dispatchEvent(new Event('update-reminder-list'))
             window.api.showWindow('main')
         };
     }
@@ -107,6 +110,12 @@ class ReminderImpl implements IReminder {
         this.paused = paused;
 
         Reminders.saveActiveReminders()
+        window.dispatchEvent(new Event('update-reminder-list'))
+    }
+
+    acknowledgeIgnored() {
+        this.isIgnored = false
+        this.setNextReminderTimeout(this.reminderIntervalAmount)
         window.dispatchEvent(new Event('update-reminder-list'))
     }
 

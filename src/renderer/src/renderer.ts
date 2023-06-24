@@ -2,10 +2,11 @@ import deleteSvg from "../assets/delete.svg"
 import editSvg from "../assets/edit.svg"
 import pauseSvg from "../assets/pause.svg"
 import playSvg from "../assets/play.svg"
+import notificationSvg from "../assets/notification_important.svg"
 import { Reminders } from "../../common/reminder"
 import { Preloads } from "../../common/preloads"
 
-function listActiveReminders() {
+function listReminders() {
     const reminderList = (document.getElementById("reminder-list") as HTMLElement).children[1] as HTMLElement
     
     let reminders: Array<Node> = []
@@ -14,16 +15,18 @@ function listActiveReminders() {
         // Create the base div
         let reminderListElement = document.createElement("li")
         reminderListElement.classList.add('reminder')
+        if(reminder.isIgnored)
+            reminderListElement.classList.add("ignored")
 
         // Create the display text
         let text = document.createElement('p')
-        text.innerHTML = "Next Reminder: "
+        text.innerText = "Next Reminder: "
 
         let textSpan = document.createElement('span')
         if(reminder.paused)
-            textSpan.innerHTML = "this reminder is paused"
+            textSpan.innerText = "this reminder is paused"
         else
-            textSpan.innerHTML = reminder.nextReminder.toLocaleString()
+            textSpan.innerText = reminder.nextReminder.toLocaleString()
         textSpan.classList.add("next-timer-play")
 
         text.append(textSpan)
@@ -78,6 +81,7 @@ function listActiveReminders() {
         pauseButton.setAttribute('aria-label', reminder.paused ? 'Unpause' : 'Pause')
         pauseButton.append(stateImage)
         pauseButton.title = reminder.paused ? 'Unpause reminder' : 'Pause reminder'
+        pauseButton.disabled = reminder.isIgnored
 
         pauseButton.addEventListener('click', () => {
             if(pauseButton.getAttribute('aria-label') === 'Pause') {
@@ -95,8 +99,24 @@ function listActiveReminders() {
             }
         })
 
+        // Create the acknowledge reminder button
+        const notifImg = document.createElement('img')
+        notifImg.src = notificationSvg
+        notifImg.alt = 'Acknowledge ignored reminder'
+
+        let acknowledgeButton = document.createElement('button')
+        acknowledgeButton.append(notifImg)
+        acknowledgeButton.title = "Acknowledge ignored reminder"
+        acknowledgeButton.classList.add("acknowledge");
+        acknowledgeButton.disabled = !reminder.isIgnored
+
+        acknowledgeButton.addEventListener('click', () => {
+            reminder.acknowledgeIgnored()
+        })
+
         // Finish building the ui element
         reminderListElement.append(text)
+        reminderListElement.append(acknowledgeButton)
         reminderListElement.append(pauseButton)
         reminderListElement.append(editButton)
         reminderListElement.append(deleteButton)
@@ -120,8 +140,8 @@ function sendPopup(title: string, content: string) {
     const popupText = section.children[1] as HTMLElement
     const popupButton = section.children[2] as HTMLButtonElement
 
-    popupTitle.innerHTML = title
-    popupText.innerHTML = content
+    popupTitle.innerText = title
+    popupText.innerText = content
 
     function handleButton() {
         section.classList.remove('show-popup')
@@ -152,7 +172,7 @@ function loadCreateRemindersPage() {
         window.api.openPage('reminder')
     })
 
-    window.addEventListener('update-reminder-list', () => listActiveReminders())
+    window.addEventListener('update-reminder-list', () => listReminders())
 
     window.dispatchEvent(new Event('update-reminder-list'))
 }

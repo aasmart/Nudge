@@ -28,7 +28,7 @@ class InputForm {
                 const errorMessage = document.createElement('p')
                 errorMessage.classList.add('error-message')
 
-                const updateValidationMessage = () => { errorMessage.innerHTML = e.validationMessage }
+                const updateValidationMessage = () => { errorMessage.innerText = e.validationMessage }
 
                 e.insertAdjacentElement("afterend", errorMessage)
 
@@ -52,7 +52,7 @@ class InputForm {
                         units.classList.add('units')
                         e.insertAdjacentElement("afterend", units)
 
-                        units.innerHTML = 'minutes'
+                        units.innerText = "minutes";
                         break;
                 }
                 

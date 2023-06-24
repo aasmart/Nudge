@@ -107,7 +107,7 @@ function listReminders() {
         let acknowledgeButton = document.createElement('button')
         acknowledgeButton.append(notifImg)
         acknowledgeButton.title = "Acknowledge ignored reminder"
-        acknowledgeButton.id = "acknowledge"
+        acknowledgeButton.classList.add("acknowledge");
         acknowledgeButton.disabled = !reminder.isIgnored
 
         acknowledgeButton.addEventListener('click', () => {

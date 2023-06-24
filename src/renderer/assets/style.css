@@ -212,7 +212,7 @@ REMINDERS
     animation: ignored-reminder-pulse 1200ms ease-out infinite;
 }
 
-.reminder.ignored #acknowledge > img {
+.reminder.ignored .acknowledge > img {
     animation: shake 1200ms ease-in-out infinite;
 }
 

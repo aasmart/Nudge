@@ -209,12 +209,11 @@ REMINDERS
     inset: 0;
     border-radius: inherit;
     outline: 0px solid var(--input-invalid-color);
-    animation: ignored-reminder-pulse 800ms ease-out infinite;
+    animation: ignored-reminder-pulse 1200ms ease-out infinite;
 }
 
-
 .reminder.ignored #acknowledge > img {
-    animation: shake 1000ms ease-in-out infinite;
+    animation: shake 1200ms ease-in-out infinite;
 }
 
 @media (prefers-reduced-motion) {

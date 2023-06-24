@@ -37,7 +37,7 @@ const createWindow = () => {
         height: 900,
         minWidth: 550,
         minHeight: 375,
-        icon: '../../resources/icon.png',
+        icon: join(__dirname, '../../resources/icon.png'),
         autoHideMenuBar: true,
         center: true,
         frame: false,

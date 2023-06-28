@@ -110,6 +110,7 @@ main {
 .titlebar img {
     width: 16px;
     height: 16px;
+    margin-right: 4px;
 }
 
 section {
@@ -119,6 +120,10 @@ section {
     color: inherit;
     flex-direction: column;
 }
+
+/* ==================================
+REMINDER LIST
+================================== */
 
 #reminder-list {
     height: 100%;
@@ -168,9 +173,17 @@ section {
     aspect-ratio: 1;
 }
 
+/* ==================================
+REMINDERS
+================================== */
+
 .reminder {
+    position: relative;
+    isolation: isolate;
+    z-index: 1;
+
     display: grid;
-    grid-template-columns: 8fr 1fr 1fr 1fr;
+    grid-template-columns: 7fr 1fr 1fr 1fr 1fr;
     grid-template-rows: 100%;
     
     border-radius: 8px;
@@ -199,6 +212,92 @@ section {
     font-weight: normal;
     text-align: center;
 }
+
+.reminder.ignored::after {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    inset: 0;
+    border-radius: inherit;
+    outline: 0px solid var(--input-invalid-color);
+    animation: ignored-reminder-pulse 1200ms ease-out infinite;
+}
+
+.reminder.ignored::before {
+    content: '';
+    inset: 0;
+    position: absolute;
+    margin: auto;
+    border: 2px solid var(--input-invalid-color);
+    border-radius: inherit;
+}
+
+.reminder.ignored .acknowledge > img {
+    animation: shake 1200ms ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion) {
+    .reminder.ignored::after {
+        animation: ignored-reminder-pulse 2400ms ease-out infinite;
+    }
+
+    .reminder.ignored #acknowledge > img {
+        animation: shake 3000ms ease-in-out infinite;
+    }
+}
+
+@keyframes ignored-reminder-pulse {
+    0% {
+        outline-offset: 0px;
+        outline-width: 0;
+    }
+
+    10% {
+        outline-offset: 0px;
+        outline-width: 5px;
+    }
+
+    30% {
+        opacity: 1;
+    }
+
+    95% {
+        outline-offset: 10px;
+        opacity: 0;
+    }
+
+    100% {
+        outline-offset: 10px;
+        opacity: 0;
+        outline-width: 5px;
+    }
+}
+
+@keyframes shake {
+    0% {
+        rotate: 0deg;
+    }
+
+    15% {
+        rotate: 15deg;
+    }
+
+    45% {
+        rotate: -15deg;
+    }
+
+    60% {
+        rotate: 0deg;
+    }
+
+    100% {
+        rotate: 0deg;
+    }
+}
+
+/* ==================================
+REMINDER FORM
+================================== */
 
 .reminder-form {
     color: inherit;
@@ -277,12 +376,17 @@ section {
     color: var(--input-invalid-color)
 }
 
+/* ==================================
+INPUTS
+================================== */
+
 input,
 button,
 textarea,
 select {
     background-color: var(--input-color);
     border-radius: 4px;
+    color: white;
     transition: all 250ms;
     padding: 8px;
     font-size: var(--input-font-size);
@@ -329,9 +433,14 @@ button {
     transition: all 250ms;
     font-weight: bold;
     background-color: var(--primary-color);
-    color: white;
+}
 
+button:not(:disabled) {
     cursor: pointer;
+}
+
+button:disabled {
+    filter: brightness(60%);
 }
 
 button[action="destructive"] {
@@ -359,19 +468,19 @@ input[type="checkbox"]:focus-visible + label::after {
     outline: var(--focus-visible-outline);
 }
 
-button:hover,
-button:focus-visible {
+button:not(:disabled):hover,
+button:not(:disabled):focus-visible {
     background-color: var(--primary-color-darker)
 }
 
-button[action="destructive"]:hover,
-button[action="destructive"]:focus-visible {
+button[action="destructive"]:not(:disabled):hover,
+button[action="destructive"]:not(:disabled):focus-visible {
     color: white;
     background-color: var(--input-invalid-color);
 }
 
-button[action="destructive"]:hover img,
-button[action="destructive"]:focus-visible img {
+button[action="destructive"]:not(:disabled):hover img,
+button[action="destructive"]:not(:disabled):focus-visible img {
     color: var(--input-color);
     filter: invert(100%);
 }

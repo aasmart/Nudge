@@ -5,6 +5,7 @@ import playSvg from "../assets/play.svg"
 import notificationSvg from "../assets/notification_important.svg"
 import { Reminders } from "../../common/reminder"
 import { Preloads } from "../../common/preloads"
+import { showPopup } from "../../common/popup"
 
 function listReminders() {
     const reminderList = (document.getElementById("reminder-list") as HTMLElement).children[1] as HTMLElement
@@ -125,17 +126,6 @@ function listReminders() {
     })
 
     reminderList.replaceChildren(...reminders)
-}
-
-function showPopup(title: string, content: string) {
-    const popup = document.getElementById("popup") as HTMLDialogElement;
-    const titleElement = popup.getElementsByClassName("title")[0] as HTMLElement;
-    const bodyElement = popup.getElementsByClassName("content")[0] as HTMLElement;
-
-    titleElement.innerText = title;
-    bodyElement.innerText = content;
-
-    popup.showModal();
 }
 
 function loadCreateRemindersPage() {

@@ -128,7 +128,7 @@ function listReminders() {
     reminderList.replaceChildren(...reminders)
 }
 
-function loadCreateRemindersPage() {
+function loadReminderListPage() {
     const createNewReminder = document.getElementById("create-new-reminder") as HTMLButtonElement
 
     createNewReminder.addEventListener('click', () => {
@@ -143,6 +143,6 @@ function loadCreateRemindersPage() {
 
 window.onload = () => {
     Reminders.loadActiveReminders()
-    loadCreateRemindersPage()
+    loadReminderListPage()
     setTimeout(Preloads.clearPreloads, 1)
 }

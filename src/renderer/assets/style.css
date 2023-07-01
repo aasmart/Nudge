@@ -10,9 +10,11 @@
     --primary-color-darker: #833ec4;
     --reminder-bg-color: #ffffff;
     --outline-buttton-color: #ffffff;
+    --popup-accent-color: #9e9e9e;
     color-scheme: light;
 
     --header-fallback-height: 1rem;
+    --header-height: env(titlebar-area-height, var(--header-fallback-height));
 
     --checkbox-height: 1.75rem;
     --checkbox-width: 3.5rem;
@@ -23,6 +25,10 @@
 
     --input-font-size: 1.25rem;
     --input-char-size: 40ch;
+}
+
+::backdrop {
+    --header-height: env(titlebar-area-height, var(--header-fallback-height));
 }
 
 @media (prefers-color-scheme: dark) {
@@ -36,6 +42,7 @@
         --input-success-color: #22F095;
         --reminder-bg-color: #525257;
         --outline-buttton-color: transparent;
+        --popup-accent-color: #5a5a5a;
         color-scheme: dark;
     }
 
@@ -93,8 +100,11 @@ main {
     -webkit-user-select: none;
 
     top: env(titlebar-area-y, 0);
-    height: env(titlebar-area-height, var(--header-fallback-height));
+    height: var(--header-height);
     min-width: env(titlebar-area-width, 100%);
+
+    isolation: isolate;
+    z-index: 99;
 }
 
 .titlebar img {
@@ -553,85 +563,79 @@ input[type="checkbox"]:checked + label::after {
     left: calc(-1 * (var(--checkbox-width) + var(--checkbox-margin)) + (var(--checkbox-width)) * 0.5);
 }
 
-.popup-container {
-    position: fixed;
-    inset: 0;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    background: radial-gradient(rgb(0,0,0,0.2), rgb(0,0,0,0.35));
-    visibility: hidden;
-}
+/* POPUP */
 
-.popup-container > section {
-    padding: 8px;
-    background-color: var(--bg-color);
-    box-shadow: 0 8px 8px black;
-    border-radius: 16px;
-    border: var(--primary-color) 1px solid;
+#popup[open] {
+    position: absolute;
+    display: grid;
+    grid: 3rem 1fr 6rem / 1fr;
+    align-items: start;
 
-    width: 40%;
-    min-width: fit-content;
-    max-width: 500px;
-
+    padding: 1.5rem;
+    min-width: 15rem;
+    width: 50%;
+    max-width: 25rem;
+    min-height: 15rem;
     height: 30%;
-    min-height: 220px;
-    max-height: 350px;
+    max-height: 25rem;
+    overflow: hidden;
+
+    border-radius: 0.5rem;
+    background-color: var(--bg-color-start);
+    box-shadow: 0 0 15px black;
+    border: none;
+    
+    animation: dialog-show 350ms ease-in-out normal;
 }
 
-.popup-container > section > * {
+#popup .title {
+    width: 100%;
+    margin-bottom: 0;
+    
     text-align: center;
+    border-bottom: 0.3rem solid var(--popup-accent-color);
 }
 
-.popup-container > section > h2 {
-    font-size: 3.5ch;
-    font-weight: bold;
-    text-decoration: underline;
+#popup .content {
+    width: 100%;
+    max-height: 100%;
+    text-align: center;
+    font-size: 1.2rem;
+    word-wrap: break-word;
+    overflow-x: hidden;
+    overflow-y: auto;
 }
 
-.popup-container p {
-    font-size: 1.35rem;
+#popup > form {
+    justify-self: center;
+    align-self: end;
 }
 
-.popup-button {
-    margin-top: auto;
-    visibility: inherit;
+dialog::backdrop {
+    top: var(--header-height);
+    background: rgba(0, 0, 0, 0.25);
 }
 
-.show-popup {
-    visibility: visible;
-    animation: popup-in 250ms ease-in-out;
-}
-
-.hide-popup {
-    animation: popup-out 250ms ease-in-out;
-}
-
-@keyframes popup-in {
+@keyframes dialog-show {
     from {
         opacity: 0;
-        transform: translateY(6%);
+        translate: 0 10%;
     }
 
     to {
         opacity: 1;
-        transform: translateY(0);
+        translate: 0 0;
     }
 }
 
-@keyframes popup-out {
+@keyframes dialog-hide {
     from {
         opacity: 1;
-        transform: translateY(0);
+        translate: 0;
     }
 
     to {
         opacity: 0;
-        transform: translateY(6%);
-    }
-
-    100% {
-        visibility: hidden;
+        translate: 0 10%;
     }
 }

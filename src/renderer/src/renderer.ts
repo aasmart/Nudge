@@ -5,6 +5,7 @@ import playSvg from "../assets/play.svg"
 import notificationSvg from "../assets/notification_important.svg"
 import { Reminders } from "../../common/reminder"
 import { Preloads } from "../../common/preloads"
+import { showPopup } from "../../common/popup"
 
 function listReminders() {
     const reminderList = (document.getElementById("reminder-list") as HTMLElement).children[1] as HTMLElement
@@ -63,7 +64,7 @@ function listReminders() {
             const index = Reminders.activeReminders.indexOf(reminder)
             if(index < 0) {
                 console.error("Failed to edit reminder for it does not exist")
-                sendPopup('Encountered An Error', 'An error was encounter while trying to edit the reminder')
+                showPopup('Encountered An Error', 'An error was encounter while trying to edit the reminder')
                 return;
             }
 
@@ -125,43 +126,6 @@ function listReminders() {
     })
 
     reminderList.replaceChildren(...reminders)
-}
-
-function sendPopup(title: string, content: string) {
-    const popupContainer = document.getElementsByClassName("popup-container")[0] as HTMLElement
-
-    if(popupContainer === null) {
-        console.error('Cannot create popup as the container does not exist')
-        return;
-    }
-
-    const section = popupContainer.children[0] as HTMLElement
-    const popupTitle = section.children[0] as HTMLElement
-    const popupText = section.children[1] as HTMLElement
-    const popupButton = section.children[2] as HTMLButtonElement
-
-    popupTitle.innerText = title
-    popupText.innerText = content
-
-    function handleButton() {
-        section.classList.remove('show-popup')
-        section.classList.add('hide-popup')
-        popupButton.style.visibility = 'hidden'
-    }
-
-    function hideContainer(e: AnimationEvent) {
-        if(e.animationName === 'popup-out')
-            popupContainer.style.visibility = 'hidden'    
-    }
-
-    popupButton.addEventListener('click', handleButton)
-    popupContainer.addEventListener('animationend', hideContainer)
-
-    // Show the popup
-    popupContainer.style.visibility = 'visible'
-    popupButton.style.visibility = 'visible'
-    section.classList.remove('hide-popup')
-    section.classList.add('show-popup')
 }
 
 function loadCreateRemindersPage() {

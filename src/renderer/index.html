@@ -16,6 +16,15 @@
         <img src="./assets/icon.png">
         <p class="app-name"></p>
     </header>
+
+    <dialog id="popup">
+        <h2 class="title">Title</h2>
+        <p class="content"></p>
+        <form>
+            <button formmethod="dialog">Close Popup</button>
+        </form>
+    </dialog>
+
     <main>
         <section id="reminder-list">
             <h2>Active Reminders</h2>
@@ -26,14 +35,6 @@
                 Create New Reminder
             </button>
         </section>
-
-        <div class="popup-container">
-            <section>
-                <h2>Woah! Hey there</h2>
-                <p>It seems this popup didn't render its content.</p>
-                <button class="popup-button">Okay</button>
-            </section>>
-        </div>
     </main>
     <script type="module" src="./src/renderer.ts"></script>
 </body>

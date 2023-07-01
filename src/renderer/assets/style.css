@@ -579,8 +579,8 @@ input[type="checkbox"]:checked + label::after {
 
     border-radius: 0.5rem;
     background-color: var(--bg-color-start);
-    box-shadow: 0 0.5rem 10px -5px black;
-    border: 3px solid var(--popup-accent-color);
+    box-shadow: 0 0 15px black;
+    border: none;
 }
 
 #popup .title {
@@ -598,7 +598,6 @@ input[type="checkbox"]:checked + label::after {
     line-height: 1.5rem;
     font-size: 1.2rem;
 }
-
 
 dialog::backdrop {
     top: var(--header-height);

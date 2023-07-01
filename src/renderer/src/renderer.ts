@@ -1,11 +1,18 @@
-import deleteSvg from "../assets/delete.svg"
-import editSvg from "../assets/edit.svg"
-import pauseSvg from "../assets/pause.svg"
-import playSvg from "../assets/play.svg"
-import notificationSvg from "../assets/notification_important.svg"
+import deleteSvgPath from "../assets/delete.svg"
+import editSvgPath from "../assets/edit.svg"
+import pauseSvgPath from "../assets/pause.svg"
+import playSvgPath from "../assets/play.svg"
+import notificationSvgPath from "../assets/notification_important.svg"
 import { Reminders } from "../../common/reminder"
 import { Preloads } from "../../common/preloads"
 import { showPopup } from "../../common/popup"
+import { fetchSvgOrAsImage } from "../../common/svgUtils"
+
+let deleteSvg: SVGElement | HTMLImageElement;
+let editSvg: SVGElement | HTMLImageElement;
+let pauseSvg: SVGElement | HTMLImageElement;
+let playSvg: SVGElement | HTMLImageElement;
+let notifcationSvg: SVGElement | HTMLImageElement;
 
 function listReminders() {
     const reminderList = (document.getElementById("reminder-list") as HTMLElement).children[1] as HTMLElement
@@ -33,9 +40,7 @@ function listReminders() {
         text.append(textSpan)
 
         // Create the delete button
-        const deleteImg = document.createElement('img')
-        deleteImg.src = deleteSvg
-        deleteImg.alt = 'Delete reminder'
+        const deleteImg = deleteSvg.cloneNode(true);
 
         let deleteButton = document.createElement('button')
         deleteButton.append(deleteImg)
@@ -52,9 +57,7 @@ function listReminders() {
         })
 
         // Create the edit button
-        const editImg = document.createElement('img')
-        editImg.src = editSvg
-        editImg.alt = 'Edit reminder'
+        const editImg = editSvg.cloneNode(true);
 
         let editButton = document.createElement('button')
         editButton.append(editImg)
@@ -73,9 +76,9 @@ function listReminders() {
             window.api.openPage('reminder')
         })
 
-        const stateImage = document.createElement('img')
-        stateImage.src = reminder.paused ? playSvg : pauseSvg
-        stateImage.alt = reminder.paused ? 'Play reminder' : 'Pause Reminder'
+        const pauseSvgClone = pauseSvg.cloneNode(true);
+        const playSvgClone = playSvg.cloneNode(true);
+        const stateImage = reminder.paused ? playSvgClone : pauseSvgClone;
 
         // Create the pause button
         let pauseButton = document.createElement('button')
@@ -89,21 +92,18 @@ function listReminders() {
                 pauseButton.setAttribute('aria-label', 'Unpause')
                 pauseButton.title = 'Pause reminder'
                 reminder.setPaused(true)
-                stateImage.src = pauseSvg
-                stateImage.alt = 'Pause reminder'
+
+                pauseButton.replaceChildren(playSvgClone);
             } else {
                 pauseButton.setAttribute('aria-label', 'Pause')
                 pauseButton.title = 'Unpause reminder'
                 reminder.setPaused(false)
-                stateImage.src = playSvg
-                stateImage.alt = 'Unpause reminder'
+                pauseButton.replaceChildren(pauseSvgClone);
             }
         })
 
         // Create the acknowledge reminder button
-        const notifImg = document.createElement('img')
-        notifImg.src = notificationSvg
-        notifImg.alt = 'Acknowledge ignored reminder'
+        const notifImg = notifcationSvg.cloneNode(true);
 
         let acknowledgeButton = document.createElement('button')
         acknowledgeButton.append(notifImg)
@@ -141,7 +141,13 @@ function loadReminderListPage() {
     window.dispatchEvent(new Event('update-reminder-list'))
 }
 
-window.onload = () => {
+window.onload = async () => {
+    deleteSvg = await fetchSvgOrAsImage(deleteSvgPath);
+    editSvg = await fetchSvgOrAsImage(editSvgPath);
+    pauseSvg = await fetchSvgOrAsImage(pauseSvgPath);
+    playSvg = await fetchSvgOrAsImage(playSvgPath);
+    notifcationSvg = await fetchSvgOrAsImage(notificationSvgPath);
+
     Reminders.loadActiveReminders()
     loadReminderListPage()
     setTimeout(Preloads.clearPreloads, 1)

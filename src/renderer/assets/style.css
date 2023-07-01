@@ -43,11 +43,8 @@
         --reminder-bg-color: #525257;
         --outline-buttton-color: transparent;
         --popup-accent-color: #5a5a5a;
+        --fore-color: white;
         color-scheme: dark;
-    }
-
-    button img {
-        filter: invert(100%);
     }
 
     .reminder-form div .units {
@@ -386,7 +383,7 @@ textarea,
 select {
     background-color: var(--input-color);
     border-radius: 4px;
-    color: white;
+    color: var(--fore-color);
     transition: all 250ms;
     padding: 8px;
     font-size: var(--input-font-size);
@@ -433,6 +430,7 @@ button {
     transition: all 250ms;
     font-weight: bold;
     background-color: var(--primary-color);
+    color: white;
 }
 
 button:not(:disabled) {
@@ -450,14 +448,15 @@ button[action="destructive"] {
     backdrop-filter: brightness(125%);
 }
 
-button img {
+button svg {
     min-height: 2em;
     min-width: 2em;
-    filter: invert(100%);
+    fill: white;
 }
 
-button[action="destructive"] img {
-    filter: invert(25%) sepia(80%) saturate(5036%) hue-rotate(344deg) brightness(100%) contrast(97%);
+button[action="destructive"] svg {
+    fill: var(--input-invalid-color);
+    transition: fill 250ms;
 }
 
 button:focus-visible, 
@@ -479,10 +478,10 @@ button[action="destructive"]:not(:disabled):focus-visible {
     background-color: var(--input-invalid-color);
 }
 
-button[action="destructive"]:not(:disabled):hover img,
-button[action="destructive"]:not(:disabled):focus-visible img {
-    color: var(--input-color);
-    filter: invert(100%);
+button[action="destructive"]:not(:disabled):hover svg,
+button[action="destructive"]:not(:disabled):focus-visible svg {
+    color: white;
+    fill: white;
 }
 
 .reminder-form textarea {

@@ -417,7 +417,11 @@ input[use-units]:focus {
     text-align: left;
 }
 
-label:has(+input:required)::after {
+label:has(
+    +input:required, 
+    +select:required,
+    +textarea:required
+)::after {
     content: ' *';
     color: var(--input-invalid-color);
 }

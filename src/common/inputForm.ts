@@ -2,8 +2,9 @@ import "../common/htmlElement"
 import "../common/htmlFormElement"
 import "../common/date"
 
-type InputElement = 
-    HTMLInputElement | HTMLTextAreaElement | HTMLButtonElement | HTMLSelectElement
+function isInputElement(obj: any): obj is InputElement  {
+    return true;
+}
 
 class InputForm {
     formElement: HTMLFormElement
@@ -27,7 +28,7 @@ class InputForm {
                 return
 
             // Handle the error message
-            if((e instanceof HTMLInputElement || e instanceof HTMLTextAreaElement)) {
+            if((isInputElement(e))) {
                 const errorMessage = document.createElement('p')
                 errorMessage.classList.add('error-message')
 
@@ -58,7 +59,6 @@ class InputForm {
                         units.innerText = "minutes";
                         break;
                 }
-                
             }
 
             switch(type) {
@@ -154,7 +154,7 @@ class InputForm {
             if(element == null)
                 continue
 
-            if(element as HTMLInputElement | HTMLTextAreaElement) {}
+            if(element as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement) {}
                 element.value = obj[key]
         }
 

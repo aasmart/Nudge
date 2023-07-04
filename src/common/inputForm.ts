@@ -2,9 +2,12 @@ import "../common/htmlElement"
 import "../common/htmlFormElement"
 import "../common/date"
 
+type InputElement = 
+    HTMLInputElement | HTMLTextAreaElement | HTMLButtonElement | HTMLSelectElement
+
 class InputForm {
     formElement: HTMLFormElement
-    inputs: Map<String, HTMLInputElement | HTMLTextAreaElement | HTMLButtonElement>
+    inputs: Map<String, InputElement>
 
     constructor(formClass: string, onSubmit: (e: Event) => boolean, onReset: (e: Event) => boolean) {
         this.inputs = new Map()
@@ -14,7 +17,7 @@ class InputForm {
         this.formElement.addEventListener('reset', e => onReset(e))
 
         const inputElements: Array<HTMLInputElement | HTMLTextAreaElement | HTMLButtonElement>
-             = Array.from(this.formElement.querySelectorAll('input,button,textarea'))
+             = Array.from(this.formElement.querySelectorAll("input, button, textarea, select"))
 
         inputElements.forEach(e => {
             const id = e.getAttribute('id');
@@ -135,7 +138,7 @@ class InputForm {
         element.dispatchEvent(new Event('change'))
     }
 
-    getInputElement(input: String): HTMLInputElement | HTMLTextAreaElement | HTMLButtonElement | undefined  {
+    getInputElement(input: String): InputElement | undefined  {
         return this.inputs.get(input) || undefined
     }
 

@@ -360,8 +360,8 @@ REMINDER FORM
     margin: 0;
 }
 
-.reminder-form input:not(:placeholder-shown):invalid ~ .error-message,
-[dirty]:not(:valid, :disabled):is(input, textarea) ~ .error-message {
+.reminder-form :is(input, textarea):not(:placeholder-shown):invalid ~ .error-message,
+[dirty]:not(:valid, :disabled):is(input, textarea, select) ~ .error-message {
     display: inline;
 }
 
@@ -494,7 +494,7 @@ button[action="destructive"]:not(:disabled):focus-visible svg {
 }
 
 .reminder-form input:not(:placeholder-shown):invalid,
-[dirty]:not(:valid, :disabled, :focus):is(input, textarea) {
+[dirty]:not(:valid, :disabled, :focus):is(input, textarea, select) {
     border-color: var(--input-invalid-color);
 }
 

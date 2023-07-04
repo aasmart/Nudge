@@ -9,6 +9,7 @@ interface IReminder {
     maxIgnoredReminders: number
     ignoredReminders?: number
     isIgnored?: boolean
+    notificationType: ReminderNotificationType
     message: string
     title: string
     paused?: boolean
@@ -24,6 +25,7 @@ class ReminderImpl implements IReminder {
     maxIgnoredReminders: number
     ignoredReminders: number
     isIgnored: boolean
+    notificationType: ReminderNotificationType
     message: string
     title: string
     paused: boolean
@@ -37,6 +39,7 @@ class ReminderImpl implements IReminder {
         this.maxIgnoredReminders = reminder.maxIgnoredReminders;
         this.ignoredReminders = reminder.ignoredReminders || 0;
         this.isIgnored = reminder.isIgnored || false
+        this.notificationType = reminder.notificationType || ReminderNotificationType.SYSTEM;
         this.message = reminder.message;
         this.title = reminder.title;
         this.paused = reminder.paused || false;
@@ -128,6 +131,7 @@ class ReminderImpl implements IReminder {
             maxIgnoredReminders: this.maxIgnoredReminders,
             ignoredReminders: this.ignoredReminders,
             isIgnored: this.isIgnored,
+            notificationType: this.notificationType,
             message: this.message,
             title: this.title,
             paused: this.paused,

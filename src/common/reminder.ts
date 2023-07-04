@@ -1,5 +1,6 @@
 import { Constants } from "./constants"
 import "../common/date"
+import { ReminderNotificationType } from "../@types/reminder"
 
 interface IReminder {
     nextReminder?: Date

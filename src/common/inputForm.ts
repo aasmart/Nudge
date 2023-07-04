@@ -2,7 +2,7 @@ import "../common/htmlElement"
 import "../common/htmlFormElement"
 import "../common/date"
 
-function isInputElement(obj: any): obj is InputElement  {
+function isInputElement(_obj: any): _obj is InputElement  {
     return true;
 }
 
@@ -10,14 +10,19 @@ class InputForm {
     formElement: HTMLFormElement
     inputs: Map<String, InputElement>
 
-    constructor(formClass: string, onSubmit: (e: Event) => boolean, onReset: (e: Event) => boolean) {
+    constructor(
+        formClass: string, 
+        onSubmit: (e: Event) => boolean, 
+        onReset: (e: Event) => boolean,
+        selectInputOptionsProvider: Record<string, any> = {}
+    ) {
         this.inputs = new Map()
         this.formElement = <HTMLFormElement>document.getElementsByClassName(formClass)[0]
 
         this.formElement.addEventListener('submit', e => onSubmit(e))
         this.formElement.addEventListener('reset', e => onReset(e))
 
-        const inputElements: Array<HTMLInputElement | HTMLTextAreaElement | HTMLButtonElement>
+        const inputElements: Array<InputElement>
              = Array.from(this.formElement.querySelectorAll("input, button, textarea, select"))
 
         inputElements.forEach(e => {
@@ -44,6 +49,30 @@ class InputForm {
                     e.setDirty(true)
                     updateValidationMessage()
                 }
+            }
+
+            if(e instanceof HTMLSelectElement) {
+                const optionsFrom = e.getAttribute("options-from");
+                if(!optionsFrom) {
+                    console.error(`Select element \'${e.name}\' does not have a valid \'options-from\` attribute.`);
+                    return;
+                }
+
+                // Convert the corresponding enum type to its keys
+                const enumObj = selectInputOptionsProvider[optionsFrom];
+                const options = Object.keys(enumObj);
+                if(!options) {
+                    console.error(`Failed to find registered select options provider called \'${optionsFrom}\'`);
+                    return;
+                }
+
+                e.append(...options.map(option => {
+                    const optionElement = document.createElement("option");
+                    optionElement.innerText = enumObj[option]; // Get enum name as string
+                    optionElement.setAttribute("value", option);
+
+                    return optionElement;
+                }));
             }
 
             // Add unit selection dropdowns
@@ -149,12 +178,12 @@ class InputForm {
         const obj = JSON.parse(json)
         for(let key in obj) {
             const id = key.match(camelCaseRegex)?.flatMap(s => s.toLowerCase()).join('-') || ''
-            const element = <HTMLInputElement>document.getElementById(id)
+            const element = <InputElement>document.getElementById(id);
 
             if(element == null)
                 continue
 
-            if(element as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement) {}
+            if(element as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement)
                 element.value = obj[key]
         }
 

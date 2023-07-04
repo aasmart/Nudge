@@ -1,3 +1,4 @@
+import { ReminderNotificationType } from "../../@types/reminder";
 import { InputForm } from "../../common/inputForm";
 import { Preloads } from "../../common/preloads";
 import { ReminderImpl, Reminders } from "../../common/reminder";
@@ -14,6 +15,7 @@ function loadReminderCreationPage() {
             reminderStartOverrideAmount: reminderFormJson?.reminderStartOverrideAmount,
             ignoredReminderIntervalAmount: reminderFormJson?.ignoredReminderIntervalAmount,
             maxIgnoredReminders: reminderFormJson.maxIgnoredReminders,
+            notificationType: reminderFormJson.notificationType,
             message: reminderFormJson?.message,
             title: reminderFormJson?.title
         })
@@ -40,7 +42,9 @@ function loadReminderCreationPage() {
         window.api.openPage('index')
 
         return false;
-    })
+    }, {
+        reminderNotificationType: ReminderNotificationType
+    });
 
     // Update display if the user is editing
     const editIndex = Reminders.getEditIndex()

@@ -151,9 +151,4 @@ window.onload = async () => {
     Reminders.loadActiveReminders()
     loadReminderListPage()
     setTimeout(Preloads.clearPreloads, 1)
-
-    window.api.showModal({
-        title: "test",
-        message: "test"
-    })
 }

@@ -158,7 +158,8 @@ function showModal(params: ModalParams) {
 
   modal.width = params.winWidth ?? modal.width;
   modal.height = params.winHeight ?? modal.height;
-  
+
   loadHtml(modal, "modal");
   modal.show();
+  win.show();
 }

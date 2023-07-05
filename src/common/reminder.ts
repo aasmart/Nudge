@@ -80,7 +80,7 @@ class ReminderImpl implements IReminder {
     private sendNotification(message: string) {
         switch(ReminderNotificationType[this.notificationType]) {
             case ReminderNotificationType.SYSTEM:
-                new Notification(this.title, { body: message }).onclick =() => { 
+                new Notification(this.title, { body: message }).onclick = () => { 
                     if(this === null)
                         return
         

@@ -1,6 +1,10 @@
 import { Constants } from "./constants"
 import "../common/date"
-import { ReminderNotificationType } from "../@types/reminder"
+
+export enum ReminderNotificationType {
+    SYSTEM = "System Notification",
+    APP_WINDOW = "App Window Notification"
+}
 
 interface IReminder {
     nextReminder?: Date

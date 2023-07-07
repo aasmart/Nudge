@@ -1,7 +1,6 @@
-import { ReminderNotificationType } from "../../@types/reminder";
 import { InputForm } from "../../common/inputForm";
 import { Preloads } from "../../common/preloads";
-import { ReminderImpl, Reminders } from "../../common/reminder";
+import { ReminderImpl, ReminderNotificationType, Reminders } from "../../common/reminder";
 
 function loadReminderCreationPage() {
     const CREATE_BUTTON = 'create-reminder'

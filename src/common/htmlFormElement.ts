@@ -6,6 +6,9 @@ declare global {
     }
 }
 
+export type FormInputElement = 
+        HTMLInputElement | HTMLTextAreaElement | HTMLButtonElement | HTMLSelectElement;
+
 HTMLFormElement.prototype.toJSON = function(): string {
     const formData = new FormData(this)
     const formJson = Object.fromEntries(formData.entries())

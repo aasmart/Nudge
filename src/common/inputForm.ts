@@ -1,14 +1,15 @@
 import "../common/htmlElement"
 import "../common/htmlFormElement"
 import "../common/date"
+import { FormInputElement } from "../common/htmlFormElement";
 
-function isInputElement(_obj: any): _obj is InputElement  {
+function isInputElement(_obj: any): _obj is FormInputElement  {
     return true;
 }
 
 class InputForm {
     formElement: HTMLFormElement
-    inputs: Map<String, InputElement>
+    inputs: Map<String, FormInputElement>
 
     constructor(
         formClass: string, 
@@ -22,7 +23,7 @@ class InputForm {
         this.formElement.addEventListener('submit', e => onSubmit(e))
         this.formElement.addEventListener('reset', e => onReset(e))
 
-        const inputElements: Array<InputElement>
+        const inputElements: Array<FormInputElement>
              = Array.from(this.formElement.querySelectorAll("input, button, textarea, select"))
 
         inputElements.forEach(e => {
@@ -167,7 +168,7 @@ class InputForm {
         element.dispatchEvent(new Event('change'))
     }
 
-    getInputElement(input: String): InputElement | undefined  {
+    getInputElement(input: String): FormInputElement | undefined  {
         return this.inputs.get(input) || undefined
     }
 
@@ -178,7 +179,7 @@ class InputForm {
         const obj = JSON.parse(json)
         for(let key in obj) {
             const id = key.match(camelCaseRegex)?.flatMap(s => s.toLowerCase()).join('-') || ''
-            const element = <InputElement>document.getElementById(id);
+            const element = <FormInputElement>document.getElementById(id);
 
             if(element == null)
                 continue

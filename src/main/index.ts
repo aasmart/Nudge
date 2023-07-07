@@ -128,6 +128,7 @@ function createModal() {
     autoHideMenuBar: true,
     center: true,
     frame: false,
+    resizable: false,
     titleBarStyle: 'hidden',
     titleBarOverlay: {
       color: '#984ae2',

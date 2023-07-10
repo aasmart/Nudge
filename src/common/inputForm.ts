@@ -52,7 +52,7 @@ class InputForm {
                 }
             }
 
-            if(e instanceof HTMLSelectElement) {
+            if(e instanceof HTMLSelectElement || e.getAttribute("role") === "combobox") {
                 const optionsFrom = e.getAttribute("options-from");
                 if(!optionsFrom) {
                     console.error(`Select element \'${e.name}\' does not have a valid \'options-from\` attribute.`);
@@ -67,13 +67,30 @@ class InputForm {
                     return;
                 }
 
-                e.append(...options.map(option => {
-                    const optionElement = document.createElement("option");
-                    optionElement.innerText = enumObj[option]; // Get enum name as string
-                    optionElement.setAttribute("value", option);
+                if(e.getAttribute("role") === "combobox") {
+                    const listbox = document.getElementById(`${e.id}--listbox`);
+                    if(!listbox) {
+                        console.error(`Failed to find a listbox for combobox \'${e.id}\'`);
+                        return;
+                    }
 
-                    return optionElement;
-                }));
+                    listbox.append(...options.map(option => {
+                        const optionElement = document.createElement("li");
+                        optionElement.innerText = enumObj[option]; // Get enum name as string
+                        optionElement.setAttribute("value", option);
+                        optionElement.id = `${e.id}--${option}`;
+    
+                        return optionElement;
+                    }));
+                } else {
+                    e.append(...options.map(option => {
+                        const optionElement = document.createElement("option");
+                        optionElement.innerText = enumObj[option]; // Get enum name as string
+                        optionElement.setAttribute("value", option);
+    
+                        return optionElement;
+                    }));
+                }
             }
 
             // Add unit selection dropdowns

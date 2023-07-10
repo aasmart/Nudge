@@ -74,23 +74,23 @@
                 >
             </div>
 
-            <div>
+            <div class="combobox-wrapper">
                 <!-- Accessible select as per the ARIA 1.2 standards: https://www.w3.org/TR/wai-aria-1.2/#combobox -->
                 <label for="notification-type">Notification Type</label>
-                <div class="combobox-wrapper">
-                    <input type="text" 
-                        id="notification-type"
-                        role="combobox"
-                        aria-haspopup="listbox" 
-                        aria-expanded="false"
-                        aria-controls="notification-type--listbox" 
-                        aria-activedescendant=""
-                        readonly>
-                
-                    <ul role="listbox" id="notification-type--listbox">
-                        <!-- <li role="option" value=""></li> -->
-                    </ul>
-                </div>
+                <input type="text" 
+                    id="notification-type"
+                    role="combobox"
+                    options-from="reminderNotificationType"
+                    aria-haspopup="listbox" 
+                    aria-expanded="false"
+                    aria-controls="notification-type--listbox" 
+                    aria-activedescendant=""
+                    readonly
+                    required>
+            
+                <ul role="listbox" id="notification-type--listbox">
+                    <!-- <li role="option" value="">hi</li> -->
+                </ul>
             </div>
 
             <div title="The title displayed when the reminder is sent">

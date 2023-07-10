@@ -566,6 +566,18 @@ input[type="checkbox"]:checked + label::after {
     left: calc(-1 * (var(--checkbox-width) + var(--checkbox-margin)) + (var(--checkbox-width)) * 0.5);
 }
 
+/* Select menu */
+
+.combobox-wrapper {
+    position: relative;
+}
+
+.combobox-wrapper ul[role="listbox"] {
+    position: absolute;
+    list-style: none;
+    padding-left: 0;
+}
+
 /* POPUP */
 
 #popup[open] {

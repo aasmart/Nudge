@@ -10,6 +10,7 @@ function isInputElement(_obj: any): _obj is FormInputElement  {
 class InputForm {
     formElement: HTMLFormElement
     inputs: Map<String, FormInputElement>
+    selectInputOptionsProvider: Record<string, any> 
 
     constructor(
         formClass: string, 
@@ -18,7 +19,8 @@ class InputForm {
         selectInputOptionsProvider: Record<string, any> = {}
     ) {
         this.inputs = new Map()
-        this.formElement = <HTMLFormElement>document.getElementsByClassName(formClass)[0]
+        this.formElement = <HTMLFormElement>document.getElementsByClassName(formClass)[0];
+        this.selectInputOptionsProvider = selectInputOptionsProvider
 
         this.formElement.addEventListener('submit', e => onSubmit(e))
         this.formElement.addEventListener('reset', e => onReset(e))
@@ -53,44 +55,7 @@ class InputForm {
             }
 
             if(e instanceof HTMLSelectElement || e.getAttribute("role") === "combobox") {
-                const optionsFrom = e.getAttribute("options-from");
-                if(!optionsFrom) {
-                    console.error(`Select element \'${e.name}\' does not have a valid \'options-from\` attribute.`);
-                    return;
-                }
-
-                // Convert the corresponding enum type to its keys
-                const enumObj = selectInputOptionsProvider[optionsFrom];
-                const options = Object.keys(enumObj);
-                if(!options) {
-                    console.error(`Failed to find registered select options provider called \'${optionsFrom}\'`);
-                    return;
-                }
-
-                if(e.getAttribute("role") === "combobox") {
-                    const listbox = document.getElementById(`${e.id}--listbox`);
-                    if(!listbox) {
-                        console.error(`Failed to find a listbox for combobox \'${e.id}\'`);
-                        return;
-                    }
-
-                    listbox.append(...options.map(option => {
-                        const optionElement = document.createElement("li");
-                        optionElement.innerText = enumObj[option]; // Get enum name as string
-                        optionElement.setAttribute("value", option);
-                        optionElement.id = `${e.id}--${option}`;
-    
-                        return optionElement;
-                    }));
-                } else {
-                    e.append(...options.map(option => {
-                        const optionElement = document.createElement("option");
-                        optionElement.innerText = enumObj[option]; // Get enum name as string
-                        optionElement.setAttribute("value", option);
-    
-                        return optionElement;
-                    }));
-                }
+                initSelectMenu(e, selectInputOptionsProvider);
             }
 
             // Add unit selection dropdowns
@@ -218,6 +183,81 @@ class InputForm {
             this.setChecked(input.id, this.hasValue(toggles))
         })
     }
+}
+
+function initSelectMenu(e: FormInputElement, selectInputOptionsProvider: Record<string, any> = {}) {
+    const optionsFrom = e.getAttribute("options-from");
+    if(!optionsFrom) {
+        console.error(`Select element \'${e.name}\' does not have a valid \'options-from\` attribute.`);
+        return;
+    }
+
+    // Convert the corresponding enum type to its keys
+    const enumObj = selectInputOptionsProvider[optionsFrom];
+    const options = Object.keys(enumObj);
+    if(!options) {
+        console.error(`Failed to find registered select options provider called \'${optionsFrom}\'`);
+        return;
+    }
+
+    if(e.getAttribute("role") === "combobox") {
+        const listbox = document.getElementById(`${e.id}--listbox`);
+        if(!listbox) {
+            console.error(`Failed to find a listbox for combobox \'${e.id}\'`);
+            return;
+        }
+
+        const selectWrapper: HTMLElement | null = e.parentElement;
+
+        e.addEventListener("click", () => {
+            e.setAttribute("aria-expanded", "true");
+        });
+
+        selectWrapper?.addEventListener("blur", () => {
+            e.setAttribute("aria-expanded", `${false}`);
+        })
+
+        listbox.append(...options.map((option, index) => {
+            const optionElement = document.createElement("li");
+            optionElement.innerText = enumObj[option]; // Get enum name as string
+            optionElement.setAttribute("value", option);
+            optionElement.id = `${e.id}--${option}`;
+
+            optionElement.addEventListener("click", () => {
+                const allOptions = Array.from(listbox.getElementsByTagName("li"));
+                setSelectMenuSelected(e as HTMLInputElement, allOptions, index);
+                e.setAttribute("aria-expanded", "false");
+            })
+        
+            return optionElement;
+        }));
+
+        setSelectMenuSelected(e as HTMLInputElement, Array.from(listbox.getElementsByTagName("li")), 0);
+    } else {
+        e.append(...options.map(option => {
+            const optionElement = document.createElement("option");
+            optionElement.innerText = enumObj[option]; // Get enum name as string
+            optionElement.setAttribute("value", option);
+
+            return optionElement;
+        }));
+    }
+}
+
+function setSelectMenuSelected(selectInput: HTMLInputElement, options: HTMLElement[], index: number) {
+    const option = options[index];
+    if(!option) {
+        console.error("Option is null");
+        return;
+    }
+
+    options.forEach(e => {
+        e.setAttribute("selected", "false");
+    });
+
+    selectInput.setAttribute("aria-activedescendant", option.id);
+    option.setAttribute("selected", "true");
+    selectInput.value = option.innerText;
 }
 
 export { InputForm }

@@ -568,7 +568,10 @@ input[type="checkbox"]:checked + label::after {
 
 /* Select menu */
 
-.combobox-wrapper {
+.combobox-wrapper .listbox-wrapper {
+    margin: 0;
+    padding: 0;
+    height: 0;
     position: relative;
 }
 
@@ -576,6 +579,22 @@ input[type="checkbox"]:checked + label::after {
     position: absolute;
     list-style: none;
     padding-left: 0;
+    margin: 1% 0 0 0;
+    inset-inline: 0;
+
+    background-color: var(--input-color);
+    border-radius: 8px;
+    box-shadow: 0 2px 5px 3px var(--bg-color-start);
+    overflow: hidden;
+}
+
+.combobox-wrapper ul[role="listbox"] li {
+    padding: 0.35rem;
+    transition: background-color 250ms;
+}
+
+.combobox-wrapper ul[role="listbox"] li:hover {
+    background-color: var(--primary-color);
 }
 
 /* POPUP */

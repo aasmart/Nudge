@@ -2,8 +2,9 @@ import { app, BrowserWindow, Menu, nativeImage, Tray, ipcMain } from 'electron'
 import { is } from '@electron-toolkit/utils'
 import { join } from "path"
 
-let tray: any = null
-let win: any = null
+let tray: any = null;
+let win: any = null;
+let modal: any = null;
 
 function createTray () {
   const icon = join(__dirname, '../../resources/icon.png')
@@ -54,7 +55,7 @@ const createWindow = () => {
     })
     
     win.maximize();
-    loadHtml("index")
+    loadHtml(win, "index");
 
     win.on('close', (event: any) => {
         if(win.quitting) {
@@ -64,10 +65,12 @@ const createWindow = () => {
 
         event.preventDefault()
         win.hide()
-    })
+    });
+
+    createModal();
 
     ipcMain.on('open-page', (_event: any, name: any) => {
-      loadHtml(name);
+      loadHtml(win, name);
     })
 
     ipcMain.on('show-window', (_event: any, name: any) => {
@@ -75,6 +78,16 @@ const createWindow = () => {
     })
 
     ipcMain.handle('app-name', () => app.getName())
+
+    ipcMain.on("show-modal", (_event: any, params: ModalParams) => {
+      showModal(params);
+    });
+
+    ipcMain.on("hide-modal", (_event: any) => {
+      // ipcMain.removeHandler("get-modal-params");
+      if(modal)
+        modal.hide();
+    });
 }
 
 app.whenReady().then(() => {
@@ -94,10 +107,60 @@ app.setLoginItemSettings({
 
 app.on('before-quit', () => win.quitting = true)
 
-function loadHtml(fileName: string) {
+function loadHtml(window: any, fileName: string) {
   if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
-    win.loadURL(`${process.env['ELECTRON_RENDERER_URL']}/${fileName}.html`)
+    window.loadURL(`${process.env['ELECTRON_RENDERER_URL']}/${fileName}.html`)
   } else {
-    win.loadFile(join(__dirname, `../renderer/${fileName}.html`))
+    window.loadFile(join(__dirname, `../renderer/${fileName}.html`))
   }
+}
+
+function createModal() {
+  modal = new BrowserWindow({
+    width: 500,
+    height: 400,
+    minWidth: 350,
+    minHeight: 200,
+    parent: win,
+    modal: true,
+    show: false,
+    icon: join(__dirname, '../../resources/icon.png'),
+    autoHideMenuBar: true,
+    center: true,
+    frame: false,
+    resizable: false,
+    titleBarStyle: 'hidden',
+    titleBarOverlay: {
+      color: '#984ae2',
+      symbolColor: '#ffffff',
+    },
+    webPreferences: {
+      preload: join(__dirname, '../preload/index.js'),
+      nodeIntegration: true,
+      contextIsolation: true,
+    }
+  });
+  loadHtml(modal, "modal");
+
+  modal.on('close', (event: any) => {
+    if(win.quitting) {
+      win.quit();
+      return;
+    }
+
+    event.preventDefault();
+    modal.hide();
+});
+}
+
+function showModal(params: ModalParams) {
+  ipcMain.removeHandler("get-modal-params");
+  ipcMain.handleOnce("get-modal-params", () => params);
+
+  modal.width = params.winWidth ?? modal.width;
+  modal.height = params.winHeight ?? modal.height;
+
+  loadHtml(modal, "modal");
+  modal.show();
+  win.show();
 }

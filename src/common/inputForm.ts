@@ -1,20 +1,32 @@
 import "../common/htmlElement"
 import "../common/htmlFormElement"
 import "../common/date"
+import { FormInputElement } from "../common/htmlFormElement";
+
+function isInputElement(_obj: any): _obj is FormInputElement  {
+    return true;
+}
 
 class InputForm {
     formElement: HTMLFormElement
-    inputs: Map<String, HTMLInputElement | HTMLTextAreaElement | HTMLButtonElement>
+    inputs: Map<String, FormInputElement>
+    selectInputOptionsProvider: Record<string, any> 
 
-    constructor(formClass: string, onSubmit: (e: Event) => boolean, onReset: (e: Event) => boolean) {
+    constructor(
+        formClass: string, 
+        onSubmit: (e: Event) => boolean, 
+        onReset: (e: Event) => boolean,
+        selectInputOptionsProvider: Record<string, any> = {}
+    ) {
         this.inputs = new Map()
-        this.formElement = <HTMLFormElement>document.getElementsByClassName(formClass)[0]
+        this.formElement = <HTMLFormElement>document.getElementsByClassName(formClass)[0];
+        this.selectInputOptionsProvider = selectInputOptionsProvider
 
         this.formElement.addEventListener('submit', e => onSubmit(e))
         this.formElement.addEventListener('reset', e => onReset(e))
 
-        const inputElements: Array<HTMLInputElement | HTMLTextAreaElement | HTMLButtonElement>
-             = Array.from(this.formElement.querySelectorAll('input,button,textarea'))
+        const inputElements: Array<FormInputElement>
+             = Array.from(this.formElement.querySelectorAll("input, button, textarea, select"))
 
         inputElements.forEach(e => {
             const id = e.getAttribute('id');
@@ -24,7 +36,7 @@ class InputForm {
                 return
 
             // Handle the error message
-            if((e instanceof HTMLInputElement || e instanceof HTMLTextAreaElement)) {
+            if((isInputElement(e))) {
                 const errorMessage = document.createElement('p')
                 errorMessage.classList.add('error-message')
 
@@ -42,6 +54,10 @@ class InputForm {
                 }
             }
 
+            if(e instanceof HTMLSelectElement || e.getAttribute("role") === "combobox") {
+                initSelectMenu(e, selectInputOptionsProvider);
+            }
+
             // Add unit selection dropdowns
             const useUnits = e.getAttribute('use-units')
             if(useUnits) {
@@ -55,7 +71,6 @@ class InputForm {
                         units.innerText = "minutes";
                         break;
                 }
-                
             }
 
             switch(type) {
@@ -135,7 +150,7 @@ class InputForm {
         element.dispatchEvent(new Event('change'))
     }
 
-    getInputElement(input: String): HTMLInputElement | HTMLTextAreaElement | HTMLButtonElement | undefined  {
+    getInputElement(input: String): FormInputElement | undefined  {
         return this.inputs.get(input) || undefined
     }
 
@@ -146,12 +161,12 @@ class InputForm {
         const obj = JSON.parse(json)
         for(let key in obj) {
             const id = key.match(camelCaseRegex)?.flatMap(s => s.toLowerCase()).join('-') || ''
-            const element = <HTMLInputElement>document.getElementById(id)
+            const element = <FormInputElement>document.getElementById(id);
 
             if(element == null)
                 continue
 
-            if(element as HTMLInputElement | HTMLTextAreaElement) {}
+            if(element as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement)
                 element.value = obj[key]
         }
 
@@ -168,6 +183,81 @@ class InputForm {
             this.setChecked(input.id, this.hasValue(toggles))
         })
     }
+}
+
+function initSelectMenu(e: FormInputElement, selectInputOptionsProvider: Record<string, any> = {}) {
+    const optionsFrom = e.getAttribute("options-from");
+    if(!optionsFrom) {
+        console.error(`Select element \'${e.name}\' does not have a valid \'options-from\` attribute.`);
+        return;
+    }
+
+    // Convert the corresponding enum type to its keys
+    const enumObj = selectInputOptionsProvider[optionsFrom];
+    const options = Object.keys(enumObj);
+    if(!options) {
+        console.error(`Failed to find registered select options provider called \'${optionsFrom}\'`);
+        return;
+    }
+
+    if(e.getAttribute("role") === "combobox") {
+        const listbox = document.getElementById(`${e.id}--listbox`);
+        if(!listbox) {
+            console.error(`Failed to find a listbox for combobox \'${e.id}\'`);
+            return;
+        }
+
+        const selectWrapper: HTMLElement | null = e.parentElement;
+
+        e.addEventListener("click", () => {
+            e.setAttribute("aria-expanded", "true");
+        });
+
+        selectWrapper?.addEventListener("blur", () => {
+            e.setAttribute("aria-expanded", `${false}`);
+        })
+
+        listbox.append(...options.map((option, index) => {
+            const optionElement = document.createElement("li");
+            optionElement.innerText = enumObj[option]; // Get enum name as string
+            optionElement.setAttribute("value", option);
+            optionElement.id = `${e.id}--${option}`;
+
+            optionElement.addEventListener("click", () => {
+                const allOptions = Array.from(listbox.getElementsByTagName("li"));
+                setSelectMenuSelected(e as HTMLInputElement, allOptions, index);
+                e.setAttribute("aria-expanded", "false");
+            })
+        
+            return optionElement;
+        }));
+
+        setSelectMenuSelected(e as HTMLInputElement, Array.from(listbox.getElementsByTagName("li")), 0);
+    } else {
+        e.append(...options.map(option => {
+            const optionElement = document.createElement("option");
+            optionElement.innerText = enumObj[option]; // Get enum name as string
+            optionElement.setAttribute("value", option);
+
+            return optionElement;
+        }));
+    }
+}
+
+function setSelectMenuSelected(selectInput: HTMLInputElement, options: HTMLElement[], index: number) {
+    const option = options[index];
+    if(!option) {
+        console.error("Option is null");
+        return;
+    }
+
+    options.forEach(e => {
+        e.setAttribute("selected", "false");
+    });
+
+    selectInput.setAttribute("aria-activedescendant", option.id);
+    option.setAttribute("selected", "true");
+    selectInput.value = option.innerText;
 }
 
 export { InputForm }

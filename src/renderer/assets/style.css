@@ -580,12 +580,14 @@ input[type="checkbox"]:checked + label::after {
     list-style: none;
     padding-left: 0;
     margin: 1% 0 0 0;
-    inset-inline: 0;
+    width: 100%;
+    max-height: 10rem;
+    overflow-x: hidden;
+    overflow-y: auto;
 
     background-color: var(--input-color);
     border-radius: 8px;
     box-shadow: 0 2px 5px 3px var(--bg-color-start);
-    overflow: hidden;
 }
 
 .combobox-wrapper ul[role="listbox"] li {

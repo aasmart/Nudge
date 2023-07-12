@@ -14,12 +14,7 @@ HTMLFormElement.prototype.toJSON = function(): string {
     const formJson = Object.fromEntries(formData.entries())
 
     for(let key in formJson) {
-        const keyArr = key.split("-")
-        const keyNew: string = (keyArr.slice(0,1)
-            .concat(keyArr.slice(1)
-            .flatMap(s => s.substring(0,1).toUpperCase().concat(s.substring(1))))
-            ).join("")
-
+        const keyNew = simplifyInputName(key);
         if(keyNew === key)
             continue;
         
@@ -30,4 +25,14 @@ HTMLFormElement.prototype.toJSON = function(): string {
     }
 
     return JSON.stringify(formJson)    
+}
+
+export function simplifyInputName(name: string): string {
+    const keyArr = name.split("-")
+    const keyNew: string = (keyArr.slice(0,1)
+        .concat(keyArr.slice(1)
+        .flatMap(s => s.substring(0,1).toUpperCase().concat(s.substring(1))))
+        ).join("")
+
+    return keyNew;
 }

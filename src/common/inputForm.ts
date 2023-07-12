@@ -1,7 +1,7 @@
 import "../common/htmlElement"
 import "../common/htmlFormElement"
 import "../common/date"
-import { FormInputElement } from "../common/htmlFormElement";
+import { FormInputElement, simplifyInputName } from "../common/htmlFormElement";
 
 function isInputElement(_obj: any): _obj is FormInputElement  {
     return true;
@@ -14,16 +14,39 @@ class InputForm {
 
     constructor(
         formClass: string, 
-        onSubmit: (e: Event) => boolean, 
-        onReset: (e: Event) => boolean,
+        onSubmit: (json: unknown) => void, 
+        onReset: (e: Event) => void,
         selectInputOptionsProvider: Record<string, any> = {}
     ) {
         this.inputs = new Map()
         this.formElement = <HTMLFormElement>document.getElementsByClassName(formClass)[0];
         this.selectInputOptionsProvider = selectInputOptionsProvider
 
-        this.formElement.addEventListener('submit', e => onSubmit(e))
-        this.formElement.addEventListener('reset', e => onReset(e))
+        this.formElement.addEventListener('submit', e => {
+            e.preventDefault();
+            const json = JSON.parse(this.formElement.toJSON());
+
+            // Update custom select menus
+            Array.from(this.inputs.values()).filter(e => {
+                return e as HTMLInputElement && e.getAttribute("role") === "combobox";
+            }).forEach(select => {
+                const selectedId = select.getAttribute("aria-activedescendant");
+                const selected = selectedId?.replace(`${select.id}--`, "");
+
+                json[simplifyInputName(select.id)] = selected;
+            });
+
+            onSubmit(json);
+
+            return false;
+        })
+        this.formElement.addEventListener('reset', e => {
+            e.preventDefault();
+            
+            onReset(e);
+
+            return false;
+        });
 
         const inputElements: Array<FormInputElement>
              = Array.from(this.formElement.querySelectorAll("input, button, textarea, select"))
@@ -36,7 +59,7 @@ class InputForm {
                 return
 
             // Handle the error message
-            if((isInputElement(e))) {
+            if(isInputElement(e)) {
                 const errorMessage = document.createElement('p')
                 errorMessage.classList.add('error-message')
 
@@ -158,7 +181,7 @@ class InputForm {
         const camelCaseRegex = /.([a-z])+/g
     
         // Set all the fields
-        const obj = JSON.parse(json)
+        const obj = JSON.parse(json);
         for(let key in obj) {
             const id = key.match(camelCaseRegex)?.flatMap(s => s.toLowerCase()).join('-') || ''
             const element = <FormInputElement>document.getElementById(id);
@@ -166,7 +189,13 @@ class InputForm {
             if(element == null)
                 continue
 
-            if(element as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement)
+            if(element as HTMLInputElement && element.getAttribute("role") === "combobox") {
+                if(!element.parentElement)
+                    continue;
+                const options = Array.from(element.parentElement.getElementsByTagName("li"));
+                const index = options.findIndex(e => e.getAttribute("value")?.endsWith(obj[key]));
+                setSelectMenuSelected(element as HTMLInputElement, options, index)
+            } else if(element as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement)
                 element.value = obj[key]
         }
 

@@ -498,7 +498,7 @@ button[action="destructive"]:not(:disabled):focus-visible svg {
 }
 
 .reminder-form input:not(:placeholder-shown):invalid,
-[dirty]:not(:valid, :disabled, :focus):is(input, textarea, select) {
+[dirty]:not(:valid, :disabled, :focus, [readonly]):is(input, textarea, select) {
     border-color: var(--input-invalid-color);
 }
 

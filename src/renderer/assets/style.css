@@ -579,23 +579,29 @@ input[type="checkbox"]:checked + label::after {
     position: relative;
 }
 
-.combobox-wrapper > svg {
+.combobox-wrapper div {
+    padding: 0;
+    margin: 0;
+}
+
+.combobox--input svg {
     position: absolute;
-    right: 0;
-    bottom: 0;
     margin: auto;
+    top: 50%;
+    bottom: 50%;
+    right: 0;
+    translate: 0 20%;
+
     fill: var(--fore-color);
 
     transition: transform 200ms;
 }
 
-.combobox-wrapper input[aria-expanded="true"] ~ svg {
+.combobox--input input[aria-expanded="true"] ~ svg {
     transform: rotateZ(180deg);
 }
 
 .combobox-wrapper .listbox-wrapper {
-    margin: 0;
-    padding: 0;
     height: 0;
     position: relative;
 }
@@ -604,7 +610,7 @@ input[type="checkbox"]:checked + label::after {
     position: absolute;
     list-style: none;
     padding-left: 0;
-    margin: 1% 0 0 0;
+    margin: 0;
     width: 100%;
     max-height: var(--listbox-max-height);
     overflow-x: hidden;
@@ -617,7 +623,7 @@ input[type="checkbox"]:checked + label::after {
     transition: height 200ms;
 }
 
-.combobox-wrapper input[aria-expanded="false"] ~ .listbox-wrapper > ul {
+.combobox-wrapper:has(input[aria-expanded="false"]) .listbox-wrapper ul {
     height: 0;
     overflow: hidden;
 }

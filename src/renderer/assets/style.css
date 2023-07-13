@@ -634,7 +634,7 @@ input[type="checkbox"]:checked + label::after {
 }
 
 .combobox-wrapper ul[role="listbox"] li:hover,
-ul[role="listbox"] li[selected="true"] {
+ul[role="listbox"]:not(:has(li:hover)) li[selected="true"] {
     background-color: var(--primary-color);
 }
 

@@ -214,10 +214,10 @@ class InputForm {
     }
 }
 
-function initSelectMenu(e: FormInputElement, selectInputOptionsProvider: Record<string, any> = {}) {
-    const optionsFrom = e.getAttribute("options-from");
+function initSelectMenu(element: FormInputElement, selectInputOptionsProvider: Record<string, any> = {}) {
+    const optionsFrom = element.getAttribute("options-from");
     if(!optionsFrom) {
-        console.error(`Select element \'${e.name}\' does not have a valid \'options-from\` attribute.`);
+        console.error(`Select element \'${element.name}\' does not have a valid \'options-from\` attribute.`);
         return;
     }
 
@@ -229,41 +229,75 @@ function initSelectMenu(e: FormInputElement, selectInputOptionsProvider: Record<
         return;
     }
 
-    if(e.getAttribute("role") === "combobox") {
-        const listbox = document.getElementById(`${e.id}--listbox`);
+    if(element.getAttribute("role") === "combobox") {
+        const listbox = document.getElementById(`${element.id}--listbox`);
         if(!listbox) {
-            console.error(`Failed to find a listbox for combobox \'${e.id}\'`);
+            console.error(`Failed to find a listbox for combobox \'${element.id}\'`);
             return;
         }
 
-        const selectWrapper: HTMLElement | null = e.parentElement;
+        const selectWrapper: HTMLElement | null = element.parentElement;
 
-        e.addEventListener("click", () => {
-            e.setAttribute("aria-expanded", "true");
+        element.addEventListener("click", () => {
+            element.setAttribute("aria-expanded", "true");
         });
 
         selectWrapper?.addEventListener("blur", () => {
-            e.setAttribute("aria-expanded", `${false}`);
-        })
+            element.setAttribute("aria-expanded", `${false}`);
+        });
 
+        let selectedIndex = 0;
+
+        (element as HTMLInputElement).addEventListener("keydown", (e: KeyboardEvent) => {
+            if(!['ArrowUp', 'ArrowDown', 'Enter', ' '].includes(e.key))
+                return;
+
+            e.preventDefault();
+
+            const allOptions = Array.from(listbox.getElementsByTagName("li"));
+            if(e.key === 'ArrowUp') {
+                selectedIndex = Math.max(0, selectedIndex - 1);
+                element.setAttribute("aria-expanded", "true");
+            } else if(e.key === 'ArrowDown') {
+                selectedIndex = Math.min(allOptions.length - 1, selectedIndex + 1);
+                element.setAttribute("aria-expanded", "true");
+            } else if(e.key === 'Enter')
+                element.setAttribute("aria-expanded", "false");
+            else if(e.key === ' ') {
+                element.setAttribute(
+                    "aria-expanded", 
+                    `${element.getAttribute("aria-expanded") !== "true" ?? false}`
+                );
+            }
+            
+            setSelectMenuSelected(
+                element as HTMLInputElement, 
+                allOptions, 
+                selectedIndex
+            );
+
+            return false;
+        });
+
+        // Add all the options to the listbox
         listbox.append(...options.map((option, index) => {
             const optionElement = document.createElement("li");
             optionElement.innerText = enumObj[option]; // Get enum name as string
             optionElement.setAttribute("value", option);
-            optionElement.id = `${e.id}--${option}`;
+            optionElement.id = `${element.id}--${option}`;
 
             optionElement.addEventListener("click", () => {
                 const allOptions = Array.from(listbox.getElementsByTagName("li"));
-                setSelectMenuSelected(e as HTMLInputElement, allOptions, index);
-                e.setAttribute("aria-expanded", "false");
+                setSelectMenuSelected(element as HTMLInputElement, allOptions, index);
+                element.setAttribute("aria-expanded", "false");
             })
         
             return optionElement;
         }));
 
-        setSelectMenuSelected(e as HTMLInputElement, Array.from(listbox.getElementsByTagName("li")), 0);
+        setSelectMenuSelected(element as HTMLInputElement, Array.from(listbox.getElementsByTagName("li")), selectedIndex);
     } else {
-        e.append(...options.map(option => {
+        element.append(...options.map(option => {
             const optionElement = document.createElement("option");
             optionElement.innerText = enumObj[option]; // Get enum name as string
             optionElement.setAttribute("value", option);

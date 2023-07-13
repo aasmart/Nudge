@@ -627,11 +627,8 @@ input[type="checkbox"]:checked + label::after {
     transition: background-color 250ms;
 }
 
-ul[role="listbox"] li .selected {
-    background-color: var(--primary-color);
-}
-
-.combobox-wrapper ul[role="listbox"] li:hover {
+.combobox-wrapper ul[role="listbox"] li:hover,
+ul[role="listbox"] li[selected="true"] {
     background-color: var(--primary-color);
 }
 

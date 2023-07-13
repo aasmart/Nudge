@@ -236,29 +236,32 @@ function initSelectMenu(element: FormInputElement, selectInputOptionsProvider: R
             return;
         }
 
-        const selectWrapper: HTMLElement | null = element.parentElement;
+        const selectWrapper: HTMLDivElement | null = element.parentElement as HTMLDivElement;
 
-        element.addEventListener("click", () => {
+        selectWrapper?.addEventListener("click", () => {
             element.setAttribute("aria-expanded", "true");
         });
 
-        selectWrapper?.addEventListener("blur", () => {
+        element?.addEventListener("blur", () => {
             element.setAttribute("aria-expanded", `${false}`);
         });
 
+        let prevSelected = 0;
         let selectedIndex = 0;
 
         (element as HTMLInputElement).addEventListener("keydown", (e: KeyboardEvent) => {
-            if(!['ArrowUp', 'ArrowDown', 'Enter', ' '].includes(e.key))
+            if(!['ArrowUp', 'ArrowDown', 'Enter', ' ', 'Escape'].includes(e.key))
                 return;
 
             e.preventDefault();
 
             const allOptions = Array.from(listbox.getElementsByTagName("li"));
             if(e.key === 'ArrowUp') {
+                prevSelected = selectedIndex;
                 selectedIndex = Math.max(0, selectedIndex - 1);
                 element.setAttribute("aria-expanded", "true");
             } else if(e.key === 'ArrowDown') {
+                prevSelected = selectedIndex;
                 selectedIndex = Math.min(allOptions.length - 1, selectedIndex + 1);
                 element.setAttribute("aria-expanded", "true");
             } else if(e.key === 'Enter')
@@ -268,6 +271,9 @@ function initSelectMenu(element: FormInputElement, selectInputOptionsProvider: R
                     "aria-expanded", 
                     `${element.getAttribute("aria-expanded") !== "true" ?? false}`
                 );
+            } else if(e.key === 'Escape') {
+                selectedIndex = prevSelected;
+                element.setAttribute("aria-expanded", "false");
             }
             
             setSelectMenuSelected(
@@ -286,7 +292,7 @@ function initSelectMenu(element: FormInputElement, selectInputOptionsProvider: R
             optionElement.setAttribute("value", option);
             optionElement.id = `${element.id}--${option}`;
 
-            optionElement.addEventListener("click", () => {
+            optionElement.addEventListener("mousedown", () => {
                 const allOptions = Array.from(listbox.getElementsByTagName("li"));
                 setSelectMenuSelected(element as HTMLInputElement, allOptions, index);
                 element.setAttribute("aria-expanded", "false");

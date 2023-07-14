@@ -232,21 +232,22 @@ function initSelectMenu(element: FormInputElement, selectInputOptionsProvider: R
     }
 
     if(element.getAttribute("role") === "combobox") {
-        const listbox = document.getElementById(`${element.id}--listbox`);
+        const selectMenuElement = element as HTMLInputElement;
+        const listbox = document.getElementById(`${selectMenuElement.id}--listbox`);
         if(!listbox) {
-            console.error(`Failed to find a listbox for combobox \'${element.id}\'`);
+            console.error(`Failed to find a listbox for combobox \'${selectMenuElement.id}\'`);
             return;
         }
 
-        const selectWrapper: HTMLDivElement | null = element.parentElement as HTMLDivElement;
+        const selectWrapper: HTMLDivElement | null = selectMenuElement.parentElement as HTMLDivElement;
 
         selectWrapper?.addEventListener("click", () => {
-            element.focus();
-            element.setAttribute("aria-expanded", "true");
+            selectMenuElement.focus();
+            setSelectMenuExpanded(selectMenuElement, true);
         });
 
-        element?.addEventListener("blur", () => {
-            element.setAttribute("aria-expanded", `${false}`);
+        selectMenuElement?.addEventListener("blur",() => {
+            setSelectMenuExpanded(selectMenuElement, false);
         });
 
         let prevSelected = 0;
@@ -259,7 +260,7 @@ function initSelectMenu(element: FormInputElement, selectInputOptionsProvider: R
         - Space toggles the visibility and keeps the selected option
         - Escape closes the menu without keeping the selected option
         */
-        (element as HTMLInputElement).addEventListener("keydown", (e: KeyboardEvent) => {
+        (selectMenuElement as HTMLInputElement).addEventListener("keydown", (e: KeyboardEvent) => {
             if(!['ArrowUp', 'ArrowDown', 'Enter', ' ', 'Escape'].includes(e.key))
                 return;
 
@@ -269,25 +270,22 @@ function initSelectMenu(element: FormInputElement, selectInputOptionsProvider: R
             if(e.key === 'ArrowUp') {
                 prevSelected = selectedIndex;
                 selectedIndex = Math.max(0, selectedIndex - 1);
-                element.setAttribute("aria-expanded", "true");
+                setSelectMenuExpanded(selectMenuElement, true);
             } else if(e.key === 'ArrowDown') {
                 prevSelected = selectedIndex;
                 selectedIndex = Math.min(allOptions.length - 1, selectedIndex + 1);
-                element.setAttribute("aria-expanded", "true");
+                setSelectMenuExpanded(selectMenuElement, true);
             } else if(e.key === 'Enter')
-                element.setAttribute("aria-expanded", "false");
+                setSelectMenuExpanded(selectMenuElement, false);
             else if(e.key === ' ') {
-                element.setAttribute(
-                    "aria-expanded", 
-                    `${element.getAttribute("aria-expanded") !== "true" ?? false}`
-                );
+                setSelectMenuExpanded(selectMenuElement, element.getAttribute("aria-expanded") !== "true" ?? false);
             } else if(e.key === 'Escape') {
                 selectedIndex = prevSelected;
-                element.setAttribute("aria-expanded", "false");
+                setSelectMenuExpanded(selectMenuElement, false);
             }
             
             setSelectMenuSelected(
-                element as HTMLInputElement, 
+                selectMenuElement, 
                 allOptions, 
                 selectedIndex
             );
@@ -304,14 +302,14 @@ function initSelectMenu(element: FormInputElement, selectInputOptionsProvider: R
 
             optionElement.addEventListener("mousedown", () => {
                 const allOptions = Array.from(listbox.getElementsByTagName("li"));
-                setSelectMenuSelected(element as HTMLInputElement, allOptions, index);
-                element.setAttribute("aria-expanded", "false");
+                setSelectMenuSelected(selectMenuElement as HTMLInputElement, allOptions, index);
+                setSelectMenuExpanded(selectMenuElement, false);
             })
         
             return optionElement;
         }));
 
-        setSelectMenuSelected(element as HTMLInputElement, Array.from(listbox.getElementsByTagName("li")), selectedIndex);
+        setSelectMenuSelected(selectMenuElement as HTMLInputElement, Array.from(listbox.getElementsByTagName("li")), selectedIndex);
     } else {
         element.append(...options.map(option => {
             const optionElement = document.createElement("option");
@@ -337,6 +335,10 @@ function setSelectMenuSelected(selectInput: HTMLInputElement, options: HTMLEleme
     selectInput.setAttribute("aria-activedescendant", option.id);
     option.setAttribute("selected", "true");
     selectInput.value = option.innerText;
+}
+
+function setSelectMenuExpanded(selectInput: HTMLInputElement, expanded: boolean) {
+    selectInput.setAttribute("aria-expanded", `${expanded}`);
 }
 
 export { InputForm }

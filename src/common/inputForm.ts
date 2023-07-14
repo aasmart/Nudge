@@ -241,6 +241,7 @@ function initSelectMenu(element: FormInputElement, selectInputOptionsProvider: R
         const selectWrapper: HTMLDivElement | null = element.parentElement as HTMLDivElement;
 
         selectWrapper?.addEventListener("click", () => {
+            element.focus();
             element.setAttribute("aria-expanded", "true");
         });
 

@@ -24,9 +24,10 @@ class InputForm {
 
         this.formElement.addEventListener('submit', e => {
             e.preventDefault();
+
             const json = JSON.parse(this.formElement.toJSON());
 
-            // Update custom select menus
+            // Update custom select menus to use option values, not name
             Array.from(this.inputs.values()).filter(e => {
                 return e as HTMLInputElement && e.getAttribute("role") === "combobox";
             }).forEach(select => {
@@ -39,7 +40,8 @@ class InputForm {
             onSubmit(json);
 
             return false;
-        })
+        });
+
         this.formElement.addEventListener('reset', e => {
             e.preventDefault();
             
@@ -77,9 +79,8 @@ class InputForm {
                 }
             }
 
-            if(e instanceof HTMLSelectElement || e.getAttribute("role") === "combobox") {
+            if(e instanceof HTMLSelectElement || e.getAttribute("role") === "combobox")
                 initSelectMenu(e, selectInputOptionsProvider);
-            }
 
             // Add unit selection dropdowns
             const useUnits = e.getAttribute('use-units')
@@ -189,6 +190,7 @@ class InputForm {
             if(element == null)
                 continue
 
+            // 
             if(element as HTMLInputElement && element.getAttribute("role") === "combobox") {
                 if(!element.parentElement)
                     continue;
@@ -249,6 +251,13 @@ function initSelectMenu(element: FormInputElement, selectInputOptionsProvider: R
         let prevSelected = 0;
         let selectedIndex = 0;
 
+        /*
+        Keyboard controls for the custom select menu:
+        - Up and down change the selected option and open the menu if it's closed
+        - Enter keeps the selected option and closes the menu
+        - Space toggles the visibility and keeps the selected option
+        - Escape closes the menu without keeping the selected option
+        */
         (element as HTMLInputElement).addEventListener("keydown", (e: KeyboardEvent) => {
             if(!['ArrowUp', 'ArrowDown', 'Enter', ' ', 'Escape'].includes(e.key))
                 return;

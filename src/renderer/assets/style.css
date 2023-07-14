@@ -453,7 +453,7 @@ button:disabled {
 
 button[action="destructive"] {
     background-color: var(--outline-buttton-color);
-    border-color: var(--input-invalid-color);
+    border: 2px solid var(--input-invalid-color);
     color: var(--input-invalid-color);
     backdrop-filter: brightness(125%);
 }

@@ -21,7 +21,7 @@
     --checkbox-width: 3.5rem;
     --checkbox-margin: 8px;
 
-    --focus-visible-color: #FFEBCD;
+    --focus-visible-color: dodgerblue;
     --focus-visible-outline: 3px solid var(--focus-visible-color);
 
     --input-font-size: 1.25rem;
@@ -46,6 +46,7 @@
         --popup-accent-color: #5a5a5a;
         --fore-color: white;
         --select-options-color: #4A4848;
+        --focus-visible-color: #FFEBCD;
         color-scheme: dark;
     }
 

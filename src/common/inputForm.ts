@@ -240,13 +240,20 @@ function initSelectMenu(element: FormInputElement, selectInputOptionsProvider: R
         }
 
         const selectWrapper: HTMLDivElement | null = selectMenuElement.parentElement as HTMLDivElement;
+        const stateSvg: SVGElement = selectWrapper.getElementsByTagName("svg")[0];
 
-        selectWrapper?.addEventListener("click", () => {
+        selectMenuElement?.addEventListener("mousedown", () => {
             selectMenuElement.focus();
             setSelectMenuExpanded(selectMenuElement, true);
         });
 
-        selectMenuElement?.addEventListener("blur",() => {
+        stateSvg?.addEventListener("mousedown", e => {
+            e.preventDefault();
+            selectMenuElement.focus();
+            setSelectMenuExpanded(selectMenuElement, !isSelectMenuExpanded(selectMenuElement));
+        })
+
+        selectMenuElement?.addEventListener("blur", () => {
             setSelectMenuExpanded(selectMenuElement, false);
         });
 
@@ -300,7 +307,10 @@ function initSelectMenu(element: FormInputElement, selectInputOptionsProvider: R
             optionElement.setAttribute("value", option);
             optionElement.id = `${element.id}--${option}`;
 
-            optionElement.addEventListener("mousedown", () => {
+            optionElement.addEventListener("mousedown", e => {
+                // Stop the select menu from being blurred
+                e.preventDefault();
+
                 const allOptions = Array.from(listbox.getElementsByTagName("li"));
                 setSelectMenuSelected(selectMenuElement as HTMLInputElement, allOptions, index);
                 setSelectMenuExpanded(selectMenuElement, false);
@@ -339,6 +349,10 @@ function setSelectMenuSelected(selectInput: HTMLInputElement, options: HTMLEleme
 
 function setSelectMenuExpanded(selectInput: HTMLInputElement, expanded: boolean) {
     selectInput.setAttribute("aria-expanded", `${expanded}`);
+}
+
+function isSelectMenuExpanded(selectInput: HTMLInputElement): boolean {
+    return selectInput.getAttribute("aria-expanded") === "true";
 }
 
 export { InputForm }

@@ -54,6 +54,24 @@
     }
 }
 
+@media (prefers-reduced-motion) {
+    .reminder.ignored::after {
+        animation: ignored-reminder-pulse 2400ms ease-out infinite;
+    }
+
+    .reminder.ignored #acknowledge > img {
+        animation: shake 3000ms ease-in-out infinite;
+    }
+
+    .combobox-wrapper > svg {
+        transition: transform 0;
+    }
+
+    .combobox-wrapper ul[role="listbox"] {
+        transition: none;
+    }
+}
+
 *, *::before, *::after {
     box-sizing: border-box;
     font-family: 'Ubuntu', sans-serif;
@@ -233,20 +251,6 @@ REMINDERS
 
 .reminder.ignored .acknowledge > img {
     animation: shake 1200ms ease-in-out infinite;
-}
-
-@media (prefers-reduced-motion) {
-    .reminder.ignored::after {
-        animation: ignored-reminder-pulse 2400ms ease-out infinite;
-    }
-
-    .reminder.ignored #acknowledge > img {
-        animation: shake 3000ms ease-in-out infinite;
-    }
-
-    .combobox-wrapper > svg {
-        transition: transform 0;
-    }
 }
 
 @keyframes ignored-reminder-pulse {

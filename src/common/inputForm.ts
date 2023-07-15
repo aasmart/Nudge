@@ -2,6 +2,7 @@ import "../common/htmlElement"
 import "../common/htmlFormElement"
 import "../common/date"
 import { FormInputElement, simplifyInputName } from "../common/htmlFormElement";
+import { SelectMenuElement } from "./selectMenuElement";
 
 function isInputElement(_obj: any): _obj is FormInputElement  {
     return true;
@@ -191,12 +192,12 @@ class InputForm {
                 continue
 
             // 
-            if(element as HTMLInputElement && element.getAttribute("role") === "combobox") {
-                if(!element.parentElement)
+            if(SelectMenuElement.isCustomSelect(element)) {
+                if(!element.parentElement?.parentElement)
                     continue;
-                const options = Array.from(element.parentElement.getElementsByTagName("li"));
-                const index = options.findIndex(e => e.getAttribute("value")?.endsWith(obj[key]));
-                setSelectMenuSelected(element as HTMLInputElement, options, index)
+                const options = Array.from(element.parentElement.parentElement.getElementsByTagName("li"));
+                const optionId = options.filter(e => e.getAttribute("value")?.endsWith(obj[key]))[0]?.id;
+                SelectMenuElement.setSelectMenuSelectedOption(element as HTMLInputElement, options, optionId)
             } else if(element as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement)
                 element.value = obj[key]
         }
@@ -225,103 +226,16 @@ function initSelectMenu(element: FormInputElement, selectInputOptionsProvider: R
 
     // Convert the corresponding enum type to its keys
     const enumObj = selectInputOptionsProvider[optionsFrom];
-    const options = Object.keys(enumObj);
-    if(!options) {
+    const optionStrings = Object.keys(enumObj);
+    if(!optionStrings) {
         console.error(`Failed to find registered select options provider called \'${optionsFrom}\'`);
         return;
     }
 
-    if(element.getAttribute("role") === "combobox") {
-        const selectMenuElement = element as HTMLInputElement;
-        const listbox = document.getElementById(`${selectMenuElement.id}--listbox`);
-        if(!listbox) {
-            console.error(`Failed to find a listbox for combobox \'${selectMenuElement.id}\'`);
-            return;
-        }
-
-        const selectWrapper: HTMLDivElement | null = selectMenuElement.parentElement as HTMLDivElement;
-        const stateSvg: SVGElement = selectWrapper.getElementsByTagName("svg")[0];
-
-        selectMenuElement?.addEventListener("mousedown", () => {
-            selectMenuElement.focus();
-            setSelectMenuExpanded(selectMenuElement, true);
-        });
-
-        stateSvg?.addEventListener("mousedown", e => {
-            e.preventDefault();
-            selectMenuElement.focus();
-            setSelectMenuExpanded(selectMenuElement, !isSelectMenuExpanded(selectMenuElement));
-        })
-
-        selectMenuElement?.addEventListener("blur", () => {
-            setSelectMenuExpanded(selectMenuElement, false);
-        });
-
-        let prevSelected = 0;
-        let selectedIndex = 0;
-
-        /*
-        Keyboard controls for the custom select menu:
-        - Up and down change the selected option and open the menu if it's closed
-        - Enter keeps the selected option and closes the menu
-        - Space toggles the visibility and keeps the selected option
-        - Escape closes the menu without keeping the selected option
-        */
-        (selectMenuElement as HTMLInputElement).addEventListener("keydown", (e: KeyboardEvent) => {
-            if(!['ArrowUp', 'ArrowDown', 'Enter', ' ', 'Escape'].includes(e.key))
-                return;
-
-            e.preventDefault();
-
-            const allOptions = Array.from(listbox.getElementsByTagName("li"));
-            if(e.key === 'ArrowUp') {
-                prevSelected = selectedIndex;
-                selectedIndex = Math.max(0, selectedIndex - 1);
-                setSelectMenuExpanded(selectMenuElement, true);
-            } else if(e.key === 'ArrowDown') {
-                prevSelected = selectedIndex;
-                selectedIndex = Math.min(allOptions.length - 1, selectedIndex + 1);
-                setSelectMenuExpanded(selectMenuElement, true);
-            } else if(e.key === 'Enter')
-                setSelectMenuExpanded(selectMenuElement, false);
-            else if(e.key === ' ') {
-                setSelectMenuExpanded(selectMenuElement, element.getAttribute("aria-expanded") !== "true" ?? false);
-            } else if(e.key === 'Escape') {
-                selectedIndex = prevSelected;
-                setSelectMenuExpanded(selectMenuElement, false);
-            }
-            
-            setSelectMenuSelected(
-                selectMenuElement, 
-                allOptions, 
-                selectedIndex
-            );
-
-            return false;
-        });
-
-        // Add all the options to the listbox
-        listbox.append(...options.map((option, index) => {
-            const optionElement = document.createElement("li");
-            optionElement.innerText = enumObj[option]; // Get enum name as string
-            optionElement.setAttribute("value", option);
-            optionElement.id = `${element.id}--${option}`;
-
-            optionElement.addEventListener("mousedown", e => {
-                // Stop the select menu from being blurred
-                e.preventDefault();
-
-                const allOptions = Array.from(listbox.getElementsByTagName("li"));
-                setSelectMenuSelected(selectMenuElement as HTMLInputElement, allOptions, index);
-                setSelectMenuExpanded(selectMenuElement, false);
-            })
-        
-            return optionElement;
-        }));
-
-        setSelectMenuSelected(selectMenuElement as HTMLInputElement, Array.from(listbox.getElementsByTagName("li")), selectedIndex);
-    } else {
-        element.append(...options.map(option => {
+    if(element.getAttribute("role") === "combobox")
+        new SelectMenuElement(element as HTMLInputElement, optionStrings, enumObj);
+    else {
+        element.append(...optionStrings.map(option => {
             const optionElement = document.createElement("option");
             optionElement.innerText = enumObj[option]; // Get enum name as string
             optionElement.setAttribute("value", option);
@@ -329,30 +243,6 @@ function initSelectMenu(element: FormInputElement, selectInputOptionsProvider: R
             return optionElement;
         }));
     }
-}
-
-function setSelectMenuSelected(selectInput: HTMLInputElement, options: HTMLElement[], index: number) {
-    const option = options[index];
-    if(!option) {
-        console.error("Option is null");
-        return;
-    }
-
-    options.forEach(e => {
-        e.setAttribute("selected", "false");
-    });
-
-    selectInput.setAttribute("aria-activedescendant", option.id);
-    option.setAttribute("selected", "true");
-    selectInput.value = option.innerText;
-}
-
-function setSelectMenuExpanded(selectInput: HTMLInputElement, expanded: boolean) {
-    selectInput.setAttribute("aria-expanded", `${expanded}`);
-}
-
-function isSelectMenuExpanded(selectInput: HTMLInputElement): boolean {
-    return selectInput.getAttribute("aria-expanded") === "true";
 }
 
 export { InputForm }

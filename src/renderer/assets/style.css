@@ -11,6 +11,7 @@
     --reminder-bg-color: #ffffff;
     --outline-buttton-color: #ffffff;
     --popup-accent-color: #9e9e9e;
+    --select-options-color: #dddddd;
     color-scheme: light;
 
     --header-fallback-height: 1rem;
@@ -20,7 +21,7 @@
     --checkbox-width: 3.5rem;
     --checkbox-margin: 8px;
 
-    --focus-visible-color: #FFEBCD;
+    --focus-visible-color: dodgerblue;
     --focus-visible-outline: 3px solid var(--focus-visible-color);
 
     --input-font-size: 1.25rem;
@@ -37,18 +38,38 @@
         --bg-color-end: #1d1d22;
         --fore-color: white;
         --reminder-list-bg-color: #2c2c32;
-        --input-color: rgb(90, 87, 87);
+        --input-color: #5a5757;
         --input-invalid-color: #FA2333;
         --input-success-color: #22F095;
         --reminder-bg-color: #525257;
         --outline-buttton-color: transparent;
         --popup-accent-color: #5a5a5a;
         --fore-color: white;
+        --select-options-color: #4A4848;
+        --focus-visible-color: #FFEBCD;
         color-scheme: dark;
     }
 
     .reminder-form div .units {
         background-image: linear-gradient(rgb(0 0 0/20%) 0 0);
+    }
+}
+
+@media (prefers-reduced-motion) {
+    .reminder.ignored::after {
+        animation: ignored-reminder-pulse 2400ms ease-out infinite;
+    }
+
+    .reminder.ignored #acknowledge > img {
+        animation: shake 3000ms ease-in-out infinite;
+    }
+
+    .combobox-wrapper > svg {
+        transition: transform 0;
+    }
+
+    .combobox-wrapper ul[role="listbox"] {
+        transition: none;
     }
 }
 
@@ -233,16 +254,6 @@ REMINDERS
     animation: shake 1200ms ease-in-out infinite;
 }
 
-@media (prefers-reduced-motion) {
-    .reminder.ignored::after {
-        animation: ignored-reminder-pulse 2400ms ease-out infinite;
-    }
-
-    .reminder.ignored #acknowledge > img {
-        animation: shake 3000ms ease-in-out infinite;
-    }
-}
-
 @keyframes ignored-reminder-pulse {
     0% {
         outline-offset: 0px;
@@ -360,8 +371,8 @@ REMINDER FORM
     margin: 0;
 }
 
-.reminder-form input:not(:placeholder-shown):invalid ~ .error-message,
-[dirty]:not(:valid, :disabled):is(input, textarea) ~ .error-message {
+.reminder-form :is(input, textarea):not(:placeholder-shown):invalid ~ .error-message,
+[dirty]:not(:valid, :disabled):is(input, textarea, select) ~ .error-message {
     display: inline;
 }
 
@@ -387,8 +398,8 @@ select {
     transition: all 250ms;
     padding: 8px;
     font-size: var(--input-font-size);
-    border: 1px solid rgb(21, 21, 21);
-    box-shadow: 0 0.75px 3px black;
+    border: 2px solid transparent;
+    box-shadow: 0 0.75px 4px black;
     transition: opacity 250ms;
 }
 
@@ -417,7 +428,11 @@ input[use-units]:focus {
     text-align: left;
 }
 
-label:has(+input:required)::after {
+label:has(
+    +input:required, 
+    +select:required,
+    +textarea:required
+)::after {
     content: ' *';
     color: var(--input-invalid-color);
 }
@@ -490,7 +505,7 @@ button[action="destructive"]:not(:disabled):focus-visible svg {
 }
 
 .reminder-form input:not(:placeholder-shown):invalid,
-[dirty]:not(:valid, :disabled, :focus):is(input, textarea) {
+[dirty]:not(:valid, :disabled, :focus, [readonly]):is(input, textarea, select) {
     border-color: var(--input-invalid-color);
 }
 
@@ -560,6 +575,78 @@ input[type="checkbox"] + label::after {
 checked */
 input[type="checkbox"]:checked + label::after {
     left: calc(-1 * (var(--checkbox-width) + var(--checkbox-margin)) + (var(--checkbox-width)) * 0.5);
+}
+
+/* Select menu */
+
+.combobox-wrapper {
+    --listbox-max-height: 10rem;
+    --listbox-item-padding: 0.35rem;
+
+    position: relative;
+    cursor: pointer;
+}
+
+.combobox-wrapper div {
+    padding: 0;
+    margin: 0;
+}
+
+.combobox--input svg {
+    position: absolute;
+    margin: auto;
+    top: 50%;
+    bottom: 50%;
+    right: 0;
+    translate: 0 20%;
+
+    fill: var(--fore-color);
+
+    transition: transform 200ms;
+}
+
+.combobox--input input[aria-expanded="true"] ~ svg {
+    transform: rotateZ(180deg);
+}
+
+.combobox-wrapper .listbox-wrapper {
+    position: relative;
+}
+
+.combobox-wrapper ul[role="listbox"] {
+    position: absolute;
+    list-style: none;
+    padding-left: 0;
+    margin: 0;
+    width: 100%;
+    max-height: var(--listbox-max-height);
+    overflow-x: hidden;
+    overflow-y: auto;
+
+    background-color: var(--select-options-color);
+    border-radius: 4px;
+    clip-path: inset(0 0 0 0);
+
+    transition: clip-path 200ms;
+}
+
+.combobox-wrapper:has(input[aria-expanded="false"]) .listbox-wrapper ul {
+    clip-path: inset(0 0 100% 0);
+    overflow: hidden;
+}
+
+.combobox-wrapper ul[role="listbox"] li {
+    padding: var(--listbox-item-padding);
+    transition: background-color 250ms;
+}
+
+.combobox-wrapper ul[role="listbox"] li[data-filtered="true"] {
+    display: none;
+}
+
+.combobox-wrapper ul[role="listbox"] li:hover,
+ul[role="listbox"]:not(:has(li:hover)) li[selected="true"] {
+    background-color: var(--primary-color);
 }
 
 /* POPUP */
@@ -637,4 +724,28 @@ dialog::backdrop {
         opacity: 0;
         translate: 0 10%;
     }
+}
+
+.modal {
+    overflow: hidden;
+    padding: 1.5rem;
+}
+
+#modal-title {
+    width: 100%;
+    margin: 0;
+    text-align: center;
+}
+
+#modal-body {
+    overflow-x: hidden;
+    overflow-y: auto;
+    width: 100%;
+    flex: 8;
+    word-wrap: break-word;
+}
+
+#modal-button {
+    flex: 1;
+    width: 100%;
 }

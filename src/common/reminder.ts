@@ -1,6 +1,11 @@
 import { Constants } from "./constants"
 import "../common/date"
 
+export enum ReminderNotificationType {
+    SYSTEM = "System Notification",
+    APP_WINDOW = "App Window Notification",
+}
+
 interface IReminder {
     nextReminder?: Date
     reminderIntervalAmount: number
@@ -9,6 +14,7 @@ interface IReminder {
     maxIgnoredReminders: number
     ignoredReminders?: number
     isIgnored?: boolean
+    notificationType: ReminderNotificationType
     message: string
     title: string
     paused?: boolean
@@ -24,6 +30,7 @@ class ReminderImpl implements IReminder {
     maxIgnoredReminders: number
     ignoredReminders: number
     isIgnored: boolean
+    notificationType: ReminderNotificationType
     message: string
     title: string
     paused: boolean
@@ -37,6 +44,7 @@ class ReminderImpl implements IReminder {
         this.maxIgnoredReminders = reminder.maxIgnoredReminders;
         this.ignoredReminders = reminder.ignoredReminders || 0;
         this.isIgnored = reminder.isIgnored || false
+        this.notificationType = reminder.notificationType || ReminderNotificationType.SYSTEM;
         this.message = reminder.message;
         this.title = reminder.title;
         this.paused = reminder.paused || false;
@@ -49,7 +57,7 @@ class ReminderImpl implements IReminder {
         const delayAmount = delayAmountMinutes * Constants.MINUTES_TO_MS
     
         this.reminderTimeout = setTimeout(() => {
-            this.sendBreakNotification(this.message)
+            this.sendNotification(this.message)
 
             // Handles the ignored reminders
             if(this.maxIgnoredReminders && this.ignoredReminders >= this.maxIgnoredReminders) {
@@ -73,18 +81,33 @@ class ReminderImpl implements IReminder {
         window.dispatchEvent(new Event('update-reminder-list'))
     }
 
-    private sendBreakNotification(message: string) {
-        new Notification(this.title, { body: message }).onclick =() => { 
-            if(this === null)
-                return
+    private sendNotification(message: string) {
+        switch(ReminderNotificationType[this.notificationType]) {
+            case ReminderNotificationType.SYSTEM:
+                new Notification(this.title, { body: message }).onclick = () => { 
+                    if(this === null)
+                        return
+        
+                    if(this.isIgnored)
+                        this.setNextReminderTimeout(this.reminderIntervalAmount)
+        
+                    this.isIgnored = false
+                    window.dispatchEvent(new Event('update-reminder-list'))
+                    window.api.showWindow('main')
+                };
 
-            if(this.isIgnored)
-                this.setNextReminderTimeout(this.reminderIntervalAmount)
-
-            this.isIgnored = false
-            window.dispatchEvent(new Event('update-reminder-list'))
-            window.api.showWindow('main')
-        };
+                break;
+            case ReminderNotificationType.APP_WINDOW:
+                window.api.showModal({
+                    title: this.title,
+                    message: this.message,
+                });
+                break;
+            default:
+                console.error(`Invalid reminder notification type: ${this.notificationType}`);
+                break;
+        }
+        
     }
 
     start() {
@@ -128,6 +151,7 @@ class ReminderImpl implements IReminder {
             maxIgnoredReminders: this.maxIgnoredReminders,
             ignoredReminders: this.ignoredReminders,
             isIgnored: this.isIgnored,
+            notificationType: this.notificationType,
             message: this.message,
             title: this.title,
             paused: this.paused,

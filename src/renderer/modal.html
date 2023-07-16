@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'">
+    <title class="app-name"></title>
+    <link rel="stylesheet" href="./assets/style.css">
+</head>
+<body>
+    <header class="titlebar">
+        <img src="./assets/icon.png">
+        <p class="app-name"></p>
+    </header>
+
+    <main class="modal">
+        <h1 id="modal-title"></h1>
+        <p id="modal-body"></p>
+        <button id="modal-button">
+            Okay
+        </button>
+    </main>
+    <script type="module" src="./src/modal.ts"></script>
+</body>
+</html>

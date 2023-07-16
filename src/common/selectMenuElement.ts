@@ -150,7 +150,7 @@ export class SelectMenuElement {
             if(SelectMenuElement.controlKeys.includes(e.key) && (e.key !== ' ' || this.interactingWithListbox)) {
                 e.preventDefault();
                 return;
-            } else if(e.key === "Tab")
+            } else if(!this.searchString?.length && (e.key === "Tab" || e.key === "Shift"))
                 return;
 
             this.searchString = this.selectMenuElement.value;

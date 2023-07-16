@@ -158,14 +158,16 @@ export class SelectMenuElement {
             const options = Array.from(this.listbox.getElementsByTagName("li"))
             const matchedOptions = fuzzyMatchOptions(this.searchString, options.map(opt => opt.innerText), 0);
 
-            options.reverse()
-                    .forEach((opt, _) => {
-                        const matched = matchedOptions.includes(opt.innerText);
-                        opt.setAttribute("data-filtered", `${!matched || matchedOptions.length == 0}`);
+            options.forEach((opt, _) => {
+                    const matched = matchedOptions.includes(opt.innerText);
+                    opt.setAttribute("data-filtered", `${!matched || matchedOptions.length == 0}`);
+            });
 
-                        if(matched)
-                            this.listbox.appendChild(opt);
-                    });
+            matchedOptions.forEach(optName => {
+                    const element = options.find(e => e.innerHTML === optName);
+                    if(element)
+                        this.listbox.appendChild(element);
+            });
 
             if(matchedOptions.length > 0) {
                 const filteredOptions = Array.from(this.listbox.getElementsByTagName("li"))

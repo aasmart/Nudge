@@ -7,8 +7,10 @@ export class SelectMenuElement {
     
     initialSelectedId: string;
 
-    isTyping: boolean;
+    interactingWithListbox: boolean;
     searchString: string | null;
+
+    private static controlKeys = ['ArrowUp', 'ArrowDown', 'Enter', ' ', 'Escape'];
 
     constructor(
         selectMenuInputElement: HTMLInputElement,
@@ -16,35 +18,40 @@ export class SelectMenuElement {
         optionsEnum: any
     ) {
         this.selectMenuElement = selectMenuInputElement;
-
         if(!this.selectMenuElement.parentElement)
             throw new Error("Select menu must have parent element.");
 
         this.selectWrapper = <HTMLDivElement>this.selectMenuElement.parentElement;
         
+        // Get the container for the options
         const listbox = document.getElementById(`${this.selectMenuElement.id}--listbox`);
         if(!listbox)
             throw new Error(`Select menu must have a listbox element with the id: ${this.selectMenuElement.id}--listbox.`);
         this.listbox = listbox;
 
+        // Setup all of the options
         this.createOptions(optionStrings, optionsEnum);
         this.optionIds = Array.from(this.listbox.getElementsByTagName("li")).map(option => option.id);
 
+        // Get the state svg arrow
         const stateSvg = this.selectWrapper.getElementsByTagName("svg")[0];
         if(!stateSvg)
             throw new Error("Select must have an SVG to indicate its expansion state.");
         this.stateSvg = stateSvg;
 
+        // Setup selection stuff
         let selected = this.getSelectedOptionId();
         if(selected.length == 0)
             selected = this.optionIds[0] ?? "";
         this.setSelectedOption(selected);
         this.initialSelectedId = "";
 
+        // Initialize controls
         this.initControls();
+        this.initAutocomplete();
 
         // Autocomplete controls
-        this.isTyping = false;
+        this.interactingWithListbox = false;
         this.searchString = null;
     }
 
@@ -54,15 +61,17 @@ export class SelectMenuElement {
     private initControls(): void {
         this.selectMenuElement?.addEventListener("mousedown", () => {
             this.selectMenuElement.focus();
+            if(!this.getIsExpanded())
+                this.resetSearch();
             this.setExpanded(true);
-            this.resetSearch();
         });
     
         this.stateSvg?.addEventListener("mousedown", e => {
             e.preventDefault();
             this.selectMenuElement.focus();
+            if(!this.getIsExpanded())
+                this.resetSearch();
             this.setExpanded(!this.getIsExpanded());
-            this.resetSearch();
         })
     
         this.selectMenuElement?.addEventListener("blur", () => {
@@ -70,8 +79,6 @@ export class SelectMenuElement {
             this.setSelectedOption(this.getSelectedOptionId());
             this.resetSearch();
         });
-
-        const controlKeys = ['ArrowUp', 'ArrowDown', 'Enter', ' ', 'Escape'];
 
         /*
         Keyboard controls for the custom select menu:
@@ -93,20 +100,26 @@ export class SelectMenuElement {
 
             switch(e.key) {
                 case "ArrowUp":
-                    newSelectedId = filteredOptions[selectedIndex - 1] ?? null;
+                    newSelectedId = filteredOptions[selectedIndex - 1] ?? filteredOptions[filteredOptions.length - 1] ?? null;
                     this.setExpanded(true);
                     break;
                 case "ArrowDown":
-                    newSelectedId = filteredOptions[selectedIndex + 1] ?? null;
+                    newSelectedId = filteredOptions[selectedIndex + 1] ?? filteredOptions[0] ?? null;
                     this.setExpanded(true);
                     break;
                 case "Enter":
+                    newSelectedId = this.getSelectedOptionId();
                     this.setExpanded(false);
                     break;
                 case " ":
-                    // if(!this.isTyping) {
-                        this.setExpanded(!this.getIsExpanded());
-                    // }
+                    const expanded = this.getIsExpanded();
+                    if(this.interactingWithListbox || !expanded) 
+                        this.setExpanded(!expanded);
+
+                    if(!expanded) {
+                        this.interactingWithListbox = true;
+                        this.resetSearch();
+                    }
                     break;
                 case "Escape":
                     newSelectedId = this.initialSelectedId;
@@ -114,18 +127,63 @@ export class SelectMenuElement {
                     break;
             }
 
-            if(controlKeys.includes(e.key)) {
+            if(SelectMenuElement.controlKeys.includes(e.key)) {
                 if(e.key !== " ")
-                    this.isTyping = false;
+                    this.interactingWithListbox = true;
 
                 if(newSelectedId)
                     this.setSelectedOption(newSelectedId);
                 
-                e.preventDefault();
+                if(this.interactingWithListbox)
+                    e.preventDefault();
                 return false;
             }
 
             return true;
+        });
+    }
+
+    /**
+     * Initializes the select menu's autocomplete functionality
+     */
+    private initAutocomplete() {
+        this.selectMenuElement.addEventListener("keyup", e => {
+            if(SelectMenuElement.controlKeys.includes(e.key) && (e.key !== ' ' || this.interactingWithListbox)) {
+                e.preventDefault();
+                return;
+            }
+
+            this.searchString = this.selectMenuElement.value;
+
+            const options = Array.from(this.listbox.getElementsByTagName("li"))
+            const matchedOptions = fuzzyMatchOptions(this.searchString, options.map(opt => opt.innerText), 0);
+
+            options.reverse()
+                    .forEach((opt, _) => {
+                        const matched = matchedOptions.includes(opt.innerText);
+                        opt.setAttribute("data-filtered", `${!matched || matchedOptions.length == 0}`);
+
+                        if(matched)
+                            this.listbox.appendChild(opt);
+                    });
+
+            if(matchedOptions.length > 0) {
+                const filteredOptions = Array.from(this.listbox.getElementsByTagName("li"))
+                    .filter(opt => opt.getAttribute("data-filtered") === "false")
+                    .map(opt => opt.id);
+
+                /* If the filtered options does not have the currently selected option,
+                set it to the first filtered option */
+                const currentSelectedOptionId = this.getSelectedOptionId();
+                if(!filteredOptions.find(id => id === currentSelectedOptionId)) {
+                    this.setSelectedOption(
+                        filteredOptions[0],
+                        false
+                    )
+                }
+            } 
+
+            this.setExpanded(true);
         });
     }
 
@@ -151,7 +209,6 @@ export class SelectMenuElement {
     
                 this.setSelectedOption(optionElement.id);
                 this.setExpanded(false);
-                // this.resetSearch();
             })
         
             return optionElement;
@@ -161,13 +218,15 @@ export class SelectMenuElement {
     /**
      * Sets the select's currently selected option
      * @param id The option ID to set as selected
+     * @param updateInputVisually True if the input's value should be updated
      */
-    setSelectedOption(id: string): void {
+    setSelectedOption(id: string, updateInputVisually: boolean = true): void {
         const allOptions = Array.from(this.listbox.getElementsByTagName("li"));
         SelectMenuElement.setSelectMenuSelectedOption(
             this.selectMenuElement,
             allOptions,
-            id
+            id,
+            updateInputVisually
         );
     }
 
@@ -178,11 +237,13 @@ export class SelectMenuElement {
      * @param selectMenuElement The input element acting as a select menu
      * @param options The array of select options
      * @param id The id to select
+     * @param updateInputVisually True if the input's value should be updated
      */
     static setSelectMenuSelectedOption(
         selectMenuElement: HTMLInputElement,
         options: HTMLLIElement[],
-        id: string
+        id: string,
+        updateInputVisually: boolean = true
     ): void {
         const option = options.filter(opt => opt.id === id)[0] ?? null;
         if(!option) {
@@ -196,7 +257,11 @@ export class SelectMenuElement {
     
         selectMenuElement.setAttribute("aria-activedescendant", id);
         option.setAttribute("selected", "true");
-        selectMenuElement.value = option.innerText;
+        if(option.parentElement)
+            option.parentElement.scrollTop = option.offsetTop;
+
+        if(updateInputVisually)
+            selectMenuElement.value = option.innerText;
     }
 
     /**
@@ -215,12 +280,10 @@ export class SelectMenuElement {
      * @param expand True to expand
      */
     setExpanded(expand: boolean): void {
-        if(expand)
+        if(expand) {
             this.initialSelectedId = this.getSelectedOptionId();
-        // initialSelected = Math.max(optionElements.findIndex(e => {
-        //     e.id === selectInput.getAttribute("aria-activedescendant")
-        // }), 0);
-        this.isTyping = false;
+            this.interactingWithListbox = false;
+        }
 
         this.selectMenuElement.setAttribute("aria-expanded", `${expand}`);
     }
@@ -244,4 +307,72 @@ export class SelectMenuElement {
     static isCustomSelect(element: HTMLElement): boolean {
         return element as HTMLInputElement && element.getAttribute("role") === "combobox"
     }
+}
+
+/**
+ * Fuzzy matching for the select menu. Returns an array of option values sorted in
+ * descending order based on their distances
+ * 
+ * @param queryString The string to search for
+ * @param strings A list of strings to search
+ * @param min The minimum weight to return
+ * @returns The list of sorted strings matching queryString
+ */
+function fuzzyMatchOptions(
+    queryString: string, 
+    strings: string[],
+    min: number
+): string[] {
+    // Calculate the distances for each string
+    const distances = strings.map(str => {
+        const dist = levenshteinDistance(queryString.toLowerCase(), str.toLowerCase());
+        return 1 - (dist / Math.max(queryString.length, str.length));
+    });
+
+    const max = distances.reduce((prev, curr) => prev = Math.max(prev, curr));
+    const minDistance = Math.max(Math.pow(2, max) - 1, min);
+    
+    /* Takes the matched strings and filters out the ones with distances
+    greater than min distance, sorts them, and then returns their names */
+    const matches = strings
+        .map((val, i) => [val, distances[i]])
+        .filter(pair => {
+            const [_, distance] = pair;
+            if(typeof(distance) === 'number')
+                return distance >= minDistance
+            return false;
+        })
+        .sort(([_a, aDist], [_b, bDist]) => {
+            if(typeof(aDist) === "number" && typeof(bDist) === "number")
+                return bDist - aDist;
+            return -1;
+        })
+        .map(([id, _]) => id as string);
+
+    return matches;
+}
+
+// https://en.wikipedia.org/wiki/Levenshtein_distance
+function levenshteinDistance(str1: string, str2: string) {
+    let v0: number[] = [];
+    let v1: number[] = [];
+
+    // Initializes v0 with 
+    for(let i = 0; i < str2.length; i++)
+        v0[i] = i;
+
+    for(let i = 0; i < str1.length - 1; i++) {
+        v1[0] = i + 1;
+        for(let j = 0; j < str2.length - 1; j++) {
+            const deletionCost = v0[j + 1] + 1;
+            const insertionCost = v1[j] + 1;
+            const substitutionCost = str1[i] === str2[j] ? v0[j] : v0[j] + 1;
+
+            v1[j + 1] = Math.min(Math.min(deletionCost, insertionCost), substitutionCost);
+        }
+
+        [v0, v1] = [v1, v0];
+    }
+
+    return v0[str2.length - 1];
 }

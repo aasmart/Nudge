@@ -77,7 +77,6 @@ export class SelectMenuElement {
         this.selectMenuElement?.addEventListener("blur", () => {
             this.setExpanded(false);
             this.setSelectedOption(this.getSelectedOptionId());
-            this.resetSearch();
         });
 
         /*

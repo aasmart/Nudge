@@ -4,11 +4,6 @@ import "../common/date"
 export enum ReminderNotificationType {
     SYSTEM = "System Notification",
     APP_WINDOW = "App Window Notification",
-    TEST0 = "Test Notification 1",
-    TEST1 = "Hello World Notification",
-    TEST2 = "Rizz Notification",
-    TEST3 = "JS Makes me commit warcrimes Notification",
-    TEST4 = "another Notification",
 }
 
 interface IReminder {

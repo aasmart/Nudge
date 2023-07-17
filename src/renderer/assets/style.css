@@ -60,7 +60,7 @@
         animation: ignored-reminder-pulse 2400ms ease-out infinite;
     }
 
-    .reminder.ignored #acknowledge > img {
+    .reminder.ignored #acknowledge > svg {
         animation: shake 3000ms ease-in-out infinite;
     }
 
@@ -250,7 +250,7 @@ REMINDERS
     border-radius: inherit;
 }
 
-.reminder.ignored .acknowledge > img {
+.reminder.ignored .acknowledge > svg {
     animation: shake 1200ms ease-in-out infinite;
 }
 

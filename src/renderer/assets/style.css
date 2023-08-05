@@ -397,7 +397,8 @@ REMINDER FORM
     grid-column: calc(var(--columns) - var(--select-columns) + 1) / span calc(var(--select-columns));
 }
 
-.reminder-form label {
+.reminder-form label,
+legend {
     font-size: 1.2rem;
 }
 
@@ -486,6 +487,10 @@ input[use-units]:focus {
     text-align: left;
 }
 
+input:disabled { 
+    opacity: 0.5;
+}
+
 label:has(
     +input:required, 
     +select:required,
@@ -567,10 +572,6 @@ button[action="destructive"]:not(:disabled):focus-visible svg {
     border-color: var(--input-invalid-color);
 }
 
-input:disabled { 
-    opacity: 0.5;
-}
-
 input[type="checkbox"] {
     opacity: 0;
     position: absolute;
@@ -633,6 +634,14 @@ input[type="checkbox"] + label::after {
 checked */
 input[type="checkbox"]:checked + label::after {
     left: calc(-1 * (var(--checkbox-width) + var(--checkbox-margin)) + (var(--checkbox-width)) * 0.5);
+}
+
+fieldset {
+    border: none;
+}
+
+input[type="radio"] {
+    background-color: red;
 }
 
 /* Select menu */

@@ -129,16 +129,24 @@ function listReminders() {
 }
 
 function loadReminderListPage() {
-    const createNewReminder = document.getElementById("create-new-reminder") as HTMLButtonElement
+    const createNewReminder = <HTMLButtonElement>document.getElementById("create-new-reminder");
 
     createNewReminder.addEventListener('click', () => {
+        Reminders.saveActiveReminders();
+        window.api.openPage('reminder');
+    });
+
+    window.addEventListener('update-reminder-list', () => listReminders());
+
+    window.dispatchEvent(new Event('update-reminder-list'));
+}
+
+function initSettings() {
+    const settingsButton = <HTMLButtonElement>document.getElementsByClassName("settings-button")[0];
+    settingsButton.addEventListener("click", () => {
         Reminders.saveActiveReminders()
-        window.api.openPage('reminder')
-    })
-
-    window.addEventListener('update-reminder-list', () => listReminders())
-
-    window.dispatchEvent(new Event('update-reminder-list'))
+        window.api.openPage('settings')
+    });
 }
 
 window.onload = async () => {
@@ -150,5 +158,6 @@ window.onload = async () => {
 
     Reminders.loadActiveReminders()
     loadReminderListPage()
+    initSettings();
     setTimeout(Preloads.clearPreloads, 1)
 }

@@ -27,7 +27,7 @@
     --input-font-size: 1.25rem;
     --input-char-size: 40ch;
 
-    --sidebar-width: 4rem;
+    --sidebar-width: 3.5rem;
 }
 
 ::backdrop {
@@ -143,21 +143,22 @@ section {
 }
 
 /* ==================================
-REMINDER LIST
+NAV BAR
 ================================== */
 
 nav {
     position: absolute;
     left: 0;
-    height: 100%;
+    height: calc(100% - env(titlebar-area-height, var(--header-fallback-height)));
     width: var(--sidebar-width);
+    padding: 4px;
 
     background-color: var(--bg-color-end);
     box-shadow: 0px 0 10px 5px black;
 
-    display: grid;
-    place-items: center;
-    grid-template-rows: 1fr 7rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 nav button {
@@ -176,6 +177,9 @@ nav button:not(:disabled):focus-visible {
 nav svg {
     fill: var(--fore-color);
     transition: fill 250ms;
+    inset: 0;
+    width: 100%;
+    height: 100%;
 }
 
 nav button:not(:disabled):hover > svg,
@@ -184,8 +188,20 @@ nav button:not(:disabled):focus-visible> svg {
 }
 
 .settings-button {
-    grid-row: 2;
+    
 }
+
+.nudge-categories {
+    flex: 1;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+/* ==================================
+REMINDER LIST
+================================== */
 
 #reminder-list {
     height: 100%;

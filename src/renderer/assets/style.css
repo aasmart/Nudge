@@ -73,6 +73,11 @@
     .combobox-wrapper ul[role="listbox"] {
         transition: none;
     }
+
+    .settings-button:hover svg,
+    .settings-button:focus-visible svg {
+        animation-duration: 5000ms;
+    }
 }
 
 *, *::before, *::after {
@@ -187,8 +192,23 @@ nav button:not(:disabled):focus-visible> svg {
     fill: var(--primary-color);
 }
 
-.settings-button {
-    
+.settings-button:hover svg,
+.settings-button:focus-visible svg {
+    animation: gear-spin 2000ms infinite forwards;
+}
+
+@keyframes gear-spin {
+    0% {
+        transform: rotateZ(0deg);
+    }
+
+    80% {
+        transform: rotateZ(360deg);
+    }
+
+    100% {
+        transform: rotateZ(360deg);
+    }
 }
 
 .nudge-categories {
@@ -338,28 +358,6 @@ REMINDERS
         outline-offset: 10px;
         opacity: 0;
         outline-width: 5px;
-    }
-}
-
-@keyframes shake {
-    0% {
-        rotate: 0deg;
-    }
-
-    15% {
-        rotate: 15deg;
-    }
-
-    45% {
-        rotate: -15deg;
-    }
-
-    60% {
-        rotate: 0deg;
-    }
-
-    100% {
-        rotate: 0deg;
     }
 }
 

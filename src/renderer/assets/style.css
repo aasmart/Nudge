@@ -154,6 +154,37 @@ nav {
 
     background-color: var(--bg-color-end);
     box-shadow: 0px 0 10px 5px black;
+
+    display: grid;
+    place-items: center;
+    grid-template-rows: 1fr 7rem;
+}
+
+nav button {
+    background-color: transparent;
+    border: none;
+    aspect-ratio: -1;
+    box-shadow: none;
+    padding: 0;
+}
+
+nav button:not(:disabled):hover,
+nav button:not(:disabled):focus-visible {
+    background-color: transparent;
+}
+
+nav svg {
+    fill: var(--fore-color);
+    transition: fill 250ms;
+}
+
+nav button:not(:disabled):hover > svg,
+nav button:not(:disabled):focus-visible> svg {
+    fill: var(--primary-color);
+}
+
+.settings-button {
+    grid-row: 2;
 }
 
 #reminder-list {

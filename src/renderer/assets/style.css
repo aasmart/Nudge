@@ -187,6 +187,13 @@ nav svg {
     height: 100%;
 }
 
+nav hr {
+    border: 2px solid var(--input-color);
+    border-radius: 4px;
+    width: 100%;
+    margin: 4px 0;
+}
+
 nav button:not(:disabled):hover > svg,
 nav button:not(:disabled):focus-visible> svg {
     fill: var(--primary-color);

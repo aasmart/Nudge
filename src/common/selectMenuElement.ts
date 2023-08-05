@@ -88,12 +88,17 @@ export class SelectMenuElement {
         */
         this.selectMenuElement.addEventListener("keydown", (e: KeyboardEvent) => {
             const filteredOptions = Array.from(this.listbox.getElementsByTagName("li"))
-                .filter(opt => opt.getAttribute("data-filtered") === "false")
+                .filter(opt => opt.getAttribute("data-filtered") === "false" || !opt.hasAttribute("data-filtered"))
                 .map(opt => opt.id);
             
             // Get the index of the currently selected ID and clamp it between 0 and the size of the filtered options
-            const selectedIndex = 
-                Math.max(0, Math.min(filteredOptions.findIndex(opt => opt === this.getSelectedOptionId()), filteredOptions.length));
+            const selectedIndex = Math.max(
+                0, 
+                Math.min(
+                    filteredOptions.findIndex(opt => opt === this.getSelectedOptionId()),
+                    filteredOptions.length
+                )
+            );
 
             let newSelectedId: string | null = null;
 

@@ -648,7 +648,7 @@ fieldset {
 }
 
 input[type="radio"] {
-    background-color: red;
+    accent-color: var(--primary-color);
 }
 
 /* Select menu */

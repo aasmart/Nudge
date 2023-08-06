@@ -1,4 +1,5 @@
 import { ipcRenderer, contextBridge } from "electron"
+import { Preferences } from "../common/preferences";
 
 export const API = {
   showWindow: (win: string) => ipcRenderer.send('show-window', win),
@@ -6,9 +7,11 @@ export const API = {
   showModal: (params: ModalParams) => ipcRenderer.send("show-modal", params),
   hideModal: () => ipcRenderer.send("hide-modal"),
   getModalParams: (): Promise<ModalParams> => ipcRenderer.invoke("get-modal-params"),
+  getStoredPreference: <T extends keyof Preferences>(key: T): Promise<T> => ipcRenderer.invoke("get-stored-preference", key),
+  setStoredPreference: <T extends keyof Preferences>(key: T, value: T) => ipcRenderer.send("set-stored-preference", key, value)
 }
 
-contextBridge.exposeInMainWorld('api', API)
+contextBridge.exposeInMainWorld('api', API);
 
 const replaceText = (selector: any, text: any) => {
   const elements = document.getElementsByClassName(selector) as HTMLCollectionOf<HTMLElement>
@@ -16,7 +19,7 @@ const replaceText = (selector: any, text: any) => {
   Array.from(elements).forEach(element => {
     if (element) 
       element.innerText = text
-  })
+  });
 }
 
 async function setAppName() {

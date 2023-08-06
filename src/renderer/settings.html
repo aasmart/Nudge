@@ -2,9 +2,11 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link href="./assets/style.css" rel="stylesheet">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'">
+    <title class="app-name"></title>
+    <link rel="stylesheet" href="./assets/style.css">
 </head>
 <body>
     <header class="titlebar">
@@ -28,20 +30,17 @@
         </button>
     </nav>
 
-    <main>
-        <form id="settings-form">
-            <fieldset>
-                <legend>Theme</legend>
-                <div>
-                    <input type="radio" id="theme-system" name="theme" value="system">
-                    <label>System Default</label>
-                    <input type="radio" id="theme-light" name="theme" value="light">
-                    <label>Light Theme</label>
-                    <input type="radio" id="theme-dark" name="theme" value="dark">
-                    <label>Dark Theme</label>
-                </div>
-            </fieldset>
-        </form>
+    <main class="preload">
+        <fieldset data-store-id="theme">
+            <legend>Theme</legend>
+
+            <input type="radio" id="theme-system" name="theme" value="system">
+            <label for="theme-system">System Default</label>
+            <input type="radio" id="theme-light" name="theme" value="light">
+            <label for="theme-light">Light Theme</label>
+            <input type="radio" id="theme-dark" name="theme" value="dark">
+            <label for="theme-dark">Dark Theme</label>
+        </fieldset>
     </main>
 
     <script type="module" src="./src/settings.ts"></script>

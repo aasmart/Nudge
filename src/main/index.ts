@@ -94,7 +94,7 @@ const createWindow = () => {
       return preferencesStore.get(key);
     });
 
-    ipcMain.on("set-stored-preference", <T extends keyof Preferences>(_event: any, key: T, value: T) => {
+    ipcMain.on("set-stored-preference", <T extends keyof Preferences>(_event: any, key: T, value: Preferences[T]) => {
       preferencesStore.set(key, value);
     });
 }

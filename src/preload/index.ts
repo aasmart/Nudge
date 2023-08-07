@@ -7,8 +7,8 @@ export const API = {
   showModal: (params: ModalParams) => ipcRenderer.send("show-modal", params),
   hideModal: () => ipcRenderer.send("hide-modal"),
   getModalParams: (): Promise<ModalParams> => ipcRenderer.invoke("get-modal-params"),
-  getStoredPreference: <T extends keyof Preferences>(key: T): Promise<T> => ipcRenderer.invoke("get-stored-preference", key),
-  setStoredPreference: <T extends keyof Preferences>(key: T, value: T) => ipcRenderer.send("set-stored-preference", key, value)
+  getStoredPreference: <T extends keyof Preferences>(key: T): Promise<Preferences[T]> => ipcRenderer.invoke("get-stored-preference", key),
+  setStoredPreference: <T extends keyof Preferences>(key: T, value: Preferences[T]) => ipcRenderer.send("set-stored-preference", key, value)
 }
 
 contextBridge.exposeInMainWorld('api', API);

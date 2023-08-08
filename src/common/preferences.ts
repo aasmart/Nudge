@@ -11,4 +11,5 @@ const preferencesSchema: Schema<Preferences> = {
         default: "system"
     }
 };
+
 export const preferencesStore = new Store<Preferences>({ preferencesSchema } as any);

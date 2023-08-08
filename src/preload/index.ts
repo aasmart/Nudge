@@ -1,5 +1,5 @@
 import { ipcRenderer, contextBridge } from "electron"
-import { Preferences } from "../common/preferences";
+import { Preferences, preferencesStore } from "../common/preferences";
 
 export const API = {
   showWindow: (win: string) => ipcRenderer.send('show-window', win),
@@ -32,10 +32,29 @@ async function setAppName() {
   replaceText('app-name', words.join(' ')) 
 }
 
-window.addEventListener('DOMContentLoaded', () => {
-    for (const dependency of ['chrome', 'node', 'electron']) {
-      replaceText(`${dependency}-version`, process.versions[dependency])
-    }
+async function setAppTheme() {
+  const theme = preferencesStore.get("theme");
+  document.documentElement.setAttribute("data-color-scheme", "system");
 
-    setAppName()
-})
+  function setColorScheme(isDark: boolean) {
+    document.documentElement.setAttribute("data-color-scheme", isDark ? "dark" : "light");
+  }
+
+  function colorSchemePreferenceChange(e: MediaQueryListEvent) {
+    if(preferencesStore.get("theme") === "system")
+      setColorScheme(e.matches);
+  }
+
+  const colorSchemeMedia = window.matchMedia("(prefers-color-scheme: dark)");
+  colorSchemeMedia.addEventListener("change", colorSchemePreferenceChange);
+
+  if(theme === "system")
+    setColorScheme(colorSchemeMedia.matches);
+  else
+    setColorScheme(theme === "dark");
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+    setAppTheme();
+    setAppName();
+});

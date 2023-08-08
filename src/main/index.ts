@@ -74,38 +74,11 @@ const createWindow = () => {
     });
 
     createModal();
-
-    ipcMain.on('open-page', (_event: any, name: any) => {
-      loadHtml(win, name);
-    })
-
-    ipcMain.on('show-window', (_event: any, name: any) => {
-      if(name === 'main') win.show()
-    })
-
-    ipcMain.handle('app-name', () => app.getName())
-
-    ipcMain.on("show-modal", (_event: any, params: ModalParams) => {
-      showModal(params);
-    });
-
-    ipcMain.on("hide-modal", (_event: any) => {
-      // ipcMain.removeHandler("get-modal-params");
-      if(modal)
-        modal.hide();
-    });
-
-    ipcMain.handle("get-stored-preference", (_event: any, key: keyof Preferences) => {
-      return preferencesStore.get(key);
-    });
-
-    ipcMain.on("set-stored-preference", <T extends keyof Preferences>(_event: any, key: T, value: Preferences[T]) => {
-      preferencesStore.set(key, value);
-    });
 }
 
 app.whenReady().then(() => {
-    createWindow()
+    createWindow();
+    registerIpcEvents();
 
     if (process.platform === 'win32')
           app.setAppUserModelId(app.name);
@@ -177,4 +150,34 @@ function showModal(params: ModalParams) {
   loadHtml(modal, "modal");
   modal.show();
   win.show();
+}
+
+function registerIpcEvents() {
+  ipcMain.on('open-page', (_event: any, name: any) => {
+    loadHtml(win, name);
+  });
+  
+  ipcMain.on('show-window', (_event: any, name: any) => {
+    if(name === 'main') win.show()
+  });
+  
+  ipcMain.handle('app-name', () => app.getName());
+  
+  ipcMain.on("show-modal", (_event: any, params: ModalParams) => {
+    showModal(params);
+  });
+  
+  ipcMain.on("hide-modal", (_event: any) => {
+    // ipcMain.removeHandler("get-modal-params");
+    if(modal)
+      modal.hide();
+  });
+  
+  ipcMain.handle("get-stored-preference", (_event: any, key: keyof Preferences) => {
+    return preferencesStore.get(key);
+  });
+  
+  ipcMain.on("set-stored-preference", <T extends keyof Preferences>(_event: any, key: T, value: Preferences[T]) => {
+    preferencesStore.set(key, value);
+  });
 }

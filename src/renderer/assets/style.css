@@ -169,37 +169,11 @@ nav {
     align-items: center;
 }
 
-nav button {
-    background-color: transparent;
-    border: none;
-    aspect-ratio: -1;
-    box-shadow: none;
-    padding: 0;
-}
-
-nav button:not(:disabled):hover,
-nav button:not(:disabled):focus-visible {
-    background-color: transparent;
-}
-
-nav svg {
-    fill: var(--fore-color);
-    transition: fill 250ms;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-}
-
 nav hr {
     border: 2px solid var(--input-color);
     border-radius: 4px;
     width: 100%;
     margin: 4px 0;
-}
-
-nav button:not(:disabled):hover > svg,
-nav button:not(:disabled):focus-visible> svg {
-    fill: var(--primary-color);
 }
 
 .settings-button:hover svg,
@@ -537,14 +511,41 @@ button[action="destructive"] {
 }
 
 button svg {
-    min-height: 2em;
-    min-width: 2em;
+    width: 100%;
+    height: 100%;
+}
+
+button.primary svg {
     fill: white;
 }
 
 button[action="destructive"] svg {
     fill: var(--input-invalid-color);
     transition: fill 250ms;
+}
+
+button.svg-button {
+    background-color: transparent;
+    border: none;
+    aspect-ratio: -1;
+    box-shadow: none;
+    padding: 0;
+}
+
+button.svg-button:not(:disabled):hover,
+button.svg-button:not(:disabled):focus-visible {
+    background-color: transparent;
+}
+
+button.svg-button svg {
+    fill: var(--fore-color);
+    transition: fill 250ms;
+    inset: 0;
+}
+
+button.svg-button:not(:disabled):hover > svg,
+button.svg-button:not(:disabled):focus-visible > svg {
+    fill: var(--primary-color);
 }
 
 button:focus-visible, 

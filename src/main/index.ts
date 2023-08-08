@@ -43,6 +43,7 @@ const createWindow = () => {
         autoHideMenuBar: true,
         center: true,
         frame: false,
+        show: false,
         titleBarStyle: 'hidden',
         titleBarOverlay: {
           color: '#984ae2',
@@ -57,6 +58,10 @@ const createWindow = () => {
     
     win.maximize();
     loadHtml(win, "index");
+
+    win.once("ready-to-show", () => {
+      win.show();
+    });
 
     win.on('close', (event: any) => {
         if(win.quitting) {

@@ -1,4 +1,4 @@
-import { app, BrowserWindow, Menu, nativeImage, Tray, ipcMain } from 'electron'
+import { app, BrowserWindow, Menu, nativeImage, Tray, ipcMain, nativeTheme } from 'electron'
 import { is } from '@electron-toolkit/utils'
 import { join } from "path"
 import { Preferences, preferencesStore } from '../common/preferences';
@@ -179,5 +179,10 @@ function registerIpcEvents() {
   
   ipcMain.on("set-stored-preference", <T extends keyof Preferences>(_event: any, key: T, value: Preferences[T]) => {
     preferencesStore.set(key, value);
+  });
+
+  // Themes
+  ipcMain.on("set-color-scheme", (_event: any, theme: "system" | "light" | "dark") => {
+    nativeTheme.themeSource = theme;
   });
 }

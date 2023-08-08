@@ -34,24 +34,7 @@ async function setAppName() {
 
 async function setAppTheme() {
   const theme = preferencesStore.get("theme");
-  document.documentElement.setAttribute("data-color-scheme", "system");
-
-  function setColorScheme(isDark: boolean) {
-    document.documentElement.setAttribute("data-color-scheme", isDark ? "dark" : "light");
-  }
-
-  function colorSchemePreferenceChange(e: MediaQueryListEvent) {
-    if(preferencesStore.get("theme") === "system")
-      setColorScheme(e.matches);
-  }
-
-  const colorSchemeMedia = window.matchMedia("(prefers-color-scheme: dark)");
-  colorSchemeMedia.addEventListener("change", colorSchemePreferenceChange);
-
-  if(theme === "system")
-    setColorScheme(colorSchemeMedia.matches);
-  else
-    setColorScheme(theme === "dark");
+  ipcRenderer.send("set-color-scheme", theme);
 }
 
 window.addEventListener('DOMContentLoaded', () => {

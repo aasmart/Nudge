@@ -1,5 +1,13 @@
 import { ipcRenderer, contextBridge } from "electron"
-import { Preferences, preferencesStore } from "../common/preferences";
+import { Preferences, Theme, preferencesStore } from "../common/preferences";
+
+const PreferencesAPI = {
+  get: <T extends keyof Preferences>(key: T): Promise<Preferences[T]> => ipcRenderer.invoke("preferences:get", key),
+  set: <T extends keyof Preferences>(key: T, value: Preferences[T]) => ipcRenderer.send("preferences:set", key, value),
+  addChangeListener: <T extends keyof Preferences>(key: T, consumer: (valueNew: Preferences[T], valueOld: Preferences[T] | undefined) => void) => { 
+    ipcRenderer.on(`preferences:change:${key}`, (_event, valueNew, valueOld) => consumer(valueNew, valueOld));
+  },
+}
 
 export const API = {
   showWindow: (win: string) => ipcRenderer.send('show-window', win),
@@ -7,8 +15,8 @@ export const API = {
   showModal: (params: ModalParams) => ipcRenderer.send("show-modal", params),
   hideModal: () => ipcRenderer.send("hide-modal"),
   getModalParams: (): Promise<ModalParams> => ipcRenderer.invoke("get-modal-params"),
-  getStoredPreference: <T extends keyof Preferences>(key: T): Promise<Preferences[T]> => ipcRenderer.invoke("get-stored-preference", key),
-  setStoredPreference: <T extends keyof Preferences>(key: T, value: Preferences[T]) => ipcRenderer.send("set-stored-preference", key, value)
+  preferences: PreferencesAPI,
+  setTheme: (theme: Theme) => ipcRenderer.send("set-color-scheme", theme)
 }
 
 contextBridge.exposeInMainWorld('api', API);

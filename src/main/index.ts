@@ -1,7 +1,7 @@
 import { app, BrowserWindow, Menu, nativeImage, Tray, ipcMain, nativeTheme } from 'electron'
 import { is } from '@electron-toolkit/utils'
 import { join } from "path"
-import { Preferences, preferencesStore } from '../common/preferences';
+import { Preferences, Theme, preferencesStore } from '../common/preferences';
 
 let tray: any = null;
 let win: any = null;
@@ -173,16 +173,22 @@ function registerIpcEvents() {
       modal.hide();
   });
   
-  ipcMain.handle("get-stored-preference", (_event: any, key: keyof Preferences) => {
+  ipcMain.handle("preferences:get", (_event: any, key: keyof Preferences) => {
     return preferencesStore.get(key);
   });
   
-  ipcMain.on("set-stored-preference", <T extends keyof Preferences>(_event: any, key: T, value: Preferences[T]) => {
+  ipcMain.on("preferences:set", <T extends keyof Preferences>(_event: any, key: T, value: Preferences[T]) => {
     preferencesStore.set(key, value);
   });
 
+  Object.keys(preferencesStore.store).forEach(key => {
+    preferencesStore.onDidChange(<keyof Preferences>key, (valueNew, valueOld) => {
+      win.webContents.send(`preferences:change:${key}`, valueNew, valueOld)
+    })
+  })
+
   // Themes
-  ipcMain.on("set-color-scheme", (_event: any, theme: "system" | "light" | "dark") => {
+  ipcMain.on("set-color-scheme", (_event: any, theme: Theme) => {
     nativeTheme.themeSource = theme;
   });
 }

@@ -1,7 +1,9 @@
 import Store, { Schema } from "electron-store";
 
+export type Theme = "system" | "light" | "dark";
+
 export interface Preferences {
-    theme: string
+    theme: Theme,
 }
 
 const preferencesSchema: Schema<Preferences> = {

@@ -1,4 +1,4 @@
-import { Preferences, Theme } from "../../common/preferences";
+import { Preferences } from "../../common/preferences";
 import { Reminders } from "../../common/reminder";
 
 function initSettings() {
@@ -11,15 +11,15 @@ function initSettings() {
             const type = input.getAttribute("type");
             const storeId = (element.getAttribute("data-store-id") ?? groupStoreId ?? "") as keyof Preferences;
 
-            const storedValue = await window.api.preferences.get(storeId);
+            const storedValue = await window.api.preferences.get(storeId) as Preferences[keyof Preferences];
 
             switch(type) {
                 case "radio":
-                    const value = input.getAttribute("value") as Theme;
+                    const value = input.getAttribute("value") as Preferences[keyof Preferences];
                     input.toggleAttribute("checked", value === storedValue);     
                     
                     input.addEventListener("change", () => {
-                        window.api.preferences.set(storeId, value ?? "system");
+                        window.api.preferences.set(storeId, value ?? "");
                     });
                     break;
             }
@@ -42,5 +42,5 @@ window.addEventListener("load", async () => {
     
     window.api.preferences.addChangeListener("theme", value => {
         window.api.setTheme(value);
-    })
+    });
 });

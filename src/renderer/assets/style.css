@@ -650,7 +650,28 @@ fieldset {
 }
 
 input[type="radio"] {
+    --outline-offset: .15rem;
+    /* Fallback */
     accent-color: var(--primary-color);
+
+    width: 1em; 
+    height: 1em;
+    margin: var(--outline-offset);
+
+    appearance: none;
+    background-color: transparent;
+    border-radius: 50%;
+    outline: .15em solid var(--popup-accent-color);
+    outline-offset: var(--outline-offset);
+    box-shadow: none;
+}
+
+input[type="radio"]:not(:checked):where(:hover, :focus-visible) {
+    outline-color: var(--primary-color);
+}
+
+input[type="radio"]:checked {
+    background-color: var(--primary-color);
 }
 
 /* Select menu */

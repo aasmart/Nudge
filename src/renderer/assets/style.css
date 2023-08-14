@@ -473,15 +473,6 @@ input:disabled {
     opacity: 0.5;
 }
 
-label:has(
-    +input:required, 
-    +select:required,
-    +textarea:required
-)::after {
-    content: ' *';
-    color: var(--input-invalid-color);
-}
-
 button {
     padding: 20px;
     border-radius: 10px;
@@ -645,18 +636,27 @@ input[type="checkbox"]:checked + label::after {
     left: calc(-1 * (var(--checkbox-width) + var(--checkbox-margin)) + (var(--checkbox-width)) * 0.5);
 }
 
+label:has(
+    +input:required, 
+    +select:required,
+    +textarea:required
+)::after {
+    content: ' *';
+    color: var(--input-invalid-color);
+}
+
 fieldset {
     border: none;
 }
 
 input[type="radio"] {
-    --outline-offset: .15rem;
+    --outline-offset: .15em;
     /* Fallback */
     accent-color: var(--primary-color);
 
     width: 1em; 
     height: 1em;
-    margin: var(--outline-offset);
+    margin: calc(0.25em + var(--outline-offset));
 
     appearance: none;
     background-color: transparent;
@@ -672,6 +672,13 @@ input[type="radio"]:not(:checked):where(:hover, :focus-visible) {
 
 input[type="radio"]:checked {
     background-color: var(--primary-color);
+}
+
+label:has(input[type="radio"]) {
+    display: inline-flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
 }
 
 /* Select menu */
@@ -845,4 +852,32 @@ dialog::backdrop {
 #modal-button {
     flex: 1;
     width: 100%;
+}
+
+/* ==================================
+UTILITY CLASSES
+================================== */
+
+.centered {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.flex-row {
+    display: flex;
+    flex-direction: row;
+}
+
+.flex-column {
+    display: flex;
+    flex-direction: column;
+}
+
+.centered-content {
+    justify-content: center;
+}
+
+.centered-items {
+    align-items: center;
 }

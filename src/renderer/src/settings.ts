@@ -37,6 +37,7 @@ function initBack() {
 }
 
 window.addEventListener("load", async () => {
+    document.documentElement.style.setProperty("--sidebar-width", "15em");
     initSettings();
     initBack();
     

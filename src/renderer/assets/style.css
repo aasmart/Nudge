@@ -166,6 +166,8 @@ nav {
     display: flex;
     flex-direction: column;
     align-items: center;
+
+    /* transition: width 250ms; */
 }
 
 nav hr {
@@ -194,7 +196,7 @@ nav hr {
     }
 }
 
-.nudge-categories {
+.nav__list {
     flex: 1;
     width: 100%;
     margin: 0;

@@ -31,6 +31,10 @@
     --sidebar-width: 3.5rem;
 }
 
+:root:not(:has(nav)) {
+    --sidebar-width: 0;
+}
+
 ::backdrop {
     --header-height: env(titlebar-area-height, var(--header-fallback-height));
 }

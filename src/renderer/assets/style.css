@@ -103,6 +103,7 @@ main {
     margin: auto;
     margin-left: var(--sidebar-width);
     height: calc(100dvh - env(titlebar-area-height, var(--header-fallback-height)));
+    padding: 1rem;
     overflow: auto;
 }
 
@@ -650,6 +651,7 @@ label:has(
 
 fieldset {
     border: none;
+    padding: 0;
 }
 
 input[type="radio"] {

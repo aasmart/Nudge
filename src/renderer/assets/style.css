@@ -187,6 +187,15 @@ nav hr {
     visibility: hidden;
 }
 
+.settings-tab-anchor {
+    color: var(--fore-color);
+    text-decoration: none;
+}
+
+.settings-tab-anchor:visited {
+    color: inherit;
+}
+
 @keyframes gear-spin {
     0% {
         transform: rotateZ(0deg);

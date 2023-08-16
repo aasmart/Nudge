@@ -24,7 +24,7 @@
 
     <nav>
         <ul class="nav__list">
-            
+            <li><a href="" class="settings-tab-anchor" data-settings-tab-id="appearance">Appearance</a></li>
         </ul>
         <hr/>
         <button class="back-button svg-button" title="Return home">
@@ -35,22 +35,24 @@
     </nav>
 
     <main class="preload">
-        <fieldset data-store-id="theme">
-            <legend><strong>Theme</strong></legend>
+        <div class="settings-tab" data-settings-tab-id="appearance" visible="false">
+            <fieldset data-store-id="theme">
+                <legend><strong>Theme</strong></legend>
 
-            <label for="theme-system">
-                <input type="radio" id="theme-system" name="theme" value="system">
-                System Default
-            </label>
-            <label for="theme-light">
-                <input type="radio" id="theme-light" name="theme" value="light">
-                Light
-            </label>
-            <label for="theme-dark">
-                <input type="radio" id="theme-dark" name="theme" value="dark">
-                Dark
-            </label>
-        </fieldset>
+                <label for="theme-system">
+                    <input type="radio" id="theme-system" name="theme" value="system">
+                    System Default
+                </label>
+                <label for="theme-light">
+                    <input type="radio" id="theme-light" name="theme" value="light">
+                    Light
+                </label>
+                <label for="theme-dark">
+                    <input type="radio" id="theme-dark" name="theme" value="dark">
+                    Dark
+                </label>
+            </fieldset>
+        </div>
     </main>
 
     <script type="module" src="./src/settings.ts"></script>

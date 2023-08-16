@@ -183,6 +183,10 @@ nav hr {
     animation: gear-spin 2000ms infinite forwards;
 }
 
+.settings-tab[visible="false"] {
+    visibility: hidden;
+}
+
 @keyframes gear-spin {
     0% {
         transform: rotateZ(0deg);
@@ -203,6 +207,14 @@ nav hr {
     margin: 0;
     padding: 0;
     list-style: none;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.nav__list li {
+    font-size: 1.25rem;
 }
 
 /* ==================================

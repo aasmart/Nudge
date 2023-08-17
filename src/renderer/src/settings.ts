@@ -2,14 +2,14 @@ import { Preferences } from "../../common/preferences";
 import { Reminders } from "../../common/reminder";
 
 function initTabs() {
-    const tabs = document.getElementsByClassName("settings-tab");
+    const tabs = Array.from(document.getElementsByClassName("settings-tab"));
     const radios = <HTMLCollectionOf<HTMLInputElement>>document.getElementsByClassName("settings-tab-radio");
 
     Array.from(radios).forEach(radio => {
         const radioTabId = radio.getAttribute("value");
 
         radio.addEventListener("change", () => {
-            Array.from(tabs).forEach(element => {
+            tabs.forEach(element => {
                 element.setAttribute("visible", `${radioTabId === element.id}`)
             });
         });

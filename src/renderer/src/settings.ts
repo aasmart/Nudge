@@ -1,26 +1,16 @@
 import { Preferences } from "../../common/preferences";
 import { Reminders } from "../../common/reminder";
 
-const DEFAULT_TAB_ID = "appearance";
-
 function initTabs() {
     const tabs = document.getElementsByClassName("settings-tab");
-    const anchors = document.getElementsByClassName("settings-tab-anchor");
+    const radios = <HTMLCollectionOf<HTMLInputElement>>document.getElementsByClassName("settings-tab-radio");
 
-    Array.from(tabs).forEach(tab => {
-        const tabTabId = tab.getAttribute("data-settings-tab-id");
-        tab.setAttribute("visible", `${DEFAULT_TAB_ID === tabTabId}`);
-    });
+    Array.from(radios).forEach(radio => {
+        const radioTabId = radio.getAttribute("value");
 
-    Array.from(anchors).forEach(anchor => {
-        anchor.addEventListener("click", e => {
-            e.preventDefault();
-
-            const tabId = anchor.getAttribute("data-settings-tab-id");
-
-            Array.from(tabs).forEach(tab => {
-                const tabTabId = tab.getAttribute("data-settings-tab-id");
-                tab.setAttribute("visible", `${tabId === tabTabId}`);
+        radio.addEventListener("change", () => {
+            Array.from(tabs).forEach(element => {
+                element.setAttribute("visible", `${radioTabId === element.id}`)
             });
         });
     });

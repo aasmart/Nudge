@@ -24,7 +24,18 @@
 
     <nav>
         <ul class="nav__list">
-            <li><a href="" class="settings-tab-anchor" data-settings-tab-id="appearance">Appearance</a></li>
+            <li>
+                <fieldset>
+                    <label for="settings-tab-appearance">
+                        <input type="radio" id="settings-tab-appearance" class="settings-tab-radio" name="settings-tab" value="settings-appearance">
+                        <span>Appearance</span>
+                    </label>
+                    <label>
+                        <input type="radio" id="settings-tab-test" class="settings-tab-radio" name="settings-tab" value="test">
+                        <span>Test</span>
+                    </label>
+                </fieldset>
+            </li>
         </ul>
         <hr/>
         <button class="back-button svg-button" title="Return home">
@@ -35,7 +46,7 @@
     </nav>
 
     <main class="preload">
-        <div class="settings-tab" data-settings-tab-id="appearance" visible="false">
+        <div class="settings-tab" id="settings-appearance" visible="false">
             <fieldset data-store-id="theme">
                 <legend><strong>Theme</strong></legend>
 

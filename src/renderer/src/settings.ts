@@ -3,10 +3,19 @@ import { Reminders } from "../../common/reminder";
 
 function initTabs() {
     const tabs = Array.from(document.getElementsByClassName("settings-tab"));
-    const radios = Array.from(document.getElementsByClassName("settings-tab-radio"));
+    const radios = Array.from(document.getElementsByClassName("settings-tab-radio")) as HTMLInputElement[];
 
-    radios.forEach(radio => {
+    radios.forEach((radio, index) => {
         const radioTabId = radio.getAttribute("value");
+
+        // Make sure the settings always return to the default thing
+        if(index === 0) {
+            radio.checked = true;
+            tabs.forEach(element => {
+                element.setAttribute("visible", `${radioTabId === element.id}`)
+            });
+        } else
+            radio.checked = false;
 
         radio.addEventListener("change", () => {
             tabs.forEach(element => {

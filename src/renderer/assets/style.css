@@ -212,7 +212,8 @@ nav hr {
     }
 }
 
-.nav__list {
+.nav__list,
+.nav__items-container {
     flex: 1;
     width: 100%;
     margin: 0;
@@ -229,38 +230,41 @@ nav hr {
     font-size: 1.25rem;
 }
 
-.nav__list label {
+nav label {
     width: 100%;
     cursor: pointer;
 }
 
-.nav__list label:hover span {
+nav label:hover span {
     background-color: var(--settings-radio-hover);
 }
 
-.nav__list span {
+nav span {
     width: 100%;
     border-radius: 0.15em;
     padding: 0.1em;
+
+    font-size: 1.25rem;
 }
 
-.nav__list label input[type="radio"] {
+nav label input[type="radio"] {
     opacity: 0;
     position: absolute;
 }
 
-.nav__list label input[type="radio"]:focus-visible + span {
+nav label input[type="radio"]:focus-visible + span {
     outline: var(--focus-visible-outline);
 }
 
-.nav__list label input[type="radio"]:checked + span {
+nav label input[type="radio"]:checked + span {
     background-color: var(--select-options-color);
 }
 
-.nav__list fieldset {
+nav fieldset {
     display: flex;
     flex-direction: column;
     gap: 0.25em;
+    width: 100%;
 }
 
 /* ==================================

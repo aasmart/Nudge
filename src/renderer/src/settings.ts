@@ -3,9 +3,9 @@ import { Reminders } from "../../common/reminder";
 
 function initTabs() {
     const tabs = Array.from(document.getElementsByClassName("settings-tab"));
-    const radios = <HTMLCollectionOf<HTMLInputElement>>document.getElementsByClassName("settings-tab-radio");
+    const radios = Array.from(document.getElementsByClassName("settings-tab-radio"));
 
-    Array.from(radios).forEach(radio => {
+    radios.forEach(radio => {
         const radioTabId = radio.getAttribute("value");
 
         radio.addEventListener("change", () => {
@@ -39,7 +39,6 @@ function initSettings() {
                     break;
             }
         });
-        //preferencesStore.get(storeId)
     });
 }
 

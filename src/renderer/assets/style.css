@@ -201,16 +201,16 @@ nav hr {
     padding: 0.5rem;
 }
 
-nav label {
+.settings-nav label {
     width: 100%;
     cursor: pointer;
 }
 
-nav label:hover span {
+.settings-nav label:hover span {
     background-color: var(--settings-radio-hover);
 }
 
-nav span {
+.settings-nav span {
     width: 100%;
     border-radius: 4px;
     padding: 0.1em;
@@ -218,21 +218,21 @@ nav span {
     font-size: 1.25rem;
 }
 
-nav label input[type="radio"] {
+.settings-nav label input[type="radio"] {
     opacity: 0;
     position: absolute;
     z-index: -1;
 }
 
-nav label input[type="radio"]:focus-visible + span {
+.settings-nav label input[type="radio"]:focus-visible + span {
     outline: var(--focus-visible-outline);
 }
 
-nav label input[type="radio"]:checked + span {
+.settings-nav label input[type="radio"]:checked + span {
     background-color: var(--select-options-color);
 }
 
-nav fieldset {
+.settings-nav {
     display: flex;
     flex-direction: column;
     gap: 0.25em;

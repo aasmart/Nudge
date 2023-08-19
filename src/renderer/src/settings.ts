@@ -51,19 +51,10 @@ function initSettings() {
     });
 }
 
-function initBack() {
-    const backButton = <HTMLButtonElement>document.getElementsByClassName("back-button")[0];
-    backButton.addEventListener("click", () => {
-        Reminders.saveActiveReminders();
-        window.api.openPage('index');
-    })
-}
-
 window.addEventListener("load", async () => {
-    document.documentElement.style.setProperty("--sidebar-width", "15em");
+    document.documentElement.style.setProperty("--nav-foldout-width", "12em");
     initSettings();
     initTabs();
-    initBack();
     
     window.api.preferences.addChangeListener("theme", value => {
         window.api.setTheme(value);

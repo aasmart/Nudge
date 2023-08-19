@@ -8,6 +8,8 @@
     --fore-color: #000000;
     --reminder-list-bg-color: #e8e8e8;
     --input-color: #ffffff;
+    --sidebar-color: #ebebeb;
+    --nav-foldout-color: #ffffff;
     
     --reminder-bg-color: #ffffff;
     --outline-buttton-color: #ffffff;
@@ -29,11 +31,13 @@
     --input-font-size: 1.25rem;
     --input-char-size: 40ch;
 
-    --sidebar-width: 3.5rem;
+    --nav-sidebar-width: 4rem;
+    --nav-foldout-width: 0;
+    --nav-width: calc(var(--nav-sidebar-width) + var(--nav-foldout-width));
 }
 
 :root:not(:has(nav)) {
-    --sidebar-width: 0;
+    --nav-width: 0;
 }
 
 ::backdrop {
@@ -56,6 +60,8 @@
         --select-options-color: #4A4848;
         --focus-visible-color: #FFEBCD;
         --settings-radio-hover: rgba(175, 175, 175, 0.1);
+        --sidebar-color: #0e0e0e;
+        --nav-foldout-color: #242424;
         color-scheme: dark;
     }
     
@@ -103,7 +109,7 @@ body {
 
 main {
     margin: auto;
-    margin-left: var(--sidebar-width);
+    margin-left: var(--nav-width);
     height: calc(100dvh - env(titlebar-area-height, var(--header-fallback-height)));
     padding: 1rem;
     overflow: auto;
@@ -160,17 +166,13 @@ nav {
     position: absolute;
     left: 0;
     height: calc(100% - env(titlebar-area-height, var(--header-fallback-height)));
-    width: var(--sidebar-width);
-    padding: 4px;
+    width: var(--nav-width);
+    isolation: isolate;
 
-    background-color: var(--bg-color-end);
+    display: grid;
+    grid-template-columns: var(--nav-sidebar-width) var(--nav-foldout-width);
+
     box-shadow: 0px 0 10px 5px rgba(0,0,0,0.4);
-
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-
-    /* transition: width 250ms; */
 }
 
 nav hr {
@@ -180,54 +182,23 @@ nav hr {
     margin: 4px 0;
 }
 
-.settings-button:hover svg,
-.settings-button:focus-visible svg {
-    animation: gear-spin 2000ms infinite forwards;
-}
-
-.settings-tab[visible="false"] {
-    visibility: hidden;
-}
-
-.settings-tab-anchor {
-    color: var(--fore-color);
-    text-decoration: none;
-}
-
-.settings-tab-anchor:visited {
-    color: inherit;
-}
-
-@keyframes gear-spin {
-    0% {
-        transform: rotateZ(0deg);
-    }
-
-    80% {
-        transform: rotateZ(360deg);
-    }
-
-    100% {
-        transform: rotateZ(360deg);
-    }
-}
-
-.nav__list,
-.nav__items-container {
-    flex: 1;
-    width: 100%;
-    margin: 0;
-    padding: 0.1em;
-    list-style: none;
-
+.nav__sidebar {
     display: flex;
     flex-direction: column;
     align-items: center;
+
+    width: 100%;
+    z-index: 1;
+    padding: 0.5rem;
+
+    background-color: var(--sidebar-color);
+    box-shadow: 0px 0 10px 0px rgba(0,0,0,0.4);
 }
 
-.nav__list li {
+.nav__foldout {
     width: 100%;
-    font-size: 1.25rem;
+    background-color: var(--nav-foldout-color);
+    padding: 0.5rem;
 }
 
 nav label {
@@ -241,7 +212,7 @@ nav label:hover span {
 
 nav span {
     width: 100%;
-    border-radius: 0.15em;
+    border-radius: 4px;
     padding: 0.1em;
 
     font-size: 1.25rem;
@@ -266,6 +237,30 @@ nav fieldset {
     flex-direction: column;
     gap: 0.25em;
     width: 100%;
+    margin: 0;
+}
+
+.settings-button:hover svg,
+.settings-button:focus-visible svg {
+    animation: gear-spin 2000ms infinite forwards;
+}
+
+.settings-tab[visible="false"] {
+    visibility: hidden;
+}
+
+@keyframes gear-spin {
+    0% {
+        transform: rotateZ(0deg);
+    }
+
+    80% {
+        transform: rotateZ(360deg);
+    }
+
+    100% {
+        transform: rotateZ(360deg);
+    }
 }
 
 /* ==================================
@@ -944,3 +939,18 @@ UTILITY CLASSES
     display: flex;
     justify-content: center;
 }
+
+.material-icons {
+    font-family: 'Material Icons';
+    font-weight: normal;
+    font-style: normal;
+    font-size: 24px;  /* Preferred icon size */
+    display: inline-block;
+    line-height: 1;
+    text-transform: none;
+    letter-spacing: normal;
+    word-wrap: normal;
+    white-space: nowrap;
+    direction: ltr;
+  }
+  

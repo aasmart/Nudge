@@ -144,14 +144,6 @@ function loadReminderListPage() {
     window.dispatchEvent(new Event('update-reminder-list'));
 }
 
-function initSettings() {
-    const settingsButton = <HTMLButtonElement>document.getElementsByClassName("settings-button")[0];
-    settingsButton.addEventListener("click", () => {
-        Reminders.saveActiveReminders()
-        window.api.openPage('settings')
-    });
-}
-
 window.onload = async () => {
     deleteSvg = await fetchSvgOrAsImage(deleteSvgPath);
     editSvg = await fetchSvgOrAsImage(editSvgPath);
@@ -159,8 +151,9 @@ window.onload = async () => {
     playSvg = await fetchSvgOrAsImage(playSvgPath);
     notifcationSvg = await fetchSvgOrAsImage(notificationSvgPath);
 
+    document.documentElement.style.setProperty("--nav-foldout-width", "4em");
+
     Reminders.loadActiveReminders()
     loadReminderListPage()
-    initSettings();
     setTimeout(Preloads.clearPreloads, 1)
 }

@@ -744,6 +744,35 @@ label:has(input[type="radio"]) {
     justify-content: center;
 }
 
+label.svg-radio {
+   cursor: pointer; 
+}
+
+label.svg-radio:hover svg {
+    background-color: var(--input-color);
+}
+
+label.svg-radio input:focus-visible +    svg {
+    outline: var(--focus-visible-outline);
+}
+
+label.svg-radio input {
+    opacity: 0;
+    position: absolute;
+    z-index: -1;
+}
+
+label.svg-radio input:checked + svg {
+    background-color: var(--primary-color);
+}
+
+label.svg-radio svg {
+    fill: var(--fore-color);
+    border-radius: 4px;
+
+    transition: background-color 150ms;
+}
+
 /* Select menu */
 
 .combobox-wrapper {

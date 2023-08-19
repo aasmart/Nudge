@@ -1,26 +1,24 @@
-import { Reminders } from "../../common/reminder";
 
-function initHomeButton() {
-    const homeButtons = Array.from(document.getElementsByClassName("home-button"));
-    homeButtons.forEach(button => {
-        button.addEventListener("click", () => {
-            Reminders.saveActiveReminders()
-            window.api.openPage('index')
-        });
-    });
-}
+function initNav() {
+    const radios = Array.from(document.getElementsByClassName("nav__app-tab")) as HTMLInputElement[];
 
-function initSettingsButton() {
-    const settingsButtons = Array.from(document.getElementsByClassName("settings-button"));
-    settingsButtons.forEach(button => {
-        button.addEventListener("click", () => {
-            Reminders.saveActiveReminders()
-            window.api.openPage('settings')
-        });
+    radios.forEach((radio) => {
+        const radioAppTabId = radio.getAttribute("value");
+
+        const location = window.location.href.split("/").pop();
+        const isPageRadio = location?.startsWith(radioAppTabId || "") ?? false;
+        radio.checked = isPageRadio;
+        if(isPageRadio)
+            radio.focus();
+
+        if(radioAppTabId?.length ?? 0 > 0) {
+            radio.addEventListener("change", () => {
+                window.api.openPage(`${radioAppTabId}`);
+            });
+        }
     });
 }
 
 window.addEventListener("load", () => {
-    initSettingsButton();
-    initHomeButton();
+    initNav();
 })

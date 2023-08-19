@@ -1,5 +1,4 @@
 import { Preferences } from "../../common/preferences";
-import { Reminders } from "../../common/reminder";
 
 function initTabs() {
     const tabs = Array.from(document.getElementsByClassName("settings-tab"));

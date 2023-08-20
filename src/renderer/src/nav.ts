@@ -1,5 +1,6 @@
 
 function initNav() {
+    const body = document.getElementsByTagName("body")[0];
     const radios = Array.from(document.getElementsByClassName("nav__app-tab")) as HTMLInputElement[];
 
     radios.forEach((radio) => {
@@ -9,7 +10,7 @@ function initNav() {
         const isPageRadio = location?.startsWith(radioAppTabId || "") ?? false;
         radio.checked = isPageRadio;
         if(isPageRadio)
-            radio.focus();
+            body.addEventListener("clearPreload", () => { radio.focus(); });
 
         if(radioAppTabId?.length ?? 0 > 0) {
             radio.addEventListener("change", () => {

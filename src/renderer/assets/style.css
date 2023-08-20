@@ -119,6 +119,7 @@ main {
 .preload *::after,
 .preload *::before {
     transition: none !important;
+    visibility: hidden !important;
 }
 
 .titlebar {

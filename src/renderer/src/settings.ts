@@ -1,4 +1,5 @@
 import { Preferences } from "../../common/preferences";
+import { Preloads } from "../../common/preloads";
 
 function initTabs() {
     const tabs = Array.from(document.getElementsByClassName("settings-tab"));
@@ -58,4 +59,6 @@ window.addEventListener("load", async () => {
     window.api.preferences.addChangeListener("theme", value => {
         window.api.setTheme(value);
     });
+
+    setTimeout(Preloads.clearPreloads, 1);
 });

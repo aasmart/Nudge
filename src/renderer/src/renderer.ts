@@ -155,5 +155,5 @@ window.onload = async () => {
 
     Reminders.loadActiveReminders()
     loadReminderListPage()
-    setTimeout(Preloads.clearPreloads, 1)
+    setTimeout(Preloads.clearPreloads, 1);
 }

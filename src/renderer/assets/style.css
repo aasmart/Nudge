@@ -91,6 +91,10 @@
     .settings-button:focus-visible svg {
         animation-duration: 5000ms;
     }
+
+    label.radio input[type="radio"]:checked + span::after {
+        transition: none;
+    }
 }
 
 *, *::before, *::after {
@@ -713,25 +717,72 @@ fieldset {
     padding: 0;
 }
 
-input[type="radio"] {
-    --outline-offset: .15em;
-    /* Fallback */
-    accent-color: var(--primary-color);
+/* RADIO BUTTONS */
 
-    width: 1em; 
-    height: 1em;
-    margin: calc(0.25em + var(--outline-offset));
+label.radio {
+    --radio-size: 1.75em;
+    --inner-size-ratio: 0.6;
 
-    appearance: none;
-    background-color: transparent;
-    border-radius: 50%;
-    outline: .15em solid var(--popup-accent-color);
-    outline-offset: var(--outline-offset);
-    box-shadow: none;
+    cursor: pointer;
+
+    display: inline-block;
+    position: relative;
+    margin: calc(0.5 * var(--radio-size)) 0;
+    padding-right: 0.35em;
 }
 
-input[type="radio"]:not(:checked):where(:hover, :focus-visible) {
-    outline-color: var(--primary-color);
+label.radio input[type="radio"] {
+    /* Fallback */
+    accent-color: var(--primary-color);
+    appearance: none;
+
+    position: absolute;
+    z-index: -1;
+    opacity: 0;
+}
+
+label.radio input[type="radio"] + span {
+    margin-left: calc(var(--radio-size) + .25em);
+}
+
+label.radio input[type="radio"] + span::before {
+    content: "";
+
+    display: block;
+    position: absolute;
+    margin: auto;
+    inset: 0 100% 0 0;
+    width: var(--radio-size);
+    height: var(--radio-size);
+
+    border-radius: 50%;
+    border: 0.2em solid var(--popup-accent-color)
+}
+
+label.radio input[type="radio"] + span::after {
+    content: "";
+
+    display: block;
+    position: absolute;
+    margin: auto;
+    inset: 0 calc(100% - var(--radio-size)) 0 0;
+    width: calc(var(--inner-size-ratio) * var(--radio-size));
+    height: calc(var(--inner-size-ratio) * var(--radio-size));
+
+    border-radius: 50%;
+    background-color: var(--primary-color);
+    opacity: 0;
+    scale: 0;
+}
+
+label.radio input[type="radio"]:checked + span::after {
+    opacity: 1;
+    scale: 1;
+    transition: opacity 100ms, scale 100ms;
+}
+
+label.radio input[type="radio"]:focus-visible + span::before {
+    outline: var(--focus-visible-outline);
 }
 
 input[type="radio"]:checked {
@@ -744,6 +795,8 @@ label:has(input[type="radio"]) {
     align-items: center;
     justify-content: center;
 }
+
+/* Svg Radio Button */
 
 label.svg-radio {
    cursor: pointer; 

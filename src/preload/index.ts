@@ -1,4 +1,13 @@
 import { ipcRenderer, contextBridge } from "electron"
+import { Preferences, Theme, preferencesStore } from "../common/preferences";
+
+const PreferencesAPI = {
+  get: <T extends keyof Preferences>(key: T): Promise<Preferences[T]> => ipcRenderer.invoke("preferences:get", key),
+  set: <T extends keyof Preferences>(key: T, value: Preferences[T]) => ipcRenderer.send("preferences:set", key, value),
+  addChangeListener: <T extends keyof Preferences>(key: T, consumer: (valueNew: Preferences[T], valueOld: Preferences[T] | undefined) => void) => { 
+    ipcRenderer.on(`preferences:change:${key}`, (_event, valueNew, valueOld) => consumer(valueNew, valueOld));
+  },
+}
 
 export const API = {
   showWindow: (win: string) => ipcRenderer.send('show-window', win),
@@ -6,9 +15,11 @@ export const API = {
   showModal: (params: ModalParams) => ipcRenderer.send("show-modal", params),
   hideModal: () => ipcRenderer.send("hide-modal"),
   getModalParams: (): Promise<ModalParams> => ipcRenderer.invoke("get-modal-params"),
+  preferences: PreferencesAPI,
+  setTheme: (theme: Theme) => ipcRenderer.send("set-color-scheme", theme)
 }
 
-contextBridge.exposeInMainWorld('api', API)
+contextBridge.exposeInMainWorld('api', API);
 
 const replaceText = (selector: any, text: any) => {
   const elements = document.getElementsByClassName(selector) as HTMLCollectionOf<HTMLElement>
@@ -16,7 +27,7 @@ const replaceText = (selector: any, text: any) => {
   Array.from(elements).forEach(element => {
     if (element) 
       element.innerText = text
-  })
+  });
 }
 
 async function setAppName() {
@@ -29,10 +40,12 @@ async function setAppName() {
   replaceText('app-name', words.join(' ')) 
 }
 
-window.addEventListener('DOMContentLoaded', () => {
-    for (const dependency of ['chrome', 'node', 'electron']) {
-      replaceText(`${dependency}-version`, process.versions[dependency])
-    }
+async function setAppTheme() {
+  const theme = preferencesStore.get("theme");
+  ipcRenderer.send("set-color-scheme", theme);
+}
 
-    setAppName()
-})
+window.addEventListener('DOMContentLoaded', () => {
+    setAppTheme();
+    setAppName();
+});

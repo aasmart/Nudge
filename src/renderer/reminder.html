@@ -11,7 +11,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 </head>
-<body>
+<body class="preload">
     <header class="titlebar">
         <img src="./assets/icon.png">
         <p class="app-name"></p>
@@ -24,8 +24,29 @@
             <button formmethod="dialog">Close Popup</button>
         </form>
     </dialog>
+
+    <nav>
+        <div class="nav__sidebar">
+            <fieldset class="nav__app-fieldset">
+                <label class="svg-radio" for="home-radio" title="Home">
+                    <input type="radio" id="home-radio" class="nav__app-tab" name="app-nav" value="index">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="48" viewBox="0 -960 960 960" width="48"><path d="M160-120v-480l320-240 320 240v480H560v-280H400v280H160Z"/></svg>
+                </label>
+                <label class="svg-radio" for="reminder-radio" title="Create a Nudge">
+                    <input type="radio" id="reminder-radio" class="nav__app-tab" name="app-nav" value="reminder">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="48" viewBox="0 -960 960 960" width="48"><path d="M160-200v-60h80v-304q0-84 49.5-150.5T420-798v-22q0-25 17.5-42.5T480-880q25 0 42.5 17.5T540-820v22q81 17 130.5 83.5T720-564v304h80v60H160ZM480-80q-33 0-56.5-23.5T400-160h160q0 33-23.5 56.5T480-80Zm-30-288h60v-84h84v-60h-84v-84h-60v84h-84v60h84v84Z"/></svg>
+                </label>
+                <label class="svg-radio" for="settings-radio" title="Settings">
+                    <input type="radio" id="settings-radio" class="nav__app-tab" name="app-nav" value="settings">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="48" viewBox="0 -960 960 960" width="48">
+                        <path d="m388-80-20-126q-19-7-40-19t-37-25l-118 54-93-164 108-79q-2-9-2.5-20.5T185-480q0-9 .5-20.5T188-521L80-600l93-164 118 54q16-13 37-25t40-18l20-127h184l20 126q19 7 40.5 18.5T669-710l118-54 93 164-108 77q2 10 2.5 21.5t.5 21.5q0 10-.5 21t-2.5 21l108 78-93 164-118-54q-16 13-36.5 25.5T592-206L572-80H388Zm92-270q54 0 92-38t38-92q0-54-38-92t-92-38q-54 0-92 38t-38 92q0 54 38 92t92 38Z"/>
+                    </svg>
+                </label>
+            </fieldset>
+        </div>
+    </nav>
     
-    <main class="preload">
+    <main class="preload center-horizontal">
         <form action="" method="" class="reminder-form">
             <div title="The amount of time between each reminder">
                 <label for="reminder-interval-amount">Reminder Interval</label>
@@ -112,7 +133,7 @@
             </div>
 
             <div>
-                <button id="create-reminder" when-editing="Update Reminder" type="submit">Create Reminder</button>
+                <button id="create-reminder" class="primary" when-editing="Update Reminder" type="submit">Create Reminder</button>
                 <button id="cancel" action="destructive" type="reset">Cancel</button>
             </div>
             <p><span>*</span> = required</p>
@@ -120,5 +141,6 @@
     </main>
 
     <script type="module" src="./src/reminder.ts"></script>
+    <script type="module" src="./src/nav.ts"></script>
 </body>
 </html>

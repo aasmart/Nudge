@@ -61,6 +61,7 @@ function listReminders() {
 
         let editButton = document.createElement('button')
         editButton.append(editImg)
+        editButton.classList.add("primary");
         editButton.title = 'Edit reminder'
 
         editButton.addEventListener('click', () => {
@@ -82,6 +83,7 @@ function listReminders() {
 
         // Create the pause button
         let pauseButton = document.createElement('button')
+        pauseButton.classList.add("primary");
         pauseButton.setAttribute('aria-label', reminder.paused ? 'Unpause' : 'Pause')
         pauseButton.append(stateImage)
         pauseButton.title = reminder.paused ? 'Unpause reminder' : 'Pause reminder'
@@ -106,6 +108,7 @@ function listReminders() {
         const notifImg = notifcationSvg.cloneNode(true);
 
         let acknowledgeButton = document.createElement('button')
+        acknowledgeButton.classList.add("primary");
         acknowledgeButton.append(notifImg)
         acknowledgeButton.title = "Acknowledge ignored reminder"
         acknowledgeButton.classList.add("acknowledge");
@@ -129,16 +132,16 @@ function listReminders() {
 }
 
 function loadReminderListPage() {
-    const createNewReminder = document.getElementById("create-new-reminder") as HTMLButtonElement
+    const createNewReminder = <HTMLButtonElement>document.getElementById("create-new-reminder");
 
     createNewReminder.addEventListener('click', () => {
-        Reminders.saveActiveReminders()
-        window.api.openPage('reminder')
-    })
+        Reminders.saveActiveReminders();
+        window.api.openPage('reminder');
+    });
 
-    window.addEventListener('update-reminder-list', () => listReminders())
+    window.addEventListener('update-reminder-list', () => listReminders());
 
-    window.dispatchEvent(new Event('update-reminder-list'))
+    window.dispatchEvent(new Event('update-reminder-list'));
 }
 
 window.onload = async () => {
@@ -148,7 +151,9 @@ window.onload = async () => {
     playSvg = await fetchSvgOrAsImage(playSvgPath);
     notifcationSvg = await fetchSvgOrAsImage(notificationSvgPath);
 
+    // document.documentElement.style.setProperty("--nav-foldout-width", "4em");
+
     Reminders.loadActiveReminders()
     loadReminderListPage()
-    setTimeout(Preloads.clearPreloads, 1)
+    setTimeout(Preloads.clearPreloads, 1);
 }

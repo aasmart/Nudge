@@ -151,7 +151,7 @@ window.onload = async () => {
     playSvg = await fetchSvgOrAsImage(playSvgPath);
     notifcationSvg = await fetchSvgOrAsImage(notificationSvgPath);
 
-    document.documentElement.style.setProperty("--nav-foldout-width", "4em");
+    // document.documentElement.style.setProperty("--nav-foldout-width", "4em");
 
     Reminders.loadActiveReminders()
     loadReminderListPage()

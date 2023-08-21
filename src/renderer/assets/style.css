@@ -40,6 +40,14 @@
     --nav-width: 0;
 }
 
+:root:not(:has(.nav__foldout)) {
+    --nav-foldout-width: 0;
+}
+
+:root:not(:has(.nav__sidebar)) {
+    --nav-sidebar-width: 0;
+}
+
 ::backdrop {
     --header-height: env(titlebar-area-height, var(--header-fallback-height));
 }

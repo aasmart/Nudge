@@ -1,6 +1,7 @@
-import { app, BrowserWindow, Menu, nativeImage, Tray, ipcMain } from 'electron'
+import { app, BrowserWindow, Menu, nativeImage, Tray, ipcMain, nativeTheme } from 'electron'
 import { is } from '@electron-toolkit/utils'
 import { join } from "path"
+import { Preferences, Theme, preferencesStore } from '../common/preferences';
 
 let tray: any = null;
 let win: any = null;
@@ -42,9 +43,10 @@ const createWindow = () => {
         autoHideMenuBar: true,
         center: true,
         frame: false,
+        show: false,
         titleBarStyle: 'hidden',
         titleBarOverlay: {
-          color: '#984ae2',
+          color: '#ab66eb',
           symbolColor: '#ffffff',
         },
         webPreferences: {
@@ -57,6 +59,10 @@ const createWindow = () => {
     win.maximize();
     loadHtml(win, "index");
 
+    win.once("ready-to-show", () => {
+      win.show();
+    });
+
     win.on('close', (event: any) => {
         if(win.quitting) {
           win.quit() 
@@ -68,30 +74,11 @@ const createWindow = () => {
     });
 
     createModal();
-
-    ipcMain.on('open-page', (_event: any, name: any) => {
-      loadHtml(win, name);
-    })
-
-    ipcMain.on('show-window', (_event: any, name: any) => {
-      if(name === 'main') win.show()
-    })
-
-    ipcMain.handle('app-name', () => app.getName())
-
-    ipcMain.on("show-modal", (_event: any, params: ModalParams) => {
-      showModal(params);
-    });
-
-    ipcMain.on("hide-modal", (_event: any) => {
-      // ipcMain.removeHandler("get-modal-params");
-      if(modal)
-        modal.hide();
-    });
 }
 
 app.whenReady().then(() => {
-    createWindow()
+    createWindow();
+    registerIpcEvents();
 
     if (process.platform === 'win32')
           app.setAppUserModelId(app.name);
@@ -163,4 +150,45 @@ function showModal(params: ModalParams) {
   loadHtml(modal, "modal");
   modal.show();
   win.show();
+}
+
+function registerIpcEvents() {
+  ipcMain.on('open-page', (_event: any, name: any) => {
+    loadHtml(win, name);
+  });
+  
+  ipcMain.on('show-window', (_event: any, name: any) => {
+    if(name === 'main') win.show()
+  });
+  
+  ipcMain.handle('app-name', () => app.getName());
+  
+  ipcMain.on("show-modal", (_event: any, params: ModalParams) => {
+    showModal(params);
+  });
+  
+  ipcMain.on("hide-modal", (_event: any) => {
+    // ipcMain.removeHandler("get-modal-params");
+    if(modal)
+      modal.hide();
+  });
+  
+  ipcMain.handle("preferences:get", (_event: any, key: keyof Preferences) => {
+    return preferencesStore.get(key);
+  });
+  
+  ipcMain.on("preferences:set", <T extends keyof Preferences>(_event: any, key: T, value: Preferences[T]) => {
+    preferencesStore.set(key, value);
+  });
+
+  Object.keys(preferencesStore.store).forEach(key => {
+    preferencesStore.onDidChange(<keyof Preferences>key, (valueNew, valueOld) => {
+      win.webContents.send(`preferences:change:${key}`, valueNew, valueOld)
+    })
+  })
+
+  // Themes
+  ipcMain.on("set-color-scheme", (_event: any, theme: Theme) => {
+    nativeTheme.themeSource = theme;
+  });
 }

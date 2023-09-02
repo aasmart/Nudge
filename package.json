@@ -31,7 +31,6 @@
     "electron-vite": "^1.0.23"
   },
   "dependencies": {
-    "electron-builder": "^24.4.0",
     "electron-squirrel-startup": "^1.0.0",
     "electron-store": "^8.1.0"
   }

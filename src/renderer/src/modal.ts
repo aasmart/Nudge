@@ -1,3 +1,5 @@
+export { };
+
 window.addEventListener("load", () => {
     const title = document.getElementById("modal-title");
     const body = document.getElementById("modal-body");

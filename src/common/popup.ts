@@ -15,15 +15,15 @@ function showPopup(title: string, content: string) {
     popup.showModal();
 }
 
-function closePopup() {
-    const popup = document.getElementById("popup") as HTMLDialogElement;
+// function closePopup() {
+//     const popup = document.getElementById("popup") as HTMLDialogElement;
 
-    if(!popup) {
-        console.error("No dialog elemetn found");
-        return;
-    }
+//     if(!popup) {
+//         console.error("No dialog elemetn found");
+//         return;
+//     }
     
-    popup.close();
-}
+//     popup.close();
+// }
 
 export { showPopup }

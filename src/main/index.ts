@@ -118,7 +118,7 @@ function createModal() {
     resizable: false,
     titleBarStyle: 'hidden',
     titleBarOverlay: {
-      color: '#984ae2',
+      color: '#ab66eb',
       symbolColor: '#ffffff',
     },
     webPreferences: {

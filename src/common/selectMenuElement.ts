@@ -267,8 +267,9 @@ export class SelectMenuElement {
         if(option.parentElement)
             option.parentElement.scrollTop = option.offsetTop;
 
+        console.log(option)
         if(updateInputVisually)
-            selectMenuElement.value = option.innerText;
+            selectMenuElement.value = option.textContent ?? "";
     }
 
     /**

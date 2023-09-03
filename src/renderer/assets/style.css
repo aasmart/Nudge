@@ -982,6 +982,7 @@ dialog::backdrop {
     width: 100%;
     flex: 8;
     word-wrap: break-word;
+    text-align: center;
 }
 
 #modal-button {
@@ -1024,5 +1025,5 @@ UTILITY CLASSES
     word-wrap: normal;
     white-space: nowrap;
     direction: ltr;
-  }
+}
   

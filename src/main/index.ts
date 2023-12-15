@@ -148,6 +148,7 @@ function showModal(params: ModalParams) {
   modal.height = params.winHeight ?? modal.height;
 
   loadHtml(modal, "modal");
+  modal.setAlwaysOnTop(true);
   modal.show();
   win.show();
 }

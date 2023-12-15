@@ -898,10 +898,10 @@ ul[role="listbox"]:not(:has(li:hover)) li[selected="true"] {
     align-items: start;
 
     padding: 1.5rem;
-    min-width: 15rem;
+    min-width: 24rem;
     width: 50%;
     max-width: 25rem;
-    min-height: 15rem;
+    min-height: 18rem;
     height: 30%;
     max-height: 25rem;
     overflow: hidden;

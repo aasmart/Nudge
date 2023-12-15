@@ -3,6 +3,7 @@ import editSvgPath from "../assets/edit.svg"
 import pauseSvgPath from "../assets/pause.svg"
 import playSvgPath from "../assets/play.svg"
 import notificationSvgPath from "../assets/notification_important.svg"
+import refreshSvgPath from "../assets/refresh.svg"
 import { Reminders } from "../../common/reminder"
 import { Preloads } from "../../common/preloads"
 import { showPopup } from "../../common/popup"
@@ -13,6 +14,7 @@ let editSvg: SVGElement | HTMLImageElement;
 let pauseSvg: SVGElement | HTMLImageElement;
 let playSvg: SVGElement | HTMLImageElement;
 let notifcationSvg: SVGElement | HTMLImageElement;
+let refreshSvg: SVGElement | HTMLImageElement;
 
 function listReminders() {
     const reminderList = (document.getElementById("reminder-list") as HTMLElement).children[1] as HTMLElement
@@ -67,8 +69,8 @@ function listReminders() {
         editButton.addEventListener('click', () => {
             const index = Reminders.activeReminders.indexOf(reminder)
             if(index < 0) {
-                console.error("Failed to edit reminder for it does not exist")
-                showPopup('Encountered An Error', 'An error was encounter while trying to edit the reminder')
+                console.error("Failed to edit reminder for it does not exist");
+                showPopup('Encountered An Error', 'An error was encounter while trying to edit the reminder');
                 return;
             }
 
@@ -104,23 +106,29 @@ function listReminders() {
             }
         })
 
-        // Create the acknowledge reminder button
+        // Create the reset reminder button
         const notifImg = notifcationSvg.cloneNode(true);
+        const refreshImg = refreshSvg.cloneNode(true);
 
-        let acknowledgeButton = document.createElement('button')
-        acknowledgeButton.classList.add("primary");
-        acknowledgeButton.append(notifImg)
-        acknowledgeButton.title = "Acknowledge ignored reminder"
-        acknowledgeButton.classList.add("acknowledge");
-        acknowledgeButton.disabled = !reminder.isIgnored
+        let refreshButton = document.createElement('button')
+        refreshButton.classList.add("primary");
+        refreshButton.classList.add("acknowledge");
 
-        acknowledgeButton.addEventListener('click', () => {
-            reminder.acknowledgeIgnored()
+        if(reminder.isIgnored) {
+            refreshButton.append(notifImg);
+            refreshButton.title = "Acknowledge ignored reminder";
+        } else {
+            refreshButton.append(refreshImg);
+            refreshButton.title = "Reset reminder timer";
+        }
+
+        refreshButton.addEventListener('click', () => {
+            reminder.reset()
         })
 
         // Finish building the ui element
         reminderListElement.append(text)
-        reminderListElement.append(acknowledgeButton)
+        reminderListElement.append(refreshButton)
         reminderListElement.append(pauseButton)
         reminderListElement.append(editButton)
         reminderListElement.append(deleteButton)
@@ -150,6 +158,7 @@ window.onload = async () => {
     pauseSvg = await fetchSvgOrAsImage(pauseSvgPath);
     playSvg = await fetchSvgOrAsImage(playSvgPath);
     notifcationSvg = await fetchSvgOrAsImage(notificationSvgPath);
+    refreshSvg = await fetchSvgOrAsImage(refreshSvgPath);
 
     // document.documentElement.style.setProperty("--nav-foldout-width", "4em");
 

@@ -136,10 +136,11 @@ class ReminderImpl implements IReminder {
         window.dispatchEvent(new Event('update-reminder-list'))
     }
 
-    acknowledgeIgnored() {
-        this.isIgnored = false
-        this.setNextReminderTimeout(this.reminderIntervalAmount)
-        window.dispatchEvent(new Event('update-reminder-list'))
+    reset() {
+        this.isIgnored = false;
+        this.paused = false;
+        this.setNextReminderTimeout(this.reminderIntervalAmount);
+        window.dispatchEvent(new Event('update-reminder-list'));
     }
 
     toJSON(): IReminder {

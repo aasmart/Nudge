@@ -6,7 +6,7 @@ import notificationSvgPath from "../assets/notification_important.svg"
 import refreshSvgPath from "../assets/refresh.svg"
 import { Reminders } from "../../common/reminder"
 import { Preloads } from "../../common/preloads"
-import { showPopup } from "../../common/popup"
+import { createPopupButton, showPopup } from "../../common/popup"
 import { fetchSvgOrAsImage } from "../../common/svgUtils"
 
 let deleteSvg: SVGElement | HTMLImageElement;
@@ -110,7 +110,7 @@ function listReminders() {
         const notifImg = notifcationSvg.cloneNode(true);
         const refreshImg = refreshSvg.cloneNode(true);
 
-        let refreshButton = document.createElement('button')
+        let refreshButton = document.createElement('button');
         refreshButton.classList.add("primary");
         refreshButton.classList.add("acknowledge");
 
@@ -123,7 +123,18 @@ function listReminders() {
         }
 
         refreshButton.addEventListener('click', () => {
-            reminder.reset()
+            if(reminder.isIgnored)
+                reminder.reset()
+            else {
+                showPopup(
+                    "Reset Reminder", 
+                    "Are you sure you want to reset this reminder?",
+                    [
+                        createPopupButton("Confirm", "destructive", () => { reminder.reset() }),
+                        createPopupButton("Cancel")
+                    ]
+                );
+            }
         })
 
         // Finish building the ui element

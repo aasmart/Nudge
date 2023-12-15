@@ -175,6 +175,7 @@ nav {
     height: calc(100% - env(titlebar-area-height, var(--header-fallback-height)));
     width: var(--nav-width);
     isolation: isolate;
+    z-index: 99;
 
     display: grid;
     grid-template-columns: var(--nav-sidebar-width) var(--nav-foldout-width);

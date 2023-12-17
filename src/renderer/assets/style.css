@@ -148,7 +148,7 @@ main {
     min-width: env(titlebar-area-width, 100%);
 
     isolation: isolate;
-    z-index: 99;
+    z-index: 999;
 }
 
 .titlebar img {

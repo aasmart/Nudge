@@ -6,6 +6,8 @@ export enum ReminderNotificationType {
     APP_WINDOW = "App Window Notification",
 }
 
+const MAX_TIMER_DELAY_MINS = 24 * 24 * 60;
+
 interface IReminder {
     nextReminder?: Date
     reminderIntervalAmount: number
@@ -54,6 +56,7 @@ class ReminderImpl implements IReminder {
     setNextReminderTimeout(delayAmountMinutes: number) {
         clearTimeout(this.reminderTimeout)
 
+        delayAmountMinutes = Math.min(delayAmountMinutes, MAX_TIMER_DELAY_MINS);
         const delayAmount = delayAmountMinutes * Constants.MINUTES_TO_MS
     
         this.reminderTimeout = setTimeout(() => {
@@ -202,4 +205,4 @@ module Reminders {
     }
 }
 
-export { type IReminder, ReminderImpl, Reminders }
+export { type IReminder, ReminderImpl, Reminders, MAX_TIMER_DELAY_MINS }

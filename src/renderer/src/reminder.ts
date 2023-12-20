@@ -18,7 +18,7 @@ function loadReminderCreationPage() {
         });
 
         const startDelta = reminder?.reminderStartOverrideAmount ?? reminder.reminderIntervalAmount
-        reminder.setNextReminderTimeout(startDelta)
+        reminder.setNextReminderDate(startDelta)
 
         if(editIndex >= 0) {
             Reminders.activeReminders[editIndex] = reminder;
@@ -52,7 +52,7 @@ function loadReminderCreationPage() {
 }
 
 window.onload = () => {
-    Reminders.loadActiveReminders()
+    Reminders.loadReminders()
     loadReminderCreationPage()
     setTimeout(Preloads.clearPreloads, 1)
 }

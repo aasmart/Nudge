@@ -54,13 +54,14 @@ class ReminderImpl implements IReminder {
     setNextReminderDate(delayAmountMinutes: number) {
         const delayAmount = delayAmountMinutes * Constants.MINUTES_TO_MS
         this.nextReminder = new Date().addMilliseconds(delayAmount);
+        this.nextReminder.setMilliseconds(0);
 
         Reminders.saveActiveReminders()
         window.dispatchEvent(new Event('update-reminder-list'))
     }
 
     isTime(): Boolean {
-        return new Date() > this.nextReminder;
+        return new Date() >= this.nextReminder;
     }
 
     attemptReminder() {

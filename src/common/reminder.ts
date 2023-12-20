@@ -53,35 +53,39 @@ class ReminderImpl implements IReminder {
         this.pausedTime = reminder?.pausedTime || new Date();
     }
 
-    setNextReminderTimeout(delayAmountMinutes: number) {
-        clearTimeout(this.reminderTimeout)
-
+    setNextReminderDate(delayAmountMinutes: number) {
         delayAmountMinutes = Math.min(delayAmountMinutes, MAX_TIMER_DELAY_MINS);
         const delayAmount = delayAmountMinutes * Constants.MINUTES_TO_MS
-    
-        this.reminderTimeout = setTimeout(() => {
-            this.sendNotification(this.message)
-
-            // Handles the ignored reminders
-            if(this.maxIgnoredReminders && this.ignoredReminders >= this.maxIgnoredReminders) {
-                this.isIgnored = false
-                this.ignoredReminders = 0
-            } else if(this.ignoredReminderIntervalAmount > 0) {
-                this.isIgnored = true
-                this.ignoredReminders += 1
-            }
-
-            const nextReminderDelay = this.isIgnored ? 
-                this.ignoredReminderIntervalAmount 
-                : this.reminderIntervalAmount
-
-            this.setNextReminderTimeout(nextReminderDelay)
-        }, delayAmount)
-    
         this.nextReminder = new Date().addMilliseconds(delayAmount);
+        this.nextReminder.setMilliseconds(0);
 
         Reminders.saveActiveReminders()
         window.dispatchEvent(new Event('update-reminder-list'))
+    }
+
+    isTime(): Boolean {
+        return new Date() >= this.nextReminder;
+    }
+
+    attemptReminder() {
+        if(!this.isTime() || this.paused)
+            return;
+
+        this.sendNotification(this.message)
+
+        if(this.maxIgnoredReminders && this.ignoredReminders >= this.maxIgnoredReminders) {
+            this.isIgnored = false
+            this.ignoredReminders = 0
+        } else if(this.ignoredReminderIntervalAmount > 0) {
+            this.isIgnored = true
+            this.ignoredReminders += 1
+        }
+
+        const nextReminderDelay = this.isIgnored ? 
+            this.ignoredReminderIntervalAmount 
+            : this.reminderIntervalAmount
+
+        this.setNextReminderDate(nextReminderDelay)
     }
 
     private sendNotification(message: string) {
@@ -92,7 +96,7 @@ class ReminderImpl implements IReminder {
                         return
         
                     if(this.isIgnored)
-                        this.setNextReminderTimeout(this.reminderIntervalAmount)
+                        this.setNextReminderDate(this.reminderIntervalAmount)
         
                     this.isIgnored = false
                     window.dispatchEvent(new Event('update-reminder-list'))
@@ -114,7 +118,7 @@ class ReminderImpl implements IReminder {
     }
 
     start() {
-        this.setNextReminderTimeout(this.reminderIntervalAmount)
+        this.setNextReminderDate(this.reminderIntervalAmount)
     }
 
     cancel() {
@@ -130,7 +134,7 @@ class ReminderImpl implements IReminder {
             this.pausedTime = new Date()
         } else if(this.paused && !paused) {
             const nextPlay = (new Date(this.nextReminder).valueOf() - new Date(this.pausedTime).valueOf()) * Constants.MS_TO_MINUTES;
-            this.setNextReminderTimeout(nextPlay)
+            this.setNextReminderDate(nextPlay)
         }
 
         this.paused = paused;
@@ -142,7 +146,7 @@ class ReminderImpl implements IReminder {
     reset() {
         this.isIgnored = false;
         this.paused = false;
-        this.setNextReminderTimeout(this.reminderIntervalAmount);
+        this.setNextReminderDate(this.reminderIntervalAmount);
         window.dispatchEvent(new Event('update-reminder-list'));
     }
 
@@ -167,11 +171,30 @@ class ReminderImpl implements IReminder {
 module Reminders {
     export let activeReminders: ReminderImpl[] = []
 
+    const updateAllReminders = () => {
+        activeReminders.forEach((reminder) => {
+            reminder.attemptReminder();
+        });
+        saveActiveReminders();
+    }
+
+    function setReminderCheckTimeout() {
+        updateAllReminders();
+        
+        const nextSecondDate: Date = new Date().addMilliseconds(1000);
+        nextSecondDate.setMilliseconds(0);
+        const nextSecondDelay = nextSecondDate.valueOf() - Date.now();
+
+        setTimeout(() => {
+            setReminderCheckTimeout();
+        }, nextSecondDelay);
+    }
+
     export function saveActiveReminders() {
         sessionStorage.setItem("active_reminders", JSON.stringify(activeReminders))
     }
     
-    export function loadActiveReminders() {
+    export function loadReminders() {
         let remindersObjs: Array<IReminder> = JSON.parse(sessionStorage.getItem("active_reminders")!) ?? []
     
         activeReminders = remindersObjs.map(obj => {
@@ -185,10 +208,11 @@ module Reminders {
             if((editReminder !== null && reminder === editReminder) || reminder.paused)
                 return;
             const nextStart = Math.max(new Date(reminder.nextReminder).valueOf() - new Date().valueOf(), 0) * Constants.MS_TO_MINUTES
-            reminder.setNextReminderTimeout(nextStart)
+            reminder.setNextReminderDate(nextStart)
         })
     
         saveActiveReminders()
+        setReminderCheckTimeout();
     }
     
     export function setEditReminder(index: number) {

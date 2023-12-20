@@ -168,21 +168,22 @@ class ReminderImpl implements IReminder {
 module Reminders {
     export let activeReminders: ReminderImpl[] = []
 
-    function setReminderCheckInterval() {
-        const updateReminder = () => {
-                activeReminders.forEach((reminder) => {
-                    reminder.attemptReminder();
-                });
-                saveActiveReminders();
-            }
+    const updateAllReminders = () => {
+        activeReminders.forEach((reminder) => {
+            reminder.attemptReminder();
+        });
+        saveActiveReminders();
+    }
 
+    function setReminderCheckTimeout() {
+        updateAllReminders();
+        
         const nextSecondDate: Date = new Date().addMilliseconds(1000);
         nextSecondDate.setMilliseconds(0);
         const nextSecondDelay = nextSecondDate.valueOf() - Date.now();
 
         setTimeout(() => {
-            updateReminder();
-            setInterval(updateReminder, 1000);
+            setReminderCheckTimeout();
         }, nextSecondDelay);
     }
 
@@ -208,7 +209,7 @@ module Reminders {
         })
     
         saveActiveReminders()
-        setReminderCheckInterval();
+        setReminderCheckTimeout();
     }
     
     export function setEditReminder(index: number) {

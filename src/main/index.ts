@@ -2,6 +2,8 @@ import { app, BrowserWindow, Menu, nativeImage, Tray, ipcMain, nativeTheme } fro
 import { is } from '@electron-toolkit/utils'
 import { join } from "path"
 import { Preferences, Theme, preferencesStore } from '../common/preferences';
+import fs from "fs"
+import { protocol } from "electron";
 
 let tray: any = null;
 let win: any = null;
@@ -53,6 +55,8 @@ const createWindow = () => {
           preload: join(__dirname, '../preload/index.js'),
           nodeIntegration: true,
           contextIsolation: true,
+          webSecurity: true,
+          allowRunningInsecureContent: false
         }
     })
     
@@ -76,9 +80,21 @@ const createWindow = () => {
     createModal();
 }
 
+function registerFileProtocol() {
+  protocol.registerFileProtocol('file', (request, callback) => {
+    try {
+      const pathname = decodeURIComponent(request.url.replace('file:///', ''));
+      return callback(pathname);
+    } catch(err) {
+      console.error(err);
+    }
+  });
+}
+
 app.whenReady().then(() => {
     createWindow();
     registerIpcEvents();
+    registerFileProtocol();
 
     if (process.platform === 'win32')
           app.setAppUserModelId(app.name);
@@ -95,11 +111,10 @@ app.setLoginItemSettings({
 app.on('before-quit', () => win.quitting = true)
 
 function loadHtml(window: any, fileName: string) {
-  if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
+  if (is.dev && process.env['ELECTRON_RENDERER_URL'])
     window.loadURL(`${process.env['ELECTRON_RENDERER_URL']}/${fileName}.html`)
-  } else {
+  else
     window.loadFile(join(__dirname, `../renderer/${fileName}.html`))
-  }
 }
 
 function createModal() {
@@ -191,5 +206,42 @@ function registerIpcEvents() {
   // Themes
   ipcMain.on("set-color-scheme", (_event: any, theme: Theme) => {
     nativeTheme.themeSource = theme;
+  });
+
+  function getUserPath(): string {
+    return `${app.getPath("appData")}/nudge/config`;
+  }
+
+  ipcMain.handle('get-user-path', (_event: any) => { return getUserPath() });
+
+  ipcMain.handle("read-user-directory", (_event: any, path: string) => {
+    try {
+      const userPath = getUserPath();
+      if(!fs.existsSync(userPath)) {
+        fs.mkdirSync(userPath)
+        console.log(`Creating directory: ${userPath}`)
+      }
+
+      const targetDirectory = `${getUserPath()}/${path}`;
+      if(!fs.existsSync(targetDirectory)) {
+        fs.mkdirSync(targetDirectory)
+        console.log(`Creating directory: ${targetDirectory}`)
+      }
+
+      return fs.readdirSync(targetDirectory);
+    } catch(err) {
+      console.error(err)
+    }
+
+    return [];
+  });
+
+  ipcMain.handle("read-file", (_event: any, path: string) => {
+    try {
+      return fs.readFileSync(path, 'utf-8');
+    } catch(err) {
+      console.error(err);
+    }
+    return "";
   });
 }

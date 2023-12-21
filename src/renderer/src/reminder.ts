@@ -2,8 +2,16 @@ import { InputForm } from "../../common/inputForm";
 import { Preloads } from "../../common/preloads";
 import { ReminderImpl, ReminderNotificationType, Reminders } from "../../common/reminder";
 
-function loadReminderCreationPage() {
-    const CREATE_BUTTON = 'create-reminder'
+async function loadReminderCreationPage() {
+    const CREATE_BUTTON = 'create-reminder';
+
+    // Create audio map
+    const reminderAudio = await Reminders.getReminderAudio();
+    const audioMap = new Map<string, string>();
+    reminderAudio.forEach(audio => {
+        audioMap[audio.id] = audio.name;
+    });
+    audioMap["none"] = "Disable Reminder Audio";
 
     const form = new InputForm('reminder-form', (json: unknown) => {
         const reminderFormJson: ReminderImpl = json as ReminderImpl;
@@ -14,7 +22,8 @@ function loadReminderCreationPage() {
             maxIgnoredReminders: reminderFormJson.maxIgnoredReminders,
             notificationType: reminderFormJson.notificationType,
             message: reminderFormJson?.message,
-            title: reminderFormJson?.title
+            title: reminderFormJson?.title,
+            reminderAudioId: reminderFormJson?.reminderAudioId
         });
 
         const startDelta = reminder?.reminderStartOverrideAmount ?? reminder.reminderIntervalAmount
@@ -33,7 +42,8 @@ function loadReminderCreationPage() {
         Reminders.saveActiveReminders()
         window.api.openPage('index')
     }, {
-        reminderNotificationType: ReminderNotificationType
+        reminderNotificationType: ReminderNotificationType,
+        reminderAudio: audioMap,
     });
 
     // Update display if the user is editing
@@ -51,7 +61,7 @@ function loadReminderCreationPage() {
     }
 }
 
-window.onload = () => {
+window.onload = async () => {
     Reminders.loadReminders()
     loadReminderCreationPage()
     setTimeout(Preloads.clearPreloads, 1)

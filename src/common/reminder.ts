@@ -1,6 +1,8 @@
 import { Constants } from "./constants"
 import "../common/date"
 
+import beepSound from "../renderer/assets/audio/beep-warning.mp3"
+
 export enum ReminderNotificationType {
     SYSTEM = "System Notification",
     APP_WINDOW = "App Window Notification",
@@ -9,34 +11,41 @@ export enum ReminderNotificationType {
 const MAX_TIMER_DELAY_MINS = 24 * 24 * 60;
 
 interface IReminder {
-    nextReminder?: Date
-    reminderIntervalAmount: number
-    reminderStartOverrideAmount: number
-    ignoredReminderIntervalAmount: number
-    maxIgnoredReminders: number
-    ignoredReminders?: number
-    isIgnored?: boolean
-    notificationType: ReminderNotificationType
-    message: string
-    title: string
-    paused?: boolean
-    pausedTime?: Date
+    nextReminder?: Date;
+    reminderIntervalAmount: number;
+    reminderStartOverrideAmount: number;
+    ignoredReminderIntervalAmount: number;
+    maxIgnoredReminders: number;
+    ignoredReminders?: number;
+    isIgnored?: boolean;
+    notificationType: ReminderNotificationType;
+    message: string;
+    title: string;
+    paused?: boolean;
+    pausedTime?: Date;
+    reminderAudioId: string;
+}
+
+type ReminderAudio = {
+    name: string;
+    id: string;
 }
 
 class ReminderImpl implements IReminder {
-    reminderTimeout!: ReturnType<typeof setInterval>
-    nextReminder: Date
-    reminderIntervalAmount: number
-    reminderStartOverrideAmount: number
-    ignoredReminderIntervalAmount: number
-    maxIgnoredReminders: number
-    ignoredReminders: number
-    isIgnored: boolean
-    notificationType: ReminderNotificationType
-    message: string
-    title: string
-    paused: boolean
-    pausedTime: Date
+    reminderTimeout!: ReturnType<typeof setInterval>;
+    nextReminder: Date;
+    reminderIntervalAmount: number;
+    reminderStartOverrideAmount: number;
+    ignoredReminderIntervalAmount: number;
+    maxIgnoredReminders: number;
+    ignoredReminders: number;
+    isIgnored: boolean;
+    notificationType: ReminderNotificationType;
+    message: string;
+    title: string;
+    paused: boolean;
+    pausedTime: Date;
+    reminderAudioId: string;
 
     constructor(reminder: IReminder) {
         this.nextReminder = reminder.nextReminder || new Date()
@@ -51,6 +60,7 @@ class ReminderImpl implements IReminder {
         this.title = reminder.title;
         this.paused = reminder.paused || false;
         this.pausedTime = reminder?.pausedTime || new Date();
+        this.reminderAudioId = reminder.reminderAudioId || "";
     }
 
     setNextReminderDate(delayAmountMinutes: number) {
@@ -71,6 +81,10 @@ class ReminderImpl implements IReminder {
         if(!this.isTime() || this.paused)
             return;
 
+        if(this.reminderAudioId !== "none") {
+            const audio = new Audio(this.reminderAudioId);
+            audio.play();
+        }
         this.sendNotification(this.message)
 
         if(this.maxIgnoredReminders && this.ignoredReminders >= this.maxIgnoredReminders) {
@@ -164,6 +178,7 @@ class ReminderImpl implements IReminder {
             title: this.title,
             paused: this.paused,
             pausedTime: this.pausedTime,
+            reminderAudioId: this.reminderAudioId,
         }
     }
 }
@@ -227,6 +242,38 @@ module Reminders {
         const editIndex = getEditIndex()
         return activeReminders[editIndex] || null
     }
+
+    // Audio stuff
+
+    function formatAudioName(fileName: string): string {
+        let splitName: string[] = fileName.split(/[-_]/)
+        splitName = splitName.map(val => {
+            return `${val[0].toUpperCase()}${val.substring(1)}`;
+        })
+
+        const joined = splitName.join(" ");
+        const finalName = joined.substring(0, joined.lastIndexOf("."));
+
+        return finalName;
+    }   
+
+    export async function getReminderAudio(): Promise<ReminderAudio[]> {
+        const defaultAudio: ReminderAudio[] = [
+            {name: "Beep", id: beepSound}
+        ];
+
+        const audioDirectory = `${await window.api.getUserPath()}/audio`;
+        console.log(audioDirectory)
+        const audioFiles: string[] = await window.api.readUserDirectory("audio");
+        const audio = audioFiles.map((id): ReminderAudio => {
+            return {
+                name: formatAudioName(id),
+                id: `${audioDirectory}/${id}`
+            }
+        });
+
+        return defaultAudio.concat(audio);
+    }
 }
 
-export { type IReminder, ReminderImpl, Reminders, MAX_TIMER_DELAY_MINS }
+export { type IReminder, ReminderImpl, Reminders, type ReminderAudio, MAX_TIMER_DELAY_MINS }

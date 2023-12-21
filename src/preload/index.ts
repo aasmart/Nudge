@@ -16,7 +16,10 @@ export const API = {
   hideModal: () => ipcRenderer.send("hide-modal"),
   getModalParams: (): Promise<ModalParams> => ipcRenderer.invoke("get-modal-params"),
   preferences: PreferencesAPI,
-  setTheme: (theme: Theme) => ipcRenderer.send("set-color-scheme", theme)
+  setTheme: (theme: Theme) => ipcRenderer.send("set-color-scheme", theme),
+  getUserPath: (): Promise<string> => ipcRenderer.invoke("get-user-path"),
+  readUserDirectory: (path: string) : Promise<string[]> => ipcRenderer.invoke("read-user-directory", path),
+  readFile: (path: string): Promise<string> => ipcRenderer.invoke("read-file", path),
 }
 
 contextBridge.exposeInMainWorld('api', API);
@@ -46,6 +49,6 @@ async function setAppTheme() {
 }
 
 window.addEventListener('DOMContentLoaded', () => {
-    setAppTheme();
-    setAppName();
+  setAppTheme();
+  setAppName();
 });

@@ -263,7 +263,7 @@ module Reminders {
         ];
 
         const audioDirectory = `${await window.api.getUserPath()}/audio`;
-        console.log(audioDirectory)
+        
         const audioFiles: string[] = await window.api.readUserDirectory("audio");
         const audio = audioFiles.map((id): ReminderAudio => {
             return {

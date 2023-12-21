@@ -55,7 +55,7 @@ const createWindow = () => {
           preload: join(__dirname, '../preload/index.js'),
           nodeIntegration: true,
           contextIsolation: true,
-          webSecurity: true,
+          webSecurity: !is.dev,
           allowRunningInsecureContent: false
         }
     })
@@ -80,6 +80,28 @@ const createWindow = () => {
     createModal();
 }
 
+function registerContentSecurity() {
+  app.on('web-contents-created', (_, webContents) => {
+    webContents.on('will-attach-webview', (event) => {
+      event.preventDefault();
+    });
+
+    webContents.session.webRequest.onHeadersReceived((details, callback) => {
+      callback({
+        responseHeaders: {
+          ...details.responseHeaders,
+          'Content-Security-Policy': [
+            "default-src 'self'",
+            "media-src 'self' 'unsafe-inline' 'unsafe-eval' file:",
+            "script-src 'self'",
+            "style-src 'self' 'unsafe-inline'"
+          ],
+        },
+      });
+    });
+  });
+}
+
 function registerFileProtocol() {
   protocol.registerFileProtocol('file', (request, callback) => {
     try {
@@ -95,6 +117,7 @@ app.whenReady().then(() => {
     createWindow();
     registerIpcEvents();
     registerFileProtocol();
+    registerContentSecurity();
 
     if (process.platform === 'win32')
           app.setAppUserModelId(app.name);

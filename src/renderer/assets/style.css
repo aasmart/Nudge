@@ -851,6 +851,7 @@ label.svg-radio svg {
 
 .combobox-wrapper .listbox-wrapper {
     position: relative;
+    z-index: 90;
 }
 
 .combobox-wrapper ul[role="listbox"] {

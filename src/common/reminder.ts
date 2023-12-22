@@ -81,9 +81,13 @@ class ReminderImpl implements IReminder {
         if(!this.isTime() || this.paused)
             return;
 
-        if(this.reminderAudioId !== "none") {
-            const audio = new Audio(this.reminderAudioId);
-            audio.play();
+        if(this.reminderAudioId.length > 0) {
+            try {
+                const audio = new Audio(this.reminderAudioId);
+                audio.play();
+            } catch(err) { 
+                console.log(err) 
+            }
         }
         this.sendNotification(this.message)
 
@@ -265,7 +269,7 @@ module Reminders {
         const audioDirectory = `${await window.api.getUserPath()}/audio`;
         
         const audioFiles: string[] = await window.api.readUserDirectory("audio");
-        const audio = audioFiles.map((id): ReminderAudio => {
+        const audio = audioFiles.filter(id => id.length > 0).map((id): ReminderAudio => {
             return {
                 name: formatAudioName(id),
                 id: `${audioDirectory}/${id}`

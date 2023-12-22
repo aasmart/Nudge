@@ -693,13 +693,15 @@ input[type="checkbox"]:checked + label::after {
     left: calc(-1 * (var(--checkbox-width) + var(--checkbox-margin)) + (var(--checkbox-width)) * 0.5);
 }
 
-label:has(
+form label:not(:has(+.combobox--input)):not(:has(
     +input:required, 
     +select:required,
     +textarea:required
+))::after,
+form .combobox-wrapper label:not(
+    :has(+.combobox--input input:required)
 )::after {
-    content: ' *';
-    color: var(--input-invalid-color);
+    content: ' (optional)';
 }
 
 fieldset {

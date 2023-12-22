@@ -41,8 +41,16 @@ export class SelectMenuElement {
 
         // Setup selection stuff
         let selected = this.getSelectedOptionId();
-        if(selected.length == 0)
-            selected = this.optionIds[0] ?? "";
+        const defaultSelected = this.selectMenuElement.getAttribute("default-selected");
+        if(selected.length == 0) {
+            console.log(defaultSelected)
+            if(defaultSelected !== null)
+                selected = optionsEnum.hasOwnProperty(defaultSelected) 
+                    ? `${this.selectMenuElement.id}--${defaultSelected}` 
+                    : this.optionIds[0] ?? "";
+            else
+                selected = this.optionIds[0] ?? "";
+        }
         this.setSelectedOption(selected);
         this.initialSelectedId = "";
 

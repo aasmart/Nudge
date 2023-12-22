@@ -11,7 +11,7 @@ async function loadReminderCreationPage() {
     reminderAudio.forEach(audio => {
         audioMap[audio.id] = audio.name;
     });
-    audioMap[""] = "Disable Reminder Audio";
+    audioMap[""] = "No Audio";
 
     const form = new InputForm('reminder-form', (json: unknown) => {
         const reminderFormJson: ReminderImpl = json as ReminderImpl;

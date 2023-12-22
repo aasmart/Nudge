@@ -2,6 +2,9 @@ import { Constants } from "./constants"
 import "../common/date"
 
 import beepSound from "../renderer/assets/audio/beep-warning.mp3"
+import alarmClockAudio from "../renderer/assets/audio/alarm-clock.mp3"
+import attentionAudio from "../renderer/assets/audio/call-to-attention.mp3"
+import emergencyAlarmAudio from "../renderer/assets/audio/emergency-alarm.mp3"
 
 export enum ReminderNotificationType {
     SYSTEM = "System Notification",
@@ -263,7 +266,10 @@ module Reminders {
 
     export async function getReminderAudio(): Promise<ReminderAudio[]> {
         const defaultAudio: ReminderAudio[] = [
-            {name: "Beep", id: beepSound}
+            {name: "Beep", id: beepSound},
+            {name: "Alarm Clock", id: alarmClockAudio},
+            {name: "Call to Attention", id: attentionAudio},
+            {name: "Emergency Alarm", id: emergencyAlarmAudio}
         ];
 
         const audioDirectory = `${await window.api.getUserPath()}/audio`;

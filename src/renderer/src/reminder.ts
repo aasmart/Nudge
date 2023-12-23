@@ -1,4 +1,5 @@
 import { InputForm } from "../../common/inputForm";
+import { showPopup } from "../../common/popup";
 import { Preloads } from "../../common/preloads";
 import { ReminderImpl, ReminderNotificationType, Reminders } from "../../common/reminder";
 
@@ -61,6 +62,7 @@ async function loadReminderCreationPage() {
     }
 
     initPlaySelectedAudioButton();
+    initAddAudioButton();
 }
 
 function initPlaySelectedAudioButton() {
@@ -87,6 +89,41 @@ function initPlaySelectedAudioButton() {
         try {
             new Audio(selected).play();
         } catch(err) { console.error(err); }
+    })
+}
+
+function initAddAudioButton() {
+    const UPLOAD_AUDIO_BUTTON_ID = "upload-reminder-audio";
+
+    const button = document.getElementById(UPLOAD_AUDIO_BUTTON_ID);
+    if(button === null) {
+        console.error(`Failed to find button ${UPLOAD_AUDIO_BUTTON_ID}`);
+        return;
+    }
+
+    button.addEventListener("click", () => {
+        window.api.showFileDialog([
+            {name: "Sound", extensions: ["mp3", "wav", "webm", "ogg"]}
+        ]).then(res => {
+            if(res.canceled)
+                return;
+;
+            const filePath = res.filePaths[0] ?? "";
+            if(filePath.length === 0)
+                return;
+
+            const splitPath = filePath.split("\\");
+            const name = splitPath[splitPath.length - 1];
+
+            window.api.getUserPath().then(userPath => {
+                window.api.copyFile(res.filePaths[0], `${userPath}/audio/${name}`).then(res => {
+                    if(res)
+                        showPopup("Audio File Uploaded!", `Sucessfully uploaded ${name}`);
+                    else
+                        showPopup("Failed to Uploaded Audio!", `Failed to upload ${name}`)
+                });
+            });
+        })
     })
 }
 

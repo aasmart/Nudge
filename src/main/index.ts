@@ -1,4 +1,4 @@
-import { app, BrowserWindow, Menu, nativeImage, Tray, ipcMain, nativeTheme } from 'electron'
+import { app, BrowserWindow, Menu, nativeImage, Tray, ipcMain, nativeTheme, dialog, FileFilter } from 'electron'
 import { is } from '@electron-toolkit/utils'
 import { join } from "path"
 import { Preferences, Theme, preferencesStore } from '../common/preferences';
@@ -267,4 +267,18 @@ function registerIpcEvents() {
     }
     return "";
   });
+
+  ipcMain.handle("copy-file", (_event: any, source: string, destination: string) => {
+    try {
+      fs.copyFile(source, destination, () => {});
+      return true;
+    } catch(err) {
+      return false;
+    }
+  })
+
+  ipcMain.handle("open-file-dialog", async (_event: any, validExtensions: FileFilter[]) => {
+    const result = await dialog.showOpenDialog({properties: ['openFile'], filters: validExtensions});
+    return result;
+  })
 }

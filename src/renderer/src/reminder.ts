@@ -59,6 +59,35 @@ async function loadReminderCreationPage() {
 
         createButton.innerText = createButton.getAttribute('when-editing') || createButton.innerText
     }
+
+    initPlaySelectedAudioButton();
+}
+
+function initPlaySelectedAudioButton() {
+    const PLAY_AUDIO_BUTTON_ID = "play-reminder-audio";
+    const AUDIO_COMBOBOX_ID = "reminder-audio-id";
+
+    const button = document.getElementById(PLAY_AUDIO_BUTTON_ID);
+    if(button === null) {
+        console.error(`Failed to find button ${PLAY_AUDIO_BUTTON_ID}`);
+        return;
+    }
+
+    button.addEventListener("click", () => {
+        const audioInput = document.getElementById(AUDIO_COMBOBOX_ID);
+        if(audioInput === null) {
+            console.error(`Failed to find audio combobox \'${AUDIO_COMBOBOX_ID}\'`);
+            return;
+        }
+
+        const selected = (audioInput.getAttribute("aria-activedescendant") ?? "").replaceAll(`${AUDIO_COMBOBOX_ID}--`, "");
+        if(selected === "")
+            return;
+        
+        try {
+            new Audio(selected).play();
+        } catch(err) { console.error(err); }
+    })
 }
 
 window.onload = async () => {

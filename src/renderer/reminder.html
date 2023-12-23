@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title class="app-name"></title>
     <link rel="stylesheet" href="./assets/style.css">
+    <link rel="stylesheet" href="./assets/style-reminder-form.css">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -45,7 +46,7 @@
     
     <main class="preload center-horizontal">
         <form action="" method="" class="reminder-form">
-            <div title="The amount of time between each reminder">
+            <div title="The amount of time between each reminder" class="input-container-grid">
                 <label for="reminder-interval-amount">Reminder Interval</label>
                 <input type="number" 
                         step="0.01" 
@@ -59,7 +60,7 @@
                 >
             </div>
 
-            <div title="If used, this overrides the duration until the first reminder plays">
+            <div title="If used, this overrides the duration until the first reminder plays" class="input-container-grid">
                 <!-- <input type="checkbox" id="toggle-reminder-start-override" name="toggle-reminder-start-override" toggles="reminder-start-override-amount"> -->
                 <label for="toggle-reminder-start-override">First Reminder Delay Override</label>
                 <input type="number" 
@@ -72,7 +73,7 @@
                 >
             </div>
 
-            <div title="If used, this determines the duration between an ignored reminder re-sending">
+            <div title="If used, this determines the duration between an ignored reminder re-sending" class="input-container-grid">
                 <!-- <input type="checkbox" id="toggle-ignore-reminder-penalty" name="toggle-ignore-reminder-penalty" toggles="ignored-reminder-interval-amount"> -->
                 <label for="toggle-ignore-reminder-penalty">Ignored Reminder Replay Interval</label>
                 <input type="number" 
@@ -85,7 +86,7 @@
                 >
             </div>
 
-            <div title="The maximum number of times the reminder will replay if ignored. Leave empty for no limit">
+            <div title="The maximum number of times the reminder will replay if ignored. Leave empty for no limit" class="input-container-grid">
                 <label for="max-ignored-reminders">Maximum Ignored Reminders</label>
                 <input type="number" 
                         id="max-ignored-reminders" 
@@ -95,7 +96,7 @@
                 >
             </div>
 
-            <div class="combobox-wrapper" title="The type of notification sent for the reminder">
+            <div class="combobox-wrapper input-container-grid" title="The type of notification sent for the reminder">
                 <!-- Accessible select as per the ARIA 1.2 standards: https://www.w3.org/TR/wai-aria-1.2/#combobox -->
                 <label for="notification-type">Notification Type</label>
                 <div class="combobox--input">
@@ -123,46 +124,59 @@
                 </div>
             </div>
 
-            <div class="combobox-wrapper" title="The audio played when the reminder is sent">
-                <!-- Accessible select as per the ARIA 1.2 standards: https://www.w3.org/TR/wai-aria-1.2/#combobox -->
-                <label for="reminder-audio-id">Reminder Audio</label>
-                <div class="combobox--input">
-                    <input type="text" 
-                        id="reminder-audio-id"
-                        role="combobox"
-                        options-from="reminderAudio"
-                        aria-haspopup="listbox" 
-                        aria-expanded="false"
-                        aria-controls="reminder-audio-id--listbox" 
-                        aria-activedescendant=""
-                        aria-autocomplete="list"
-                        maxlength="32"
-                        default-selected=""
-                        required>
-    
-                    <svg xmlns="http://www.w3.org/2000/svg" height="48" viewBox="0 -960 960 960" width="48">
-                        <path d="M480-345 240-585l43-43 197 198 197-197 43 43-240 239Z"/>
-                    </svg>
+            <div class="input-container-flex">
+                <div class="combobox-wrapper" id="reminder-audio-combobox" title="The audio played when the reminder is sent">
+                    <!-- Accessible select as per the ARIA 1.2 standards: https://www.w3.org/TR/wai-aria-1.2/#combobox -->
+                    <label for="reminder-audio-id">Reminder Audio</label>
+                    <div class="combobox--input">
+                        <input type="text" 
+                            id="reminder-audio-id"
+                            role="combobox"
+                            options-from="reminderAudio"
+                            aria-haspopup="listbox" 
+                            aria-expanded="false"
+                            aria-controls="reminder-audio-id--listbox" 
+                            aria-activedescendant=""
+                            aria-autocomplete="list"
+                            maxlength="32"
+                            default-selected=""
+                            required>
+        
+                        <svg xmlns="http://www.w3.org/2000/svg" height="48" viewBox="0 -960 960 960" width="48">
+                            <path d="M480-345 240-585l43-43 197 198 197-197 43 43-240 239Z"/>
+                        </svg>
+                    </div>
+                
+                    <div class="listbox-wrapper">
+                        <ul role="listbox" id="reminder-audio-id--listbox">
+                        
+                        </ul>
+                    </div>
                 </div>
-            
-                <div class="listbox-wrapper">
-                    <ul role="listbox" id="reminder-audio-id--listbox">
-                    
-                    </ul>
-                </div>
+                
+                <button class="primary svg-button" id="play-reminder-audio" type="button" title="Play the selected audio">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24">
+                         <path d="M560-131v-82q90-26 145-100t55-168q0-94-55-168T560-749v-82q124 28 202 125.5T840-481q0 127-78 224.5T560-131ZM120-360v-240h160l200-200v640L280-360H120Zm440 40v-322q47 22 73.5 66t26.5 96q0 51-26.5 94.5T560-320Z"/>
+                     </svg>
+                 </button>
+                 <button class="primary svg-button" id="upload-reminder-audio" type="button" title="Upload new audio">
+                     <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24">
+                         <path d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z"/>
+                     </svg>
+                 </button>
             </div>
 
-            <div title="The title displayed when the reminder is sent">
+            <div title="The title displayed when the reminder is sent" class="input-container-grid">
                 <label for="title">Reminder Title</label>
                 <input type="text" minlength="1" maxlength="32" id="title" name="title" placeholder=" " required>
             </div>
 
-            <div title="The message sent with the reminder">
+            <div title="The message sent with the reminder" class="input-container-grid">
                 <label for="message">Reminder Message</label>
                 <textarea cols="40" rows = "10" id="message" name="message"></textarea>
             </div>
 
-            <div>
+            <div class="input-container-grid">
                 <button id="create-reminder" class="primary" when-editing="Update Reminder" type="submit">Create Reminder</button>
                 <button id="cancel" action="destructive" type="reset">Cancel</button>
             </div>

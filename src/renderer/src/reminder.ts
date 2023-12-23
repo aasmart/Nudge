@@ -8,10 +8,10 @@ async function loadReminderCreationPage() {
     // Create audio map
     const reminderAudio = await Reminders.getReminderAudio();
     const audioMap = new Map<string, string>();
+    audioMap[""] = "No Audio";
     reminderAudio.forEach(audio => {
         audioMap[audio.id] = audio.name;
     });
-    audioMap[""] = "No Audio";
 
     const form = new InputForm('reminder-form', (json: unknown) => {
         const reminderFormJson: ReminderImpl = json as ReminderImpl;

@@ -43,7 +43,6 @@ export class SelectMenuElement {
         let selected = this.getSelectedOptionId();
         const defaultSelected = this.selectMenuElement.getAttribute("default-selected");
         if(selected.length == 0) {
-            console.log(defaultSelected)
             if(defaultSelected !== null)
                 selected = optionsEnum.hasOwnProperty(defaultSelected) 
                     ? `${this.selectMenuElement.id}--${defaultSelected}` 

@@ -1,3 +1,5 @@
+import { Reminders } from "../../common/reminder";
+
 export { };
 
 function initNav() {
@@ -16,6 +18,9 @@ function initNav() {
         if(radioAppTabId?.length ?? 0 > 0) {
             radio.addEventListener("change", () => {
                 window.api.openPage(`${radioAppTabId}`);
+
+                // Fixes issue where changing tabs wouldn't clear the reminder being edited
+                Reminders.setEditReminder(-1);
             });
         }
     });

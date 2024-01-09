@@ -287,7 +287,7 @@ export class SelectMenuElement {
      * @param expand True to expand
      */
     setExpanded(expand: boolean): void {
-        if(expand) {
+        if(expand && ((this.selectMenuElement.getAttribute("aria-expanded") ?? 'false') === 'false')) {
             this.initialSelectedId = this.getSelectedOptionId();
             this.interactingWithListbox = false;
         }

@@ -865,7 +865,8 @@ label.svg-radio svg {
 
     background-color: var(--select-options-color);
     border-radius: 4px;
-    clip-path: inset(0 0 0 0);
+    clip-path: inset(0 -6px -6px -6px);
+    box-shadow: 0 0 6px black;
 
     transition: clip-path 200ms;
 }

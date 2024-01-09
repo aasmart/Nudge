@@ -1,5 +1,6 @@
 import { Preferences } from "../../common/preferences";
 import { Preloads } from "../../common/preloads";
+import { Reminders } from "../../common/reminder";
 
 function initTabs() {
     const tabs = Array.from(document.getElementsByClassName("settings-tab"));
@@ -60,5 +61,6 @@ window.addEventListener("load", async () => {
         window.api.setTheme(value);
     });
 
+    Reminders.loadReminders()
     setTimeout(Preloads.clearPreloads, 1);
 });

@@ -173,7 +173,7 @@ window.onload = async () => {
 
     // document.documentElement.style.setProperty("--nav-foldout-width", "4em");
 
-    Reminders.loadActiveReminders()
+    Reminders.loadReminders()
     loadReminderListPage()
     setTimeout(Preloads.clearPreloads, 1);
 }

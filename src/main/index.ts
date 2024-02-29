@@ -1,7 +1,9 @@
-import { app, BrowserWindow, Menu, nativeImage, Tray, ipcMain, nativeTheme } from 'electron'
+import { app, BrowserWindow, Menu, nativeImage, Tray, ipcMain, nativeTheme, dialog, FileFilter } from 'electron'
 import { is } from '@electron-toolkit/utils'
 import { join } from "path"
 import { Preferences, Theme, preferencesStore } from '../common/preferences';
+import fs from "fs"
+import { protocol } from "electron";
 
 let tray: any = null;
 let win: any = null;
@@ -53,6 +55,8 @@ const createWindow = () => {
           preload: join(__dirname, '../preload/index.js'),
           nodeIntegration: true,
           contextIsolation: true,
+          webSecurity: !is.dev,
+          allowRunningInsecureContent: false
         }
     })
     
@@ -76,9 +80,44 @@ const createWindow = () => {
     createModal();
 }
 
+function registerContentSecurity() {
+  app.on('web-contents-created', (_, webContents) => {
+    webContents.on('will-attach-webview', (event) => {
+      event.preventDefault();
+    });
+
+    webContents.session.webRequest.onHeadersReceived((details, callback) => {
+      callback({
+        responseHeaders: {
+          ...details.responseHeaders,
+          'Content-Security-Policy': [
+            "default-src 'self'",
+            "media-src 'self' 'unsafe-inline' 'unsafe-eval' file:",
+            "script-src 'self'",
+            "style-src 'self' 'unsafe-inline'"
+          ],
+        },
+      });
+    });
+  });
+}
+
+function registerFileProtocol() {
+  protocol.registerFileProtocol('file', (request, callback) => {
+    try {
+      const pathname = decodeURIComponent(request.url.replace('file:///', ''));
+      return callback(pathname);
+    } catch(err) {
+      console.error(err);
+    }
+  });
+}
+
 app.whenReady().then(() => {
     createWindow();
     registerIpcEvents();
+    registerFileProtocol();
+    registerContentSecurity();
 
     if (process.platform === 'win32')
           app.setAppUserModelId(app.name);
@@ -95,11 +134,10 @@ app.setLoginItemSettings({
 app.on('before-quit', () => win.quitting = true)
 
 function loadHtml(window: any, fileName: string) {
-  if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
+  if (is.dev && process.env['ELECTRON_RENDERER_URL'])
     window.loadURL(`${process.env['ELECTRON_RENDERER_URL']}/${fileName}.html`)
-  } else {
+  else
     window.loadFile(join(__dirname, `../renderer/${fileName}.html`))
-  }
 }
 
 function createModal() {
@@ -192,4 +230,55 @@ function registerIpcEvents() {
   ipcMain.on("set-color-scheme", (_event: any, theme: Theme) => {
     nativeTheme.themeSource = theme;
   });
+
+  function getUserPath(): string {
+    return `${app.getPath("appData")}/nudge/config`;
+  }
+
+  ipcMain.handle('get-user-path', (_event: any) => { return getUserPath() });
+
+  ipcMain.handle("read-user-directory", (_event: any, path: string) => {
+    try {
+      const userPath = getUserPath();
+      if(!fs.existsSync(userPath)) {
+        fs.mkdirSync(userPath)
+        console.log(`Creating directory: ${userPath}`)
+      }
+
+      const targetDirectory = `${getUserPath()}/${path}`;
+      if(!fs.existsSync(targetDirectory)) {
+        fs.mkdirSync(targetDirectory)
+        console.log(`Creating directory: ${targetDirectory}`)
+      }
+
+      return fs.readdirSync(targetDirectory);
+    } catch(err) {
+      console.error(err)
+    }
+
+    return [];
+  });
+
+  ipcMain.handle("read-file", (_event: any, path: string) => {
+    try {
+      return fs.readFileSync(path, 'utf-8');
+    } catch(err) {
+      console.error(err);
+    }
+    return "";
+  });
+
+  ipcMain.handle("copy-file", (_event: any, source: string, destination: string) => {
+    try {
+      fs.copyFile(source, destination, () => {});
+      return true;
+    } catch(err) {
+      return false;
+    }
+  })
+
+  ipcMain.handle("open-file-dialog", async (_event: any, validExtensions: FileFilter[]) => {
+    const result = await dialog.showOpenDialog({properties: ['openFile'], filters: validExtensions});
+    return result;
+  })
 }

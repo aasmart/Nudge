@@ -343,6 +343,7 @@ REMINDERS
     grid-row: 2;
     align-self: center;
     margin: 0;
+    font-size: 1.7ch;
 }
 
 .reminder button {

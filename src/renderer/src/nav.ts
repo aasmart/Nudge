@@ -1,3 +1,4 @@
+import { createPopupButton, showPopup } from "../../common/popup";
 import { Reminders } from "../../common/reminder";
 
 export { };
@@ -16,11 +17,28 @@ function initNav() {
             body.addEventListener("clearPreload", () => { radio.focus(); });
 
         if(radioAppTabId?.length ?? 0 > 0) {
+            const changeWindow = () => { window.api.openPage(`${radioAppTabId}`); };
             radio.addEventListener("change", () => {
-                window.api.openPage(`${radioAppTabId}`);
-
-                // Fixes issue where changing tabs wouldn't clear the reminder being edited
-                Reminders.setEditReminder(-1);
+                if(Reminders.getEditIndex() !== -1) {
+                    // undo the checking of the clicked radio button
+                    const location = window.location.href.split("/").pop();
+                    const currRadio = radios.find(r => location?.startsWith(r.getAttribute("value") || ""));
+                    if(currRadio)
+                        currRadio.checked = true;
+                    showPopup(
+                        "Unsaved Changes", 
+                        "Are you sure you want to change pages? Any changes will be lost",
+                        [
+                            createPopupButton("Confirm", "destructive", () => { 
+                                changeWindow();
+                                Reminders.setEditReminder(-1);
+                            }),
+                            createPopupButton("Cancel")
+                        ]
+                    );
+                } else {
+                    changeWindow();
+                }
             });
         }
     });

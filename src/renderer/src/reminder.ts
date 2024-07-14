@@ -1,6 +1,6 @@
 import { InputForm } from "../../common/inputForm";
 import { Preloads } from "../../common/preloads";
-import { ReminderImpl, ReminderNotificationType, Reminders } from "../../common/reminder";
+import { NextReminderDisplayMode, ReminderImpl, ReminderNotificationType, Reminders } from "../../common/reminder";
 
 function loadReminderCreationPage() {
     const CREATE_BUTTON = 'create-reminder'
@@ -14,7 +14,8 @@ function loadReminderCreationPage() {
             maxIgnoredReminders: reminderFormJson.maxIgnoredReminders,
             notificationType: reminderFormJson.notificationType,
             message: reminderFormJson?.message,
-            title: reminderFormJson?.title
+            title: reminderFormJson?.title,
+            nextReminderDisplayMode: NextReminderDisplayMode.EXACT
         });
 
         const startDelta = reminder?.reminderStartOverrideAmount ?? reminder.reminderIntervalAmount

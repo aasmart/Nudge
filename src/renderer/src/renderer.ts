@@ -4,10 +4,11 @@ import pauseSvgPath from "../assets/pause.svg"
 import playSvgPath from "../assets/play.svg"
 import notificationSvgPath from "../assets/notification_important.svg"
 import refreshSvgPath from "../assets/refresh.svg"
-import { Reminders } from "../../common/reminder"
+import { NextReminderDisplayMode, Reminders } from "../../common/reminder"
 import { Preloads } from "../../common/preloads"
 import { createPopupButton, showPopup } from "../../common/popup"
 import { fetchSvgOrAsImage } from "../../common/svgUtils"
+import { DateUtils } from "../../common/date"
 
 let deleteSvg: SVGElement | HTMLImageElement;
 let editSvg: SVGElement | HTMLImageElement;
@@ -30,14 +31,32 @@ function listReminders() {
 
         // Create the display text
         let text = document.createElement('p')
-        text.innerText = "Next Reminder: "
+        text.innerText = "Next Reminder: ";
 
         let textSpan = document.createElement('span')
         if(reminder.paused)
             textSpan.innerText = "this reminder is paused"
-        else
-            textSpan.innerText = reminder.nextReminder.toLocaleString()
+        else {
+            if(reminder.nextReminderDisplayMode === NextReminderDisplayMode.EXACT) {
+                textSpan.innerText = reminder.nextReminder.toLocaleString()
+            } else {
+                textSpan.innerText = `in ${DateUtils.getTimeDifferenceString(new Date(), reminder.nextReminder)}`;
+            }
+        }
         textSpan.classList.add("next-timer-play")
+        textSpan.title = "Click to toggle display mode";
+
+        textSpan.addEventListener("click", () => {
+            const index = Reminders.activeReminders.indexOf(reminder);
+            const activeReminder = Reminders.activeReminders[index]
+            if(activeReminder.nextReminderDisplayMode === NextReminderDisplayMode.EXACT)
+                activeReminder.nextReminderDisplayMode = NextReminderDisplayMode.COUNTDOWN;
+            else
+                activeReminder.nextReminderDisplayMode = NextReminderDisplayMode.EXACT;
+
+            Reminders.saveActiveReminders();
+            Reminders.loadReminders();
+        });
 
         text.append(textSpan)
 
@@ -163,6 +182,14 @@ function loadReminderListPage() {
     window.dispatchEvent(new Event('update-reminder-list'));
 }
 
+function updateReminderTimes() {
+    Reminders.loadReminders();
+    setTimeout(
+        updateReminderTimes, 
+        new Date().addMilliseconds(60 * 1000).setSeconds(0).valueOf() - new Date().valueOf()
+    );
+}
+
 window.onload = async () => {
     deleteSvg = await fetchSvgOrAsImage(deleteSvgPath);
     editSvg = await fetchSvgOrAsImage(editSvgPath);
@@ -176,4 +203,10 @@ window.onload = async () => {
     Reminders.loadReminders()
     loadReminderListPage()
     setTimeout(Preloads.clearPreloads, 1);
+
+    // handles the secondary display mode for reminder countdowns
+    setTimeout(
+        updateReminderTimes, 
+        new Date().addMilliseconds(60 * 1000).setSeconds(0).valueOf() - new Date().valueOf()
+    )
 }

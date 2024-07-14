@@ -6,6 +6,11 @@ export enum ReminderNotificationType {
     APP_WINDOW = "App Window Notification",
 }
 
+export enum NextReminderDisplayMode {
+    EXACT,
+    COUNTDOWN
+}
+
 const MAX_TIMER_DELAY_MINS = 24 * 24 * 60;
 
 interface IReminder {
@@ -21,6 +26,7 @@ interface IReminder {
     title: string
     paused?: boolean
     pausedTime?: Date
+    nextReminderDisplayMode: NextReminderDisplayMode
 }
 
 class ReminderImpl implements IReminder {
@@ -37,6 +43,7 @@ class ReminderImpl implements IReminder {
     title: string
     paused: boolean
     pausedTime: Date
+    nextReminderDisplayMode: NextReminderDisplayMode
 
     constructor(reminder: IReminder) {
         this.nextReminder = reminder.nextReminder || new Date()
@@ -51,6 +58,7 @@ class ReminderImpl implements IReminder {
         this.title = reminder.title;
         this.paused = reminder.paused || false;
         this.pausedTime = reminder?.pausedTime || new Date();
+        this.nextReminderDisplayMode = reminder.nextReminderDisplayMode;
     }
 
     setNextReminderDate(delayAmountMinutes: number) {
@@ -164,6 +172,7 @@ class ReminderImpl implements IReminder {
             title: this.title,
             paused: this.paused,
             pausedTime: this.pausedTime,
+            nextReminderDisplayMode: this.nextReminderDisplayMode,
         }
     }
 }

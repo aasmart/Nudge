@@ -348,6 +348,7 @@ REMINDERS
     font-style: normal;
     font-weight: normal;
     text-align: center;
+    cursor: pointer
 }
 
 .reminder.ignored::after {

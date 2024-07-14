@@ -41,8 +41,15 @@ export class SelectMenuElement {
 
         // Setup selection stuff
         let selected = this.getSelectedOptionId();
-        if(selected.length == 0)
-            selected = this.optionIds[0] ?? "";
+        const defaultSelected = this.selectMenuElement.getAttribute("default-selected");
+        if(selected.length == 0) {
+            if(defaultSelected !== null)
+                selected = optionsEnum.hasOwnProperty(defaultSelected) 
+                    ? `${this.selectMenuElement.id}--${defaultSelected}` 
+                    : this.optionIds[0] ?? "";
+            else
+                selected = this.optionIds[0] ?? "";
+        }
         this.setSelectedOption(selected);
         this.initialSelectedId = "";
 
@@ -287,7 +294,7 @@ export class SelectMenuElement {
      * @param expand True to expand
      */
     setExpanded(expand: boolean): void {
-        if(expand) {
+        if(expand && ((this.selectMenuElement.getAttribute("aria-expanded") ?? 'false') === 'false')) {
             this.initialSelectedId = this.getSelectedOptionId();
             this.interactingWithListbox = false;
         }

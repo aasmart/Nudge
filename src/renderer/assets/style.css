@@ -366,6 +366,7 @@ REMINDERS
     border-radius: inherit;
     outline: 0px solid var(--input-invalid-color);
     animation: ignored-reminder-pulse 1200ms ease-out infinite;
+    pointer-events: none;
 }
 
 .reminder.ignored::before {
@@ -375,6 +376,7 @@ REMINDERS
     margin: auto;
     border: 2px solid var(--input-invalid-color);
     border-radius: inherit;
+    pointer-events: none;
 }
 
 .reminder.ignored .acknowledge > svg {

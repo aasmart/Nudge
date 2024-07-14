@@ -29,9 +29,12 @@ function listReminders() {
         if(reminder.isIgnored)
             reminderListElement.classList.add("ignored")
 
+        const title = document.createElement("h4");
+        title.innerText = reminder.title;
+
         // Create the display text
         let text = document.createElement('p')
-        text.innerText = "Next Reminder: ";
+        text.innerText = "Time: ";
 
         let textSpan = document.createElement('span')
         if(reminder.paused)
@@ -157,6 +160,7 @@ function listReminders() {
         })
 
         // Finish building the ui element
+        reminderListElement.append(title);
         reminderListElement.append(text)
         reminderListElement.append(refreshButton)
         reminderListElement.append(pauseButton)

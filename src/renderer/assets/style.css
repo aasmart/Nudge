@@ -628,6 +628,7 @@ form .combobox-wrapper label:not(
     :has(+.combobox--input input:required)
 )::after {
     content: ' (optional)';
+    color: var(--popup-accent-color)
 }
 
 fieldset {

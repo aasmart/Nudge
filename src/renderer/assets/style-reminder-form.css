@@ -38,7 +38,6 @@ REMINDER FORM
     
     background-color: var(--input-color);
     background-image: linear-gradient(rgb(0 0 0/10%) 0 0);
-    border: 1px solid rgb(21, 21, 21);
     box-shadow: 0 0.75px 3px black;
 
     grid-column: calc(var(--columns) - var(--select-columns) + 1) / span calc(var(--select-columns));

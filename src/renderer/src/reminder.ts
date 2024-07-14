@@ -1,7 +1,7 @@
 import { InputForm } from "../../common/inputForm";
 import { showPopup } from "../../common/popup";
 import { Preloads } from "../../common/preloads";
-import { ReminderImpl, ReminderNotificationType, Reminders } from "../../common/reminder";
+import { NextReminderDisplayMode, ReminderImpl, ReminderNotificationType, Reminders } from "../../common/reminder";
 
 async function loadReminderCreationPage() {
     const CREATE_BUTTON = 'create-reminder';
@@ -24,7 +24,8 @@ async function loadReminderCreationPage() {
             notificationType: reminderFormJson.notificationType,
             message: reminderFormJson?.message,
             title: reminderFormJson?.title,
-            reminderAudioId: reminderFormJson?.reminderAudioId
+            reminderAudioId: reminderFormJson?.reminderAudioId,
+            nextReminderDisplayMode: NextReminderDisplayMode.EXACT
         });
 
         const startDelta = reminder?.reminderStartOverrideAmount ?? reminder.reminderIntervalAmount

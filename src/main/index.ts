@@ -21,7 +21,7 @@ function createTray () {
     {
       label: 'Quit App',
       click: () => {
-        app.quit() // actually quit the app.
+        app.quit(); // actually quit the app.
       }
     },
   ])
@@ -69,7 +69,7 @@ const createWindow = () => {
 
     win.on('close', (event: any) => {
         if(win.quitting) {
-          win.quit() 
+          app.quit() 
           return;
         }
 
@@ -169,7 +169,7 @@ function createModal() {
 
   modal.on('close', (event: any) => {
     if(win.quitting) {
-      win.quit();
+      app.quit();
       return;
     }
 

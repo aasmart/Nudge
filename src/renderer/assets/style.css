@@ -256,6 +256,8 @@ nav hr {
 
 .settings-tab[visible="false"] {
     visibility: hidden;
+    position: absolute;
+    display: none;
 }
 
 /* ==================================

@@ -36,15 +36,19 @@ function listReminders() {
         let text = document.createElement('p')
         text.innerText = "Time: ";
 
-        let textSpan = document.createElement('span')
-        if(reminder.paused)
-            textSpan.innerText = "this reminder is paused"
-        else {
+        const setTimeDisplay = () => {
             if(reminder.nextReminderDisplayMode === NextReminderDisplayMode.EXACT) {
                 textSpan.innerText = reminder.nextReminder.toLocaleString()
             } else {
                 textSpan.innerText = `in ${DateUtils.getTimeDifferenceString(new Date(), reminder.nextReminder)}`;
             }
+        }
+
+        let textSpan = document.createElement('span')
+        if(reminder.paused)
+            textSpan.innerText = "this reminder is paused"
+        else {
+            setTimeDisplay();
         }
         textSpan.classList.add("next-timer-play")
         textSpan.title = "Click to toggle display mode";
@@ -58,7 +62,8 @@ function listReminders() {
                 activeReminder.nextReminderDisplayMode = NextReminderDisplayMode.EXACT;
 
             Reminders.saveActiveReminders();
-            Reminders.loadReminders();
+            if(!reminder.paused)
+                setTimeDisplay();
         });
 
         text.append(textSpan)
@@ -118,7 +123,6 @@ function listReminders() {
                 pauseButton.setAttribute('aria-label', 'Unpause')
                 pauseButton.title = 'Pause reminder'
                 reminder.setPaused(true)
-
                 pauseButton.replaceChildren(playSvgClone);
             } else {
                 pauseButton.setAttribute('aria-label', 'Pause')

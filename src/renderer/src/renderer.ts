@@ -159,6 +159,9 @@ function listReminders() {
             }
         })
 
+        if(reminder.paused && reminder.pausedActivityNotification)
+            reminder.addPausedReminderNotificationHandler();
+
         // Finish building the ui element
         reminderListElement.append(title);
         reminderListElement.append(text)

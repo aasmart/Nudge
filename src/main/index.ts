@@ -1,9 +1,10 @@
-import { app, BrowserWindow, Menu, nativeImage, Tray, ipcMain, nativeTheme, dialog, FileFilter } from 'electron'
+import { app, BrowserWindow, Menu, nativeImage, Tray, ipcMain, nativeTheme, dialog, FileFilter, webContents } from 'electron'
 import { is } from '@electron-toolkit/utils'
 import { join } from "path"
 import { Preferences, Theme, preferencesStore } from '../common/preferences';
 import fs from "fs"
 import { protocol } from "electron";
+import { uIOhook, UiohookKey, UiohookMouseEvent } from 'uiohook-napi'
 
 let tray: any = null;
 let win: any = null;
@@ -78,6 +79,45 @@ const createWindow = () => {
     });
 
     createModal();
+
+    setupActivityTracking();
+}
+
+function setupActivityTracking() {
+  const interactionIntervalMs = 3 * 1000;
+  const numInteractionIntervals = 10;
+  const minInteractionIntervals = 5;
+
+  // if input has occured within at least x of y intervals that are z seconds long,
+  // then the user is considered active
+  let interactionDateTime: Date | undefined = undefined;
+  let hitInteractionTotal: number = 1;
+  let interactionTotal: number = 1;
+  uIOhook.on("input", (_) => {
+    if(!interactionDateTime) {
+      interactionDateTime = new Date(new Date().valueOf() + interactionIntervalMs);
+      return;
+    }
+
+    const timeDelta = new Date().valueOf() - interactionDateTime.valueOf();
+    if(timeDelta >= 0) {
+      ++hitInteractionTotal;
+      interactionTotal += Math.floor(timeDelta / interactionIntervalMs) + 1;
+      if(hitInteractionTotal >= minInteractionIntervals) {
+        win.webContents.send("continuous-activity");
+        hitInteractionTotal = 1;
+        interactionTotal = 1;
+      } else if(interactionTotal >= numInteractionIntervals) {
+        hitInteractionTotal = 1;
+        interactionTotal = 1;
+      }
+      interactionDateTime = new Date(new Date().valueOf() + interactionIntervalMs);
+    }
+  });
+
+
+  if(preferencesStore.get("activityTracking"))
+    uIOhook.start();
 }
 
 function registerContentSecurity() {
@@ -119,8 +159,8 @@ app.whenReady().then(() => {
     registerFileProtocol();
     registerContentSecurity();
 
-    if (process.platform === 'win32')
-          app.setAppUserModelId(app.name);
+    if(process.platform === 'win32')
+        app.setAppUserModelId(app.name);
 
     app.on('activate', () => {
         if (BrowserWindow.getAllWindows().length === 0) createWindow()
@@ -175,7 +215,7 @@ function createModal() {
 
     event.preventDefault();
     modal.hide();
-});
+  });
 }
 
 function showModal(params: ModalParams) {
@@ -229,6 +269,13 @@ function registerIpcEvents() {
   // Themes
   ipcMain.on("set-color-scheme", (_event: any, theme: Theme) => {
     nativeTheme.themeSource = theme;
+  });
+
+  ipcMain.on("set-activity-tracking", (_event: any, enabled: boolean) => {
+    if(enabled)
+      uIOhook.start();
+    else
+      uIOhook.stop();
   });
 
   function getUserPath(): string {

@@ -32,7 +32,9 @@ interface IReminder {
     paused?: boolean;
     pausedTime?: Date;
     reminderAudioId: string;
-    nextReminderDisplayMode: NextReminderDisplayMode
+    nextReminderDisplayMode?: NextReminderDisplayMode;
+    pausedActivityNotification: boolean;
+    sentPausedActivityNotification?: boolean;
 }
 
 type ReminderAudio = {
@@ -56,6 +58,8 @@ class ReminderImpl implements IReminder {
     pausedTime: Date;
     reminderAudioId: string;
     nextReminderDisplayMode: NextReminderDisplayMode
+    pausedActivityNotification: boolean;
+    sentPausedActivityNotification: boolean;
 
     constructor(reminder: IReminder) {
         this.nextReminder = reminder.nextReminder || new Date()
@@ -71,7 +75,9 @@ class ReminderImpl implements IReminder {
         this.paused = reminder.paused || false;
         this.pausedTime = reminder?.pausedTime || new Date();
         this.reminderAudioId = reminder.reminderAudioId || "";
-        this.nextReminderDisplayMode = reminder.nextReminderDisplayMode;
+        this.nextReminderDisplayMode = reminder.nextReminderDisplayMode || NextReminderDisplayMode.EXACT;
+        this.pausedActivityNotification = reminder.pausedActivityNotification || false;
+        this.sentPausedActivityNotification = reminder.sentPausedActivityNotification || false;
     }
 
     setNextReminderDate(delayAmountMinutes: number) {
@@ -161,6 +167,7 @@ class ReminderImpl implements IReminder {
         if(paused) {
             this.cancel()
             this.pausedTime = new Date()
+            this.sentPausedActivityNotification = false;
         } else if(this.paused && !paused) {
             const nextPlay = (new Date(this.nextReminder).valueOf() - new Date(this.pausedTime).valueOf()) * Constants.MS_TO_MINUTES;
             this.setNextReminderDate(nextPlay)
@@ -172,6 +179,22 @@ class ReminderImpl implements IReminder {
         window.dispatchEvent(new Event('update-reminder-list'))
     }
 
+    addPausedReminderNotificationHandler() {
+        if(!this.sentPausedActivityNotification) {
+            window.api.addSingleActivityTrackingListener(() => {
+                if(this.paused) {
+                    window.api.showModal({
+                        title: "Paused Reminders",
+                        message: "It looks like you're active at your computer but have paused reminders!" +
+                                " You will only receive this message once for the reminders that are currently" +
+                                " in a pause state and have this feature enabled."
+                    });
+                    this.sentPausedActivityNotification = true;
+                }
+            })
+        }
+    }
+
     reset() {
         this.isIgnored = false;
         this.paused = false;
@@ -180,22 +203,7 @@ class ReminderImpl implements IReminder {
     }
 
     toJSON(): IReminder {
-        return {
-            nextReminder: this.nextReminder,
-            reminderIntervalAmount: this.reminderIntervalAmount,
-            reminderStartOverrideAmount: this.reminderStartOverrideAmount,
-            ignoredReminderIntervalAmount: this.ignoredReminderIntervalAmount,
-            maxIgnoredReminders: this.maxIgnoredReminders,
-            ignoredReminders: this.ignoredReminders,
-            isIgnored: this.isIgnored,
-            notificationType: this.notificationType,
-            message: this.message,
-            title: this.title,
-            paused: this.paused,
-            pausedTime: this.pausedTime,
-            reminderAudioId: this.reminderAudioId,
-            nextReminderDisplayMode: this.nextReminderDisplayMode,
-        }
+        return this;
     }
 }
 

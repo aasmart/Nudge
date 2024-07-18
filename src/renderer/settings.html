@@ -45,6 +45,10 @@
                     <input type="radio" id="settings-tab-appearance" class="settings-tab-radio" name="settings-tab" value="settings-appearance">
                     <span>Appearance</span>
                 </label>
+                <label for="settings-tab-nudges">
+                    <input type="radio" id="settings-tab-nudges" class="settings-tab-radio" name="settings-tab" value="settings-nudges">
+                    <span>Nudges</span>
+                </label>
             </fieldset>
         </div>
     </nav>
@@ -65,6 +69,16 @@
                 <label for="theme-dark" class="radio">
                     <input type="radio" id="theme-dark" name="theme" value="dark">
                     <span>Dark</span>
+                </label>
+            </fieldset>
+        </div>
+
+        <div class="settings-tab" id="settings-nudges" visible="false">
+            <fieldset data-store-id="activityTracking">
+                <legend><strong>Activity Detection</strong></legend>
+                <input id="disable-activity-detection-toggle" name="disable-activity-detection-toggle" type="checkbox"/>
+                <label for="disable-activity-detection-toggle" title="Toggles the activity feature for all paused Nudges even if they have the feature enabled.">
+                    Detect computer activity for paused Nudges with activity feature enabled
                 </label>
             </fieldset>
         </div>

@@ -1,7 +1,7 @@
 import { InputForm } from "../../common/inputForm";
 import { showPopup } from "../../common/popup";
 import { Preloads } from "../../common/preloads";
-import { NextReminderDisplayMode, ReminderImpl, ReminderNotificationType, Reminders } from "../../common/reminder";
+import { ReminderImpl, ReminderNotificationType, Reminders } from "../../common/reminder";
 
 async function loadReminderCreationPage() {
     const CREATE_BUTTON = 'create-reminder';
@@ -16,17 +16,7 @@ async function loadReminderCreationPage() {
 
     const form = new InputForm('reminder-form', (json: unknown) => {
         const reminderFormJson: ReminderImpl = json as ReminderImpl;
-        const reminder = new ReminderImpl({
-            reminderIntervalAmount: reminderFormJson?.reminderIntervalAmount,
-            reminderStartOverrideAmount: reminderFormJson?.reminderStartOverrideAmount,
-            ignoredReminderIntervalAmount: reminderFormJson?.ignoredReminderIntervalAmount,
-            maxIgnoredReminders: reminderFormJson.maxIgnoredReminders,
-            notificationType: reminderFormJson.notificationType,
-            message: reminderFormJson?.message,
-            title: reminderFormJson?.title,
-            reminderAudioId: reminderFormJson?.reminderAudioId,
-            nextReminderDisplayMode: NextReminderDisplayMode.EXACT
-        });
+        const reminder = new ReminderImpl(reminderFormJson);
 
         const startDelta = reminder?.reminderStartOverrideAmount ?? reminder.reminderIntervalAmount
         reminder.setNextReminderDate(startDelta)

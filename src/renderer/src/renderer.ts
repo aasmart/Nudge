@@ -77,12 +77,21 @@ function listReminders() {
         deleteButton.title = 'Delete reminder'
 
         deleteButton.addEventListener('click', () => {
-            const index = Reminders.activeReminders.indexOf(reminder)
-            Reminders.activeReminders[index].cancel()
-            if(index >= 0)
-                Reminders.activeReminders.splice(index, 1)
-            Reminders.saveActiveReminders()
-            window.dispatchEvent(new Event('update-reminder-list'))
+            showPopup(
+                "Confirm Nudge Deletion", 
+                `Are you sure you want to delete the Nudge "${reminder.title}"?`,
+                [
+                    createPopupButton("Confirm", "destructive", () => {
+                        const index = Reminders.activeReminders.indexOf(reminder)
+                        Reminders.activeReminders[index].cancel()
+                        if(index >= 0)
+                            Reminders.activeReminders.splice(index, 1)
+                        Reminders.saveActiveReminders()
+                        window.dispatchEvent(new Event('update-reminder-list'))
+                    }),
+                    createPopupButton("Cancel", "primary")
+                ]
+            )
         })
 
         // Create the edit button

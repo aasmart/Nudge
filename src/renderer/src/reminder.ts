@@ -133,4 +133,6 @@ function initAddAudioButton() {
     })
 }
 
-loadReminderCreationPage()
+window.addEventListener("load", () => {
+    loadReminderCreationPage()
+});

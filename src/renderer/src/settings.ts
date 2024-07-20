@@ -63,6 +63,8 @@ addNavFromPageListener("settings", () => {
     document.getElementsByClassName("settings-nav")[0].setAttribute("visible", "false");
 })
 
-window.api.preferences.addChangeListener("theme", value => {
-    window.api.setTheme(value);
+window.addEventListener("load", async () => {
+    window.api.preferences.addChangeListener("theme", value => {
+        window.api.setTheme(value);
+    });
 });

@@ -69,24 +69,6 @@ function initNav() {
             main.setAttribute("visible", "false");
             pages[pages.length - 1].insertAdjacentElement("afterend", main);
 
-            // Load all the file's scripts
-            // Recreates the scripts because it makes my life easier
-            const scripts = Array.from(doc.getElementsByTagName("script"));
-            scripts.forEach(s => { 
-                const scriptNew = document.createElement("script");
-                scriptNew.src = s.src;
-                scriptNew.type = s.type;
-                document.body.appendChild(scriptNew);
-            });
-
-            // grab stylesheets
-            const styles = Array.from(doc.getElementsByTagName("link"));
-            styles.forEach(s => {
-                if(s.getAttribute("rel") !== "stylesheet")
-                    return;
-                document.head.appendChild(s);
-            });
-
             pages.push(main);
         }
 
@@ -120,7 +102,7 @@ function initNav() {
                 }
             });
         }
-    })
+    });
 }
 
 window.addEventListener("load", () => {

@@ -41,12 +41,18 @@
                 </label>
             </fieldset>
         </div>
-        <!-- <div class="nav__foldout">
-            
-        </div> -->
+        <div class="nav__foldout">
+            <fieldset class="settings-nav" visible="false">
+                <legend><strong>App Settings</strong></legend>
+                <label for="settings-tab-appearance">
+                    <input type="radio" id="settings-tab-appearance" class="settings-tab-radio" name="settings-tab" value="settings-appearance">
+                    <span>Appearance</span>
+                </label>
+            </fieldset>
+        </div>
     </nav>
 
-    <main class="center-row">
+    <main class="center-row" id="page-index" visible="false">
         <section id="reminder-list">
             <h2>Active Reminders</h2>
             <ul>
@@ -57,7 +63,9 @@
             </button>
         </section>
     </main>
+
     <script type="module" src="./src/renderer.ts"></script>
-    <script type="module" src="./src/nav.ts"></script>
+    <!-- <script type="module" src="./src/nav.ts"></script> -->
+
 </body>
 </html>

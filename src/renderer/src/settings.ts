@@ -1,6 +1,5 @@
 import { Preferences } from "../../common/preferences";
-import { Preloads } from "../../common/preloads";
-import { Reminders } from "../../common/reminder";
+import { addNavFromPageListener, addNavToPageListener } from "./nav";
 
 function initTabs() {
     const tabs = Array.from(document.getElementsByClassName("settings-tab"));
@@ -52,15 +51,18 @@ function initSettings() {
     });
 }
 
-window.addEventListener("load", async () => {
+addNavToPageListener("settings", () => {
     document.documentElement.style.setProperty("--nav-foldout-width", "12em");
+    document.getElementsByClassName("settings-nav")[0].setAttribute("visible", "true");
     initSettings();
     initTabs();
-    
-    window.api.preferences.addChangeListener("theme", value => {
-        window.api.setTheme(value);
-    });
+})
 
-    Reminders.loadReminders()
-    setTimeout(Preloads.clearPreloads, 1);
+addNavFromPageListener("settings", () => {
+    document.documentElement.style.setProperty("--nav-foldout-width", "0em");
+    document.getElementsByClassName("settings-nav")[0].setAttribute("visible", "false");
+})
+
+window.api.preferences.addChangeListener("theme", value => {
+    window.api.setTheme(value);
 });

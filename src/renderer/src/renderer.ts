@@ -9,6 +9,7 @@ import { Preloads } from "../../common/preloads"
 import { createPopupButton, showPopup } from "../../common/popup"
 import { fetchSvgOrAsImage } from "../../common/svgUtils"
 import { DateUtils } from "../../common/date"
+import { addNavToPageListener, navPage } from "./nav"
 
 let deleteSvg: SVGElement | HTMLImageElement;
 let editSvg: SVGElement | HTMLImageElement;
@@ -112,7 +113,7 @@ function listReminders() {
 
             Reminders.setEditReminder(index)
             Reminders.saveActiveReminders()
-            window.api.openPage('reminder')
+            navPage("reminder")
         })
 
         const pauseSvgClone = pauseSvg.cloneNode(true);
@@ -191,7 +192,7 @@ function loadReminderListPage() {
 
     createNewReminder.addEventListener('click', () => {
         Reminders.saveActiveReminders();
-        window.api.openPage('reminder');
+        navPage("reminder");
     });
 
     window.addEventListener('update-reminder-list', () => listReminders());
@@ -207,7 +208,11 @@ function updateReminderTimes() {
     );
 }
 
-window.onload = async () => {
+addNavToPageListener("index", () => {
+    Reminders.loadReminders();
+});
+
+window.addEventListener("load", async () => {
     deleteSvg = await fetchSvgOrAsImage(deleteSvgPath);
     editSvg = await fetchSvgOrAsImage(editSvgPath);
     pauseSvg = await fetchSvgOrAsImage(pauseSvgPath);
@@ -226,4 +231,4 @@ window.onload = async () => {
         updateReminderTimes, 
         new Date().addMilliseconds(60 * 1000).setSeconds(0).valueOf() - new Date().valueOf()
     )
-}
+});

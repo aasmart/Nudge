@@ -11,7 +11,7 @@ const PreferencesAPI = {
 
 export const API = {
   showWindow: (win: string) => ipcRenderer.send('show-window', win),
-  openPage: (page: string) => ipcRenderer.send('open-page', page),
+  //openPage: (page: string) => ipcRenderer.send('open-page', page),
   showModal: (params: ModalParams) => ipcRenderer.send("show-modal", params),
   hideModal: () => ipcRenderer.send("hide-modal"),
   getModalParams: (): Promise<ModalParams> => ipcRenderer.invoke("get-modal-params"),
@@ -53,4 +53,7 @@ async function setAppTheme() {
 window.addEventListener('DOMContentLoaded', () => {
   setAppTheme();
   setAppName();
+
+  if(!window.sessionStorage.getItem("current-page"))
+    window.sessionStorage.setItem("current-page", "index");
 });

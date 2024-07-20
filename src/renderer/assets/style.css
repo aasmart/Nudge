@@ -206,7 +206,7 @@ nav hr {
 .nav__foldout {
     width: 100%;
     background-color: var(--nav-foldout-color);
-    padding: 0.5rem;
+    padding: min(0.5rem, var(--nav-foldout-width));
 }
 
 .settings-nav legend {
@@ -254,8 +254,11 @@ nav hr {
     margin: 0;
 }
 
-.settings-tab[visible="false"] {
-    visibility: hidden;
+*[visible="false"] {
+    display: none !important;
+    position: absolute !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
 }
 
 /* ==================================

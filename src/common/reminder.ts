@@ -230,11 +230,11 @@ module Reminders {
     }
 
     export function saveActiveReminders() {
-        sessionStorage.setItem("active_reminders", JSON.stringify(activeReminders))
+        localStorage.setItem("active_reminders", JSON.stringify(activeReminders))
     }
     
     export function loadReminders() {
-        let remindersObjs: Array<IReminder> = JSON.parse(sessionStorage.getItem("active_reminders")!) ?? []
+        let remindersObjs: Array<IReminder> = JSON.parse(localStorage.getItem("active_reminders")!) ?? []
     
         activeReminders = remindersObjs.map(obj => {
             const reminder = new ReminderImpl(obj)
@@ -255,11 +255,11 @@ module Reminders {
     }
     
     export function setEditReminder(index: number) {
-        sessionStorage.setItem('edit-reminder-index', index.toString())
+        localStorage.setItem('edit-reminder-index', index.toString())
     }
     
     export function getEditIndex(): number {
-        return parseInt(sessionStorage.getItem('edit-reminder-index') || '-1')
+        return parseInt(localStorage.getItem('edit-reminder-index') || '-1')
     }
     
     export function getEditReminder(): ReminderImpl {

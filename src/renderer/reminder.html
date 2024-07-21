@@ -46,6 +46,16 @@
     
     <main class="preload center-horizontal">
         <form action="" method="" class="reminder-form">
+            <div title="The title displayed when the reminder is sent" class="input-container-grid">
+                <label for="title">Reminder Title</label>
+                <input type="text" minlength="1" maxlength="32" id="title" name="title" placeholder=" " required>
+            </div>
+
+            <div title="The message sent with the reminder" class="input-container-grid">
+                <label for="message">Reminder Message</label>
+                <textarea cols="40" rows = "10" id="message" name="message"></textarea>
+            </div>
+            
             <div title="The amount of time between each reminder" class="input-container-grid">
                 <label for="reminder-interval-amount">Reminder Interval</label>
                 <input type="number" 
@@ -164,16 +174,6 @@
                          <path d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z"/>
                      </svg>
                  </button>
-            </div>
-
-            <div title="The title displayed when the reminder is sent" class="input-container-grid">
-                <label for="title">Reminder Title</label>
-                <input type="text" minlength="1" maxlength="32" id="title" name="title" placeholder=" " required>
-            </div>
-
-            <div title="The message sent with the reminder" class="input-container-grid">
-                <label for="message">Reminder Message</label>
-                <textarea cols="40" rows = "10" id="message" name="message"></textarea>
             </div>
 
             <div title="If enabled, a message will be sent if you're active at your computer if this reminder is paused. Useful if you forget to unpause the reminder. 

@@ -133,6 +133,7 @@ class InputForm {
                 return;
             }
 
+            // add different ways to handle different input types here
             switch(type) {
                 case "checkbox":
                     (input as HTMLInputElement).checked = false;

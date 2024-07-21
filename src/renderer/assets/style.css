@@ -205,7 +205,7 @@ nav hr {
 .nav__foldout {
     width: 100%;
     background-color: var(--nav-foldout-color);
-    padding: min(0.5rem, max(var(--nav-foldout-width), 0));
+    padding: min(0.5rem, max(var(--nav-foldout-width), 0rem));
 }
 
 .settings-nav legend {

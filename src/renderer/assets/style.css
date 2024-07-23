@@ -567,6 +567,15 @@ input[type="checkbox"] {
     z-index: -1;
 }
 
+/*
+Forces the actual checkbox to be confined to the parent div.
+This helps solve the problem where the checkbox goes off in lala land and
+clicking on the checkbox scrolls to wherever it is.
+*/
+div:has(input[type="checkbox"]) {
+    position: relative;
+}
+
 input[type="checkbox"] + label {
     position: relative;
     height: 100%;

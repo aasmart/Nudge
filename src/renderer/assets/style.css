@@ -579,7 +579,8 @@ div:has(input[type="checkbox"]) {
 input[type="checkbox"] + label {
     position: relative;
     height: 100%;
-    line-height: 200%;
+    line-height: var(--checkbox-height);
+    vertical-align: bottom;
     text-align: center;
     display: inline-block;
     cursor: pointer;

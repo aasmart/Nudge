@@ -1,10 +1,10 @@
-import { app, BrowserWindow, Menu, nativeImage, Tray, ipcMain, nativeTheme, dialog, FileFilter, webContents } from 'electron'
+import { app, BrowserWindow, Menu, nativeImage, Tray, ipcMain, nativeTheme, dialog, FileFilter } from 'electron'
 import { is } from '@electron-toolkit/utils'
 import { join } from "path"
 import { Preferences, Theme, preferencesStore } from '../common/preferences';
 import fs from "fs"
 import { protocol } from "electron";
-import { uIOhook, UiohookKey, UiohookMouseEvent } from 'uiohook-napi'
+import { uIOhook } from 'uiohook-napi'
 
 let tray: any = null;
 let win: any = null;

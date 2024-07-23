@@ -1,14 +1,19 @@
 import { createPopupButton, showPopup } from "../../common/popup";
 import { Reminders } from "../../common/reminder";
 
-export { navPage, addNavFromPageListener, addNavToPageListener };
+export { navPage, addNavFromPageListener, addNavToPageListener, getCurrentPageMain };
 
+function getCurrentPageMain(): HTMLElement | undefined {
+    const pages = Array.from(document.getElementsByTagName("main"));
+    const currLocation = pages.find(page => page.getAttribute("visible") === "true");
+
+    return currLocation;
+}
 /*
 Only changes the page without changing the navbar
 */
 const changePage = (page: string) => { 
-    const pages = Array.from(document.getElementsByTagName("main"));
-    const currLocation = pages.find(page => page.getAttribute("visible") === "true");
+    const currLocation = getCurrentPageMain();
     const nextLocation = document.getElementById(`page-${page}`);
 
     currLocation?.setAttribute("visible", "false");

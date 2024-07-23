@@ -1,7 +1,7 @@
 import { InputForm } from "../../common/inputForm";
 import { showPopup } from "../../common/popup";
 import { NextReminderDisplayMode, ReminderImpl, ReminderNotificationType, Reminders } from "../../common/reminder";
-import { addNavToPageListener, navPage } from "./nav";
+import { addNavToPageListener, getCurrentPageMain, navPage } from "./nav";
 
 async function loadReminderCreationPage() {
     const CREATE_BUTTON = 'create-reminder';
@@ -65,6 +65,12 @@ async function loadReminderCreationPage() {
         } else {
             form.clear();
         }
+
+        getCurrentPageMain()?.scrollTo({
+            top: 0,
+            left: 0,
+            behavior: "instant"
+        });
     });
 
     initPlaySelectedAudioButton();

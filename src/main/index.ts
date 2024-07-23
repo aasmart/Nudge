@@ -77,6 +77,21 @@ const createWindow = () => {
         win.hide()
     });
 
+    const locked = app.requestSingleInstanceLock();
+    if(!locked) {
+      app.quit();
+      return;
+    }
+
+    app.on("second-instance", () => {
+      if(win) {
+        if(win.isMinimized())
+          win.restore();
+        win.show();
+        win.focus();
+      }
+    });
+      
     createModal();
 }
 

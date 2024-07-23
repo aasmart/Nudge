@@ -200,6 +200,7 @@ function loadReminderListPage() {
 }
 
 function updateReminderTimes() {
+    window.dispatchEvent(new Event("update-reminder-list"));
     setTimeout(
         updateReminderTimes, 
         new Date().addMilliseconds(60 * 1000).setSeconds(0).valueOf() - new Date().valueOf()

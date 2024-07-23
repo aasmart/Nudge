@@ -11,7 +11,7 @@ const PreferencesAPI = {
 
 export const API = {
   showWindow: (win: string) => ipcRenderer.send('show-window', win),
-  openPage: (page: string) => ipcRenderer.send('open-page', page),
+  //openPage: (page: string) => ipcRenderer.send('open-page', page),
   showModal: (params: ModalParams) => ipcRenderer.send("show-modal", params),
   hideModal: () => ipcRenderer.send("hide-modal"),
   getModalParams: (): Promise<ModalParams> => ipcRenderer.invoke("get-modal-params"),
@@ -20,6 +20,7 @@ export const API = {
   getUserPath: (): Promise<string> => ipcRenderer.invoke("get-user-path"),
   readUserDirectory: (path: string) : Promise<string[]> => ipcRenderer.invoke("read-user-directory", path),
   readFile: (path: string): Promise<string> => ipcRenderer.invoke("read-file", path),
+  readHtmlFile: (fileName: string): Promise<string> => ipcRenderer.invoke("read-html-file", fileName),
   showFileDialog: (validExtensions: FileFilter[]): Promise<Electron.OpenDialogReturnValue> => ipcRenderer.invoke("open-file-dialog", validExtensions),
   copyFile: (source: string, destination: string): Promise<boolean> => ipcRenderer.invoke("copy-file", source, destination),
 }
@@ -53,4 +54,7 @@ async function setAppTheme() {
 window.addEventListener('DOMContentLoaded', () => {
   setAppTheme();
   setAppName();
+
+  if(!window.sessionStorage.getItem("current-page"))
+    window.sessionStorage.setItem("current-page", "index");
 });

@@ -56,7 +56,11 @@ function initNav() {
         const radioPageId = radio.getAttribute("value");
         // import the html file if it doesn't exist
         if(!pages.find(page => page.id.endsWith(radioPageId || ""))) {
-            const data = await window.api.readFile(`src/renderer/${radioPageId}.html`);
+            const data = await window.api.readHtmlFile(`${radioPageId}`);
+            if(!data) {
+                console.error(`Failed to find HTML file ${radioPageId}`);
+                return;
+            }
             const doc = new DOMParser().parseFromString(data.toString(), "text/html");
             const main = doc.getElementsByTagName("main")[0];
             if(!main) {

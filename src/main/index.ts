@@ -268,6 +268,20 @@ function registerIpcEvents() {
     return "";
   });
 
+  ipcMain.handle("read-html-file", (_event: any, fileName: string) => {
+    if (is.dev)
+      fileName = `src/renderer/${fileName}.html`
+    else
+      fileName = join(__dirname, `../renderer/${fileName}.html`);
+
+    try {
+      return fs.readFileSync(fileName, 'utf-8');
+    } catch(err) {
+      console.error(err);
+    }
+    return "";
+  });
+
   ipcMain.handle("copy-file", (_event: any, source: string, destination: string) => {
     try {
       fs.copyFile(source, destination, () => {});

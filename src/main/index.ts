@@ -33,6 +33,7 @@ function createTray () {
   tray.setContextMenu(contextMenu)
 }
 
+let activityDetector: ActivityDetection;
 const createWindow = () => {
     if (!tray)
         createTray()
@@ -77,6 +78,8 @@ const createWindow = () => {
         event.preventDefault()
         win.hide()
     });
+
+    activityDetector = new ActivityDetection();
 
     createModal();
 }
@@ -157,6 +160,13 @@ class ActivityDetection {
         this.interactionDateTime = new Date(new Date().valueOf() + interactionIntervalMs);
         return;
       }
+
+      if(win.isFocused()) {
+        this.interactionDateTime = new Date(new Date().valueOf() + interactionIntervalMs);
+        this.hitInteractionTotal = 1;
+        this.interactionTotal = 1;
+        return;
+      }
   
       const timeDelta = new Date().valueOf() - this.interactionDateTime.valueOf();
       if(timeDelta >= 0) {
@@ -184,8 +194,6 @@ class ActivityDetection {
     this.interactionTotal = 1;
   }
 }
-
-const activityDetector: ActivityDetection = new ActivityDetection();
 
 function createModal() {
   modal = new BrowserWindow({

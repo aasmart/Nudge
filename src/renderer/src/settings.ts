@@ -69,7 +69,7 @@ window.addEventListener("load", async () => {
         window.api.setTheme(value);
     });
     window.api.preferences.addChangeListener("activityTracking", value => {
-        window.api.setActivityTracking(value);
+        window.api.setActivityDetection(value);
     });
 
     Reminders.loadReminders()

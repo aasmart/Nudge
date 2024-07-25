@@ -139,6 +139,7 @@ function listReminders() {
                 reminder.setPaused(false)
                 pauseButton.replaceChildren(pauseSvgClone);
             }
+            window.api.resetActivityDetection();
         })
 
         // Create the reset reminder button

@@ -11,6 +11,7 @@ function isInputElement(_obj: any): _obj is FormInputElement  {
 class InputForm {
     formElement: HTMLFormElement
     inputs: Map<String, FormInputElement>
+    customSelectInputs: Map<String, SelectMenuElement>
     selectInputOptionsProvider: Record<string, any> 
 
     constructor(
@@ -19,7 +20,8 @@ class InputForm {
         onReset: (e: Event) => void,
         selectInputOptionsProvider: Record<string, any> = {}
     ) {
-        this.inputs = new Map()
+        this.inputs = new Map();
+        this.customSelectInputs = new Map();
         this.formElement = <HTMLFormElement>document.getElementsByClassName(formClass)[0];
         this.selectInputOptionsProvider = selectInputOptionsProvider
 
@@ -81,7 +83,7 @@ class InputForm {
             }
 
             if(e instanceof HTMLSelectElement || e.getAttribute("role") === "combobox")
-                initSelectMenu(e, selectInputOptionsProvider);
+                this.initSelectMenu(e, selectInputOptionsProvider);
 
             // Add unit selection dropdowns
             const useUnits = e.getAttribute('use-units')
@@ -122,6 +124,27 @@ class InputForm {
 
             this.inputs.set(id, e)
         })
+    }
+
+    clear() {
+        this.inputs.forEach(input => {
+            const type = input.getAttribute('type');
+            if(SelectMenuElement.isCustomSelect(input)) {
+                return;
+            }
+
+            // add different ways to handle different input types here
+            switch(type) {
+                case "checkbox":
+                    (input as HTMLInputElement).checked = false;
+                    break;
+                default:
+                    input.value = "";
+                    input.setDirty(false);
+            }
+        });
+
+        this.customSelectInputs.forEach(input => input.reset());
     }
 
     setValue(input: string, value: any) {
@@ -221,33 +244,33 @@ class InputForm {
             this.setChecked(input.id, this.hasValue(toggles))
         })
     }
-}
 
-function initSelectMenu(element: FormInputElement, selectInputOptionsProvider: Record<string, any> = {}) {
-    const optionsFrom = element.getAttribute("options-from");
-    if(!optionsFrom) {
-        console.error(`Select element \'${element.name}\' does not have a valid \'options-from\` attribute.`);
-        return;
-    }
-
-    // Convert the corresponding enum type to its keys
-    const enumObj = selectInputOptionsProvider[optionsFrom];
-    const optionStrings = Object.keys(enumObj);
-    if(!optionStrings) {
-        console.error(`Failed to find registered select options provider called \'${optionsFrom}\'`);
-        return;
-    }
-
-    if(element.getAttribute("role") === "combobox")
-        new SelectMenuElement(element as HTMLInputElement, optionStrings, enumObj);
-    else {
-        element.append(...optionStrings.map(option => {
-            const optionElement = document.createElement("option");
-            optionElement.innerText = enumObj[option]; // Get enum name as string
-            optionElement.setAttribute("value", option);
-
-            return optionElement;
-        }));
+    initSelectMenu(element: FormInputElement, selectInputOptionsProvider: Record<string, any> = {}) {
+        const optionsFrom = element.getAttribute("options-from");
+        if(!optionsFrom) {
+            console.error(`Select element \'${element.name}\' does not have a valid \'options-from\` attribute.`);
+            return;
+        }
+    
+        // Convert the corresponding enum type to its keys
+        const enumObj = selectInputOptionsProvider[optionsFrom];
+        const optionStrings = Object.keys(enumObj);
+        if(!optionStrings) {
+            console.error(`Failed to find registered select options provider called \'${optionsFrom}\'`);
+            return;
+        }
+    
+        if(element.getAttribute("role") === "combobox") {
+            this.customSelectInputs.set(element.id, new SelectMenuElement(element as HTMLInputElement, optionStrings, enumObj));
+        } else {
+            element.append(...optionStrings.map(option => {
+                const optionElement = document.createElement("option");
+                optionElement.innerText = enumObj[option]; // Get enum name as string
+                optionElement.setAttribute("value", option);
+    
+                return optionElement;
+            }));
+        }
     }
 }
 

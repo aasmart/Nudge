@@ -80,8 +80,23 @@ const createWindow = () => {
         win.hide()
     });
 
-    activityDetector = new ActivityDetection(win);
+    const locked = app.requestSingleInstanceLock();
+    if(!locked) {
+      app.quit();
+      return;
+    }
 
+    app.on("second-instance", () => {
+      if(win) {
+        if(win.isMinimized())
+          win.restore();
+        win.show();
+        win.focus();
+      }
+    });
+  
+    activityDetector = new ActivityDetection(win);
+      
     createModal();
 }
 
@@ -278,6 +293,20 @@ function registerIpcEvents() {
   ipcMain.handle("read-file", (_event: any, path: string) => {
     try {
       return fs.readFileSync(path, 'utf-8');
+    } catch(err) {
+      console.error(err);
+    }
+    return "";
+  });
+
+  ipcMain.handle("read-html-file", (_event: any, fileName: string) => {
+    if (is.dev)
+      fileName = `src/renderer/${fileName}.html`
+    else
+      fileName = join(__dirname, `../renderer/${fileName}.html`);
+
+    try {
+      return fs.readFileSync(fileName, 'utf-8');
     } catch(err) {
       console.error(err);
     }

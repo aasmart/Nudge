@@ -233,6 +233,9 @@ module Reminders {
         localStorage.setItem("active_reminders", JSON.stringify(activeReminders))
     }
     
+    /*
+    Loads reminders in from storage. Will rewrite all eleemnts in "activeReminders"!
+    */
     export function loadReminders() {
         let remindersObjs: Array<IReminder> = JSON.parse(localStorage.getItem("active_reminders")!) ?? []
     

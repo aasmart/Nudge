@@ -70,13 +70,15 @@ const createWindow = () => {
       win.show();
     });
 
+    win.on('before-quit', (_event: any) => {
+      uIOhook.stop();
+    });
+
     win.on('close', (event: any) => {
         if(win.quitting) {
           app.quit() 
           return;
         }
-
-        uIOhook.stop();
 
         event.preventDefault()
         win.hide()

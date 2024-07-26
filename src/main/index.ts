@@ -4,6 +4,8 @@ import { join } from "path"
 import { Preferences, Theme, preferencesStore } from '../common/preferences';
 import fs from "fs"
 import { protocol } from "electron";
+import { uIOhook } from 'uiohook-napi'
+import { ActivityDetection } from './activityDetector';
 
 let tray: any = null;
 let win: any = null;
@@ -32,6 +34,7 @@ function createTray () {
   tray.setContextMenu(contextMenu)
 }
 
+let activityDetector: ActivityDetection;
 const createWindow = () => {
     if (!tray)
         createTray()
@@ -91,6 +94,8 @@ const createWindow = () => {
         win.focus();
       }
     });
+  
+    activityDetector = new ActivityDetection(win);
       
     createModal();
 }
@@ -134,8 +139,8 @@ app.whenReady().then(() => {
     registerFileProtocol();
     registerContentSecurity();
 
-    if (process.platform === 'win32')
-          app.setAppUserModelId(app.name);
+    if(process.platform === 'win32')
+        app.setAppUserModelId(app.name);
 
     app.on('activate', () => {
         if (BrowserWindow.getAllWindows().length === 0) createWindow()
@@ -190,7 +195,7 @@ function createModal() {
 
     event.preventDefault();
     modal.hide();
-});
+  });
 }
 
 function showModal(params: ModalParams) {
@@ -244,6 +249,17 @@ function registerIpcEvents() {
   // Themes
   ipcMain.on("set-color-scheme", (_event: any, theme: Theme) => {
     nativeTheme.themeSource = theme;
+  });
+
+  ipcMain.on("set-activity-detection", (_event: any, enabled: boolean) => {
+    if(enabled)
+      uIOhook.start();
+    else
+      uIOhook.stop();
+  });
+
+  ipcMain.on("reset-activity-detection", (_event:any) => {
+    activityDetector.reset();
   });
 
   function getUserPath(): string {

@@ -10,13 +10,16 @@ const PreferencesAPI = {
 }
 
 export const API = {
+  preferences: PreferencesAPI,
   showWindow: (win: string) => ipcRenderer.send('show-window', win),
   //openPage: (page: string) => ipcRenderer.send('open-page', page),
   showModal: (params: ModalParams) => ipcRenderer.send("show-modal", params),
   hideModal: () => ipcRenderer.send("hide-modal"),
   getModalParams: (): Promise<ModalParams> => ipcRenderer.invoke("get-modal-params"),
-  preferences: PreferencesAPI,
   setTheme: (theme: Theme) => ipcRenderer.send("set-color-scheme", theme),
+  setActivityDetection: (enabled: boolean) => ipcRenderer.send("set-activity-detection", enabled),
+  resetActivityDetection: () => ipcRenderer.send("reset-activity-detection"),
+  addSingleActivityTrackingListener: (consumer: () => void) => ipcRenderer.once("continuous-activity", consumer),
   getUserPath: (): Promise<string> => ipcRenderer.invoke("get-user-path"),
   readUserDirectory: (path: string) : Promise<string[]> => ipcRenderer.invoke("read-user-directory", path),
   readFile: (path: string): Promise<string> => ipcRenderer.invoke("read-file", path),

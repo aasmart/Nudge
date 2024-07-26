@@ -38,7 +38,7 @@ function initSettings() {
             const storedValue = await window.api.preferences.get(storeId) as Preferences[keyof Preferences];
 
             switch(type) {
-                case "radio":
+                case "radio": {
                     const value = input.getAttribute("value") as Preferences[keyof Preferences];
                     input.toggleAttribute("checked", value === storedValue);     
                     
@@ -46,6 +46,14 @@ function initSettings() {
                         window.api.preferences.set(storeId, value ?? "");
                     });
                     break;
+                }
+                case "checkbox": {
+                    input.checked = storedValue as boolean;
+                    input.addEventListener("change", () => {
+                        window.api.preferences.set(storeId, input.checked);
+                    });
+                    break;
+                }
             }
         });
     });
@@ -66,5 +74,9 @@ addNavFromPageListener("settings", () => {
 window.addEventListener("load", () => {
     window.api.preferences.addChangeListener("theme", value => {
         window.api.setTheme(value);
+    });
+    
+    window.api.preferences.addChangeListener("activityTracking", value => {
+        window.api.setActivityDetection(value);
     });
 });

@@ -64,7 +64,7 @@ class InputForm {
                 return
 
             // Handle the error message
-            if(isInputElement(e)) {
+            if(isInputElement(e) && type !== "checkbox") {
                 const errorMessage = document.createElement('p')
                 errorMessage.classList.add('error-message')
 
@@ -221,8 +221,14 @@ class InputForm {
                 const options = Array.from(element.parentElement.parentElement.getElementsByTagName("li"));
                 const optionId = options.filter(e => e.getAttribute("value")?.endsWith(obj[key]))[0]?.id;
                 SelectMenuElement.setSelectMenuSelectedOption(element as HTMLInputElement, options, optionId)
-            } else if(element as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement)
+            } else if(element as HTMLInputElement) {
+                if(element.getAttribute("type") === "checkbox" && element)
+                    (element as HTMLInputElement).checked = obj[key];
+                else
+                    element.value = obj[key]
+            } else if(element as HTMLTextAreaElement | HTMLSelectElement) {
                 element.value = obj[key]
+            }
         }
 
         // Set the toggle checkboxes

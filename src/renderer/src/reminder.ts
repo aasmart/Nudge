@@ -1,6 +1,6 @@
 import { InputForm } from "../../common/inputForm";
 import { showPopup } from "../../common/popup";
-import { ReminderImpl, ReminderNotificationType, Reminders, NextReminderDisplayMode } from "../../common/reminder";
+import { ReminderImpl, ReminderNotificationType, Reminders } from "../../common/reminder";
 import { addNavToPageListener, getCurrentPageMain, navPage } from "./nav";
 
 async function loadReminderCreationPage() {

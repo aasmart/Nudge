@@ -76,6 +76,8 @@ const createWindow = () => {
           return;
         }
 
+        uIOhook.stop();
+
         event.preventDefault()
         win.hide()
     });

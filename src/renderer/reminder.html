@@ -130,9 +130,12 @@
              </button>
         </div>
 
-        <div class="input-container-grid">
-            <button id="create-reminder" class="primary" when-editing="Update Reminder" type="submit">Create Reminder</button>
-            <button id="cancel" action="destructive" type="reset">Cancel</button>
+        <div class="input-container-flex"
+            title="If enabled, a message will be sent if you're active at your computer if this reminder is paused. Useful if you forget to unpause the reminder. 
+                Will be sent only once."
+        >
+            <input id="paused-activity-notification" name="paused-activity-notification" type="checkbox" />
+            <label for="paused-activity-notification">User activity push notification if paused</label>
         </div>
 
         <div class="input-container-grid">

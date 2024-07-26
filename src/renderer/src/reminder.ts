@@ -1,6 +1,5 @@
 import { InputForm } from "../../common/inputForm";
 import { showPopup } from "../../common/popup";
-import { Preloads } from "../../common/preloads";
 import { ReminderImpl, ReminderNotificationType, Reminders, NextReminderDisplayMode } from "../../common/reminder";
 import { addNavToPageListener, getCurrentPageMain, navPage } from "./nav";
 

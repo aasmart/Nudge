@@ -159,7 +159,7 @@ function listReminders() {
 
         refreshButton.addEventListener('click', () => {
             if(reminder.isIgnored)
-                reminder.reset()
+                reminder.acknowledgeIgnored()
             else {
                 showPopup(
                     "Reset Reminder", 

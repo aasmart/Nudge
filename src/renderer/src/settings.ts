@@ -1,6 +1,5 @@
 import { Preferences } from "../../common/preferences";
-import { Preloads } from "../../common/preloads";
-import { Reminders } from "../../common/reminder";
+import { addNavFromPageListener, addNavToPageListener } from "./nav";
 
 function initTabs() {
     const tabs = Array.from(document.getElementsByClassName("settings-tab"));
@@ -39,7 +38,7 @@ function initSettings() {
             const storedValue = await window.api.preferences.get(storeId) as Preferences[keyof Preferences];
 
             switch(type) {
-                case "radio":
+                case "radio": {
                     const value = input.getAttribute("value") as Preferences[keyof Preferences];
                     input.toggleAttribute("checked", value === storedValue);     
                     
@@ -47,20 +46,37 @@ function initSettings() {
                         window.api.preferences.set(storeId, value ?? "");
                     });
                     break;
+                }
+                case "checkbox": {
+                    input.checked = storedValue as boolean;
+                    input.addEventListener("change", () => {
+                        window.api.preferences.set(storeId, input.checked);
+                    });
+                    break;
+                }
             }
         });
     });
 }
 
-window.addEventListener("load", async () => {
+addNavToPageListener("settings", () => {
     document.documentElement.style.setProperty("--nav-foldout-width", "12em");
+    document.getElementsByClassName("settings-nav")[0].setAttribute("visible", "true");
     initSettings();
     initTabs();
-    
+})
+
+addNavFromPageListener("settings", () => {
+    document.documentElement.style.setProperty("--nav-foldout-width", "0em");
+    document.getElementsByClassName("settings-nav")[0].setAttribute("visible", "false");
+})
+
+window.addEventListener("load", () => {
     window.api.preferences.addChangeListener("theme", value => {
         window.api.setTheme(value);
     });
-
-    Reminders.loadReminders()
-    setTimeout(Preloads.clearPreloads, 1);
+    
+    window.api.preferences.addChangeListener("activityTracking", value => {
+        window.api.setActivityDetection(value);
+    });
 });

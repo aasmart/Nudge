@@ -4,6 +4,7 @@ export type Theme = "system" | "light" | "dark";
 
 export interface Preferences {
     theme: Theme,
+    activityTracking: boolean
 }
 
 const preferencesSchema: Schema<Preferences> = {
@@ -11,6 +12,10 @@ const preferencesSchema: Schema<Preferences> = {
         type: "string",
         enum: ["system", "light", "dark"],
         default: "system"
+    },
+    activityTracking: {
+        type: "boolean",
+        default: "true"
     }
 };
 

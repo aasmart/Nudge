@@ -9,6 +9,7 @@ import { Preloads } from "../../common/preloads"
 import { createPopupButton, showPopup } from "../../common/popup"
 import { fetchSvgOrAsImage } from "../../common/svgUtils"
 import { DateUtils } from "../../common/date"
+import { addNavFromPageListener, addNavToPageListener, navPage } from "./nav"
 
 let deleteSvg: SVGElement | HTMLImageElement;
 let editSvg: SVGElement | HTMLImageElement;
@@ -54,12 +55,10 @@ function listReminders() {
         textSpan.title = "Click to toggle display mode";
 
         textSpan.addEventListener("click", () => {
-            const index = Reminders.activeReminders.indexOf(reminder);
-            const activeReminder = Reminders.activeReminders[index]
-            if(activeReminder.nextReminderDisplayMode === NextReminderDisplayMode.EXACT)
-                activeReminder.nextReminderDisplayMode = NextReminderDisplayMode.COUNTDOWN;
+            if(reminder.nextReminderDisplayMode === NextReminderDisplayMode.EXACT)
+                reminder.nextReminderDisplayMode = NextReminderDisplayMode.COUNTDOWN;
             else
-                activeReminder.nextReminderDisplayMode = NextReminderDisplayMode.EXACT;
+            reminder.nextReminderDisplayMode = NextReminderDisplayMode.EXACT;
 
             Reminders.saveActiveReminders();
             if(!reminder.paused)
@@ -112,7 +111,7 @@ function listReminders() {
 
             Reminders.setEditReminder(index)
             Reminders.saveActiveReminders()
-            window.api.openPage('reminder')
+            navPage("reminder")
         })
 
         const pauseSvgClone = pauseSvg.cloneNode(true);
@@ -139,6 +138,7 @@ function listReminders() {
                 reminder.setPaused(false)
                 pauseButton.replaceChildren(pauseSvgClone);
             }
+            window.api.resetActivityDetection();
         })
 
         // Create the reset reminder button
@@ -159,7 +159,7 @@ function listReminders() {
 
         refreshButton.addEventListener('click', () => {
             if(reminder.isIgnored)
-                reminder.reset()
+                reminder.acknowledgeIgnored()
             else {
                 showPopup(
                     "Reset Reminder", 
@@ -171,6 +171,9 @@ function listReminders() {
                 );
             }
         })
+
+        if(reminder.paused && reminder.pausedActivityNotification)
+            reminder.addPausedReminderNotificationHandler();
 
         // Finish building the ui element
         reminderListElement.append(title);
@@ -191,23 +194,32 @@ function loadReminderListPage() {
 
     createNewReminder.addEventListener('click', () => {
         Reminders.saveActiveReminders();
-        window.api.openPage('reminder');
+        navPage("reminder");
     });
 
-    window.addEventListener('update-reminder-list', () => listReminders());
-
+    window.addEventListener('update-reminder-list', () => {
+        listReminders();
+    });
     window.dispatchEvent(new Event('update-reminder-list'));
 }
 
 function updateReminderTimes() {
-    Reminders.loadReminders();
+    window.dispatchEvent(new Event("update-reminder-list"));
     setTimeout(
         updateReminderTimes, 
         new Date().addMilliseconds(60 * 1000).setSeconds(0).valueOf() - new Date().valueOf()
     );
 }
 
-window.onload = async () => {
+addNavToPageListener("index", () => {
+    listReminders();
+});
+
+addNavFromPageListener("index", () => {
+    Reminders.saveActiveReminders();
+})
+
+window.addEventListener("load", async () => {
     deleteSvg = await fetchSvgOrAsImage(deleteSvgPath);
     editSvg = await fetchSvgOrAsImage(editSvgPath);
     pauseSvg = await fetchSvgOrAsImage(pauseSvgPath);
@@ -215,9 +227,7 @@ window.onload = async () => {
     notifcationSvg = await fetchSvgOrAsImage(notificationSvgPath);
     refreshSvg = await fetchSvgOrAsImage(refreshSvgPath);
 
-    // document.documentElement.style.setProperty("--nav-foldout-width", "4em");
-
-    Reminders.loadReminders()
+    Reminders.loadReminders();
     loadReminderListPage()
     setTimeout(Preloads.clearPreloads, 1);
 
@@ -226,4 +236,4 @@ window.onload = async () => {
         updateReminderTimes, 
         new Date().addMilliseconds(60 * 1000).setSeconds(0).valueOf() - new Date().valueOf()
     )
-}
+});

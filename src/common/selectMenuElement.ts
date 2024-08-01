@@ -318,6 +318,13 @@ export class SelectMenuElement {
         });
     }
 
+    reset() {
+        this.setSelectedOption(this.optionIds[0]);
+        this.initialSelectedId = "";
+        this.interactingWithListbox = false;
+        this.searchString = null;
+    }
+
     static isCustomSelect(element: HTMLElement): boolean {
         return element as HTMLInputElement && element.getAttribute("role") === "combobox"
     }

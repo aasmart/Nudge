@@ -35,6 +35,7 @@ interface IReminder {
     nextReminderDisplayMode?: NextReminderDisplayMode;
     pausedActivityNotification: boolean;
     sentPausedActivityNotification?: boolean;
+    autoPauseAfterAcknowledge: boolean
 }
 
 type ReminderAudio = {
@@ -60,6 +61,7 @@ class ReminderImpl implements IReminder {
     nextReminderDisplayMode: NextReminderDisplayMode
     pausedActivityNotification: boolean;
     sentPausedActivityNotification: boolean;
+    autoPauseAfterAcknowledge: boolean
 
     constructor(reminder: IReminder) {
         this.nextReminder = reminder.nextReminder || new Date()
@@ -78,6 +80,7 @@ class ReminderImpl implements IReminder {
         this.nextReminderDisplayMode = reminder.nextReminderDisplayMode || NextReminderDisplayMode.EXACT;
         this.pausedActivityNotification = reminder.pausedActivityNotification || false;
         this.sentPausedActivityNotification = reminder.sentPausedActivityNotification || false;
+        this.autoPauseAfterAcknowledge = reminder.autoPauseAfterAcknowledge;
     }
 
     setNextReminderDate(delayAmountMinutes: number) {
@@ -121,6 +124,14 @@ class ReminderImpl implements IReminder {
             : this.reminderIntervalAmount
 
         this.setNextReminderDate(nextReminderDelay)
+
+        // only auto pause if this reminder has the feature enabled
+        // and the reminder is not ignored (if not ignored, then it)
+        // must either not have the ignored feature enabled, or it 
+        // reached the ignored limit
+        if(this.autoPauseAfterAcknowledge && !this.isIgnored) {
+            this.setPaused(true);
+        }
     }
 
     private sendNotification(message: string) {
@@ -193,6 +204,14 @@ class ReminderImpl implements IReminder {
                 }
             })
         }
+    }
+
+    acknowledgeIgnored() {
+        this.setNextReminderDate(this.reminderIntervalAmount);
+        if(this.autoPauseAfterAcknowledge)
+            this.setPaused(true)
+        this.isIgnored = false;
+        window.dispatchEvent(new Event('update-reminder-list'));
     }
 
     reset() {

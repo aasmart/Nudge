@@ -138,6 +138,13 @@
             <label for="paused-activity-notification">User activity push notification if paused</label>
         </div>
 
+        <div class="input-container-flex"
+            title="If enabled, the reminder will automatically pause once triggered (or acknowledged if ignored). Pairs well with the paused activity feature."
+        >
+            <input id="auto-pause-after-acknowledge" name="auto-pause-after-acknowledge" type="checkbox" />
+            <label for="auto-pause-after-acknowledge">Auto pause after trigger or acknowledge</label>
+        </div>
+
         <div class="input-container-grid">
             <button id="create-reminder" class="primary" when-editing="Update Reminder" type="submit">Create Reminder</button>
             <button id="cancel" action="destructive" type="reset">Cancel</button>

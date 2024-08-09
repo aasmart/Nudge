@@ -405,10 +405,10 @@ REMINDERS
 .reminder.ignored::after {
     content: '';
     position: absolute;
-    z-index: -1;
     inset: 0;
+    z-index: 2;
     border-radius: inherit;
-    outline: 0px solid var(--input-invalid-color);
+    outline: 1px solid var(--input-invalid-color);
     animation: ignored-reminder-pulse 1200ms ease-out infinite;
     pointer-events: none;
 }

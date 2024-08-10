@@ -128,11 +128,11 @@ function updateReminderList() {
         if(title)
             title.textContent = reminder.title;
 
-        const reminderLi = e.querySelector(".reminder");
-        if(reminderLi) {
-            if(reminder.isIgnored)
-                reminderLi?.classList.add("ignored");
-        }
+        console.log(e)
+        if(reminder.isIgnored)
+            e.classList.add("ignored");
+        else
+            e.classList.remove("ignored")
 
         const nudgeTimeSpan = e.querySelector(".next-timer-play");
         if(nudgeTimeSpan) {

@@ -684,7 +684,6 @@ input[type="checkbox"] + label::before {
     background-color: var(--input-invalid-color);
     border-radius: 20px;
     line-height: 20px;
-    border: 1.5px solid rgb(21, 21, 21);
     box-shadow: 0 2px 2px #22222255;
 
     position: absolute;

@@ -388,11 +388,12 @@ REMINDERS
     gap: 2px;
     position: absolute;
     z-index: 100;
-
-    background-color: var(--sidebar-color);
     list-style: none;
     padding: 8px;
+    margin: 0;
+
     border-radius: 6px;
+    background-color: var(--sidebar-color);
 
     transition: 250ms opacity;
 }

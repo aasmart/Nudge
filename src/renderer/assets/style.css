@@ -358,7 +358,7 @@ REMINDERS
 #reminder__context-menu {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 2px;
     position: absolute;
     z-index: 1;
 
@@ -379,7 +379,7 @@ REMINDERS
     flex-direction: row;
     align-items: center;
     gap: 8px;
-    padding: 1px;
+    padding: 4px 2px;
 
     cursor: pointer;
     border-radius: 4px;

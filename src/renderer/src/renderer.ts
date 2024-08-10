@@ -1,23 +1,8 @@
-import deleteSvgPath from "../assets/delete.svg"
-import editSvgPath from "../assets/edit.svg"
-import pauseSvgPath from "../assets/pause.svg"
-import playSvgPath from "../assets/play.svg"
-import notificationSvgPath from "../assets/notification_important.svg"
-import refreshSvgPath from "../assets/refresh.svg"
 import { NextReminderDisplayMode, ReminderImpl, Reminders } from "../../common/reminder"
 import { Preloads } from "../../common/preloads"
 import { createPopupButton, showPopup } from "../../common/popup"
-import { fetchSvgOrAsImage } from "../../common/svgUtils"
 import { DateUtils } from "../../common/date"
 import { addNavFromPageListener, addNavToPageListener, navPage } from "./nav"
-import { MouseInputEvent } from "electron"
-
-let deleteSvg: SVGElement | HTMLImageElement;
-let editSvg: SVGElement | HTMLImageElement;
-let pauseSvg: SVGElement | HTMLImageElement;
-let playSvg: SVGElement | HTMLImageElement;
-let notifcationSvg: SVGElement | HTMLImageElement;
-let refreshSvg: SVGElement | HTMLImageElement;
 
 function isDocumentFragment(node: Node | undefined): node is DocumentFragment {
     return node?.nodeType === Node.DOCUMENT_FRAGMENT_NODE;
@@ -132,9 +117,6 @@ function listReminders() {
         const acknowledgeButton = templateClone.querySelector(".reminder__acknowledge");
         if(acknowledgeButton) {
             acknowledgeButton?.setAttribute("visible", `${reminder.isIgnored}`);
-            const notifImg = notifcationSvg.cloneNode(true);
-            acknowledgeButton.append(notifImg);
-
             acknowledgeButton.addEventListener('click', () => {
                 if(reminder.isIgnored)
                     reminder.acknowledgeIgnored()
@@ -422,13 +404,6 @@ addNavFromPageListener("index", () => {
 })
 
 window.addEventListener("load", async () => {
-    deleteSvg = await fetchSvgOrAsImage(deleteSvgPath);
-    editSvg = await fetchSvgOrAsImage(editSvgPath);
-    pauseSvg = await fetchSvgOrAsImage(pauseSvgPath);
-    playSvg = await fetchSvgOrAsImage(playSvgPath);
-    notifcationSvg = await fetchSvgOrAsImage(notificationSvgPath);
-    refreshSvg = await fetchSvgOrAsImage(refreshSvgPath);
-
     Reminders.loadReminders();
     loadReminderListPage()
     initContextMenu();

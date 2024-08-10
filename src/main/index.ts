@@ -42,7 +42,7 @@ const createWindow = () => {
     win = new BrowserWindow({
         width: 1000,
         height: 900,
-        minWidth: 600,
+        minWidth: 625,
         minHeight: 375,
         icon: join(__dirname, '../../resources/icon.png'),
         autoHideMenuBar: true,

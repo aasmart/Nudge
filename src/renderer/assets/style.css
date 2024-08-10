@@ -22,7 +22,7 @@
     --header-height: env(titlebar-area-height, var(--header-fallback-height));
 
     --checkbox-height: 1.75rem;
-    --checkbox-width: 3.5rem;
+    --checkbox-width: 4rem;
     --checkbox-margin: 8px;
 
     --focus-visible-color: dodgerblue;
@@ -265,7 +265,7 @@ REMINDER LIST
 ================================== */
 
 #reminder-list {
-    --max-width: 65em;
+    --max-width: 52.5em;
     height: 100%;
 
     width: 90%;
@@ -298,7 +298,7 @@ REMINDER LIST
     margin: 0;
     gap: 6px;
 
-    min-height: 6.8rem;
+    min-height: 6.5rem;
     width: 100%;
 }
 
@@ -319,7 +319,7 @@ REMINDERS
 .reminder {
     position: relative;
 
-    --grid-button-width: 3em;
+    --grid-button-width: 4rem;
     display: grid;
     grid-template-columns: minmax(13em, 7fr) var(--grid-button-width);
     grid-template-rows: 50% 50%;
@@ -331,6 +331,7 @@ REMINDERS
     background: var(--reminder-bg-color);
     min-width: fit-content;
     width: 100%;
+    height: 4em;
     gap: 0 10px;
 }
 
@@ -390,8 +391,10 @@ REMINDERS
     fill: var(--fore-color);
 }
 
-.reminder button {
+.reminder button,
+.reminder div {
     grid-row: 1 / 3;
+    place-self: center auto;
 }
 
 .reminder .next-timer-play {
@@ -528,6 +531,12 @@ button[action="destructive"] {
     backdrop-filter: brightness(125%);
 }
 
+button:has(svg) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 button svg {
     width: 100%;
     height: 100%;
@@ -616,6 +625,8 @@ clicking on the checkbox scrolls to wherever it is.
 */
 div:has(input[type="checkbox"]) {
     position: relative;
+    display: flex;
+    align-items: center;
 }
 
 input[type="checkbox"] + label {
@@ -634,7 +645,6 @@ input[type="checkbox"] + label {
 /* Styles the checkbox's background */
 input[type="checkbox"] + label::before {
     content: '';
-    top: 0;
     background-color: var(--input-invalid-color);
     border-radius: 20px;
     line-height: 20px;
@@ -647,6 +657,9 @@ input[type="checkbox"] + label::before {
     width: var(--checkbox-width);
     left: calc(-1 * (var(--checkbox-width) + var(--checkbox-margin)));
 
+    top: 50%;
+    transform: translateY(-50%);
+
     transition: all 250ms;
 }
 
@@ -658,15 +671,17 @@ input[type="checkbox"]:checked + label::before {
 /* Styles the checkbox's little notch */
 input[type="checkbox"] + label::after {
     content: '';
-    background-color: var(--input-color);
+    background-color: var(--fore-color);
     border-radius: 100%;
     box-shadow: 0 1px 1px #22222222;
 
-    height: var(--checkbox-height);
-    width: calc(var(--checkbox-width) * 0.5);
+    height: calc(var(--checkbox-height) * 1.1);
+    width: calc(var(--checkbox-height) * 1.1);
     position: absolute;
     left: calc(-1 * (var(--checkbox-width) + var(--checkbox-margin)));
-    top: 0;
+
+    top: 50%;
+    transform: translateY(-50%);
 
     transition: all 250ms;
 }

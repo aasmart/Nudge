@@ -441,8 +441,7 @@ window.addEventListener("load", async () => {
     )
 });
 
-window.addEventListener("click", (e: Event) => {
+window.addEventListener("click", (_: Event) => {
     const contextMenu = document.getElementById("reminder__context-menu");
     contextMenu?.setAttribute("visible", "false");
-        
 })

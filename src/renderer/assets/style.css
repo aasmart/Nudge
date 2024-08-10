@@ -333,6 +333,8 @@ REMINDERS
     width: 100%;
     height: 4em;
     gap: 0 10px;
+
+    transition: 250ms opacity;
 }
 
 .reminder h4 {
@@ -353,6 +355,10 @@ REMINDERS
 
 .reminder span {
     width: min-content;
+}
+
+.reminder:not(:hover):not(:has(.reminder__pause-toggle__input:checked)) {
+    opacity: 0.7;
 }
 
 #reminder__context-menu {

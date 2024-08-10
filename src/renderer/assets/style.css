@@ -302,6 +302,17 @@ REMINDER LIST
     width: 100%;
 }
 
+#reminder-list > ul:has(p) {
+    justify-content: center;
+}
+
+#reminder-list > ul > p {
+    width: 100%;
+    text-align: center;
+    font-size: 1.5ch;
+    opacity: 0.8;
+}
+
 #reminder-list > button {
     width: 100%;
 }

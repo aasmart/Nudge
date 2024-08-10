@@ -8,6 +8,15 @@ function isDocumentFragment(node: Node | undefined): node is DocumentFragment {
     return node?.nodeType === Node.DOCUMENT_FRAGMENT_NODE;
 }
 
+
+const setTimeDisplay = (reminder: ReminderImpl, nudgeTimeSpan: Element) => {
+    if(reminder.nextReminderDisplayMode === NextReminderDisplayMode.EXACT) {
+        nudgeTimeSpan.textContent = reminder.nextReminder.toLocaleString()
+    } else {
+        nudgeTimeSpan.textContent = `in ${DateUtils.getTimeDifferenceString(new Date(), reminder.nextReminder)}`;
+    }
+}
+
 function listReminders() {
     const reminderList = (document.getElementById("reminder-list") as HTMLElement).children[1] as HTMLElement
     
@@ -25,9 +34,6 @@ function listReminders() {
 
         const reminderLi = templateClone.querySelector(".reminder");
         if(reminderLi) {
-            if(reminder.isIgnored)
-                reminderLi?.classList.add("ignored");
-            
             reminderLi.addEventListener("contextmenu", (e: any) => {
                 let relX = e.clientX;
                 let relY = e.clientY;
@@ -48,37 +54,18 @@ function listReminders() {
             });
         }
 
-        const title = templateClone.querySelector(".reminder__name");
-        if(title)
-            title.textContent = reminder.title;
-
         // Set the span displaying the next trigger time
         const nudgeTimeSpan = templateClone.querySelector(".next-timer-play");
-        if(nudgeTimeSpan && nudgeTimeSpan) {
-            const setTimeDisplay = () => {
-                if(reminder.nextReminderDisplayMode === NextReminderDisplayMode.EXACT) {
-                    nudgeTimeSpan.textContent = reminder.nextReminder.toLocaleString()
-                } else {
-                    nudgeTimeSpan.textContent = `in ${DateUtils.getTimeDifferenceString(new Date(), reminder.nextReminder)}`;
-                }
-            }
-
-            if(reminder.paused)
-                nudgeTimeSpan.textContent = "this reminder is paused"
-            else {
-                setTimeDisplay();
-            }
-            (nudgeTimeSpan as HTMLElement).title = "Click to toggle display mode";
-
+        if(nudgeTimeSpan) {
             nudgeTimeSpan.addEventListener("click", () => {
                 if(reminder.nextReminderDisplayMode === NextReminderDisplayMode.EXACT)
                     reminder.nextReminderDisplayMode = NextReminderDisplayMode.COUNTDOWN;
                 else
-                reminder.nextReminderDisplayMode = NextReminderDisplayMode.EXACT;
+                    reminder.nextReminderDisplayMode = NextReminderDisplayMode.EXACT;
 
                 Reminders.saveActiveReminders();
                 if(!reminder.paused)
-                    setTimeDisplay();
+                    setTimeDisplay(reminder, nudgeTimeSpan);
             });
         }
 
@@ -87,20 +74,8 @@ function listReminders() {
         const pauseToggleInput = templateClone.querySelector(".reminder__pause-toggle__input");
         const pauseToggleLabel = templateClone.querySelector(".reminder__pause-toggle__label");
         if(pauseToggleInput && pauseToggleLabel) {
-            pauseToggle?.setAttribute("visible", `${!reminder.isIgnored}`);
-
-            (pauseToggleInput as HTMLElement).title = (reminder.paused ? 'Unpause reminder' : 'Pause reminder');
-            (pauseToggleInput as HTMLInputElement).disabled = reminder.isIgnored;
-
             pauseToggleInput.id = `reminder__pause-toggle-${reminders.length}`;
             pauseToggleLabel.setAttribute("for", `reminder__pause-toggle-${reminders.length}`);
-
-            (pauseToggleInput as HTMLInputElement).checked = !reminder.paused;
-            if((pauseToggleInput as HTMLInputElement).checked) {
-                (pauseToggle as HTMLElement).title = 'Pause reminder';
-            } else {
-                (pauseToggle as HTMLElement).title = 'Unpause reminder';
-            }
             
             pauseToggleInput.addEventListener('click', () => {
                 if(!(pauseToggleInput as HTMLInputElement).checked) {
@@ -116,7 +91,6 @@ function listReminders() {
 
         const acknowledgeButton = templateClone.querySelector(".reminder__acknowledge");
         if(acknowledgeButton) {
-            acknowledgeButton?.setAttribute("visible", `${reminder.isIgnored}`);
             acknowledgeButton.addEventListener('click', () => {
                 if(reminder.isIgnored)
                     reminder.acknowledgeIgnored()
@@ -134,7 +108,64 @@ function listReminders() {
         reminderList.replaceChildren(p);
     } else {
         reminderList.replaceChildren(...reminders);
+        updateReminderList();
     }
+}
+
+function updateReminderList() {
+    const reminderList = (document.getElementById("reminder-list") as HTMLElement).children[1] as HTMLElement
+    const reminders = Array.from(reminderList.children).filter(e => e.classList.contains("reminder"));
+
+    // completely redo the entire list if a new element is removed or added
+    if(reminders.length !== Reminders.activeReminders.length) {
+        listReminders();
+        return;
+    }
+
+    reminders.forEach((e, index) => {
+        const reminder = Reminders.activeReminders[index];
+        const title = e.querySelector(".reminder__name");
+        if(title)
+            title.textContent = reminder.title;
+
+        const reminderLi = e.querySelector(".reminder");
+        if(reminderLi) {
+            if(reminder.isIgnored)
+                reminderLi?.classList.add("ignored");
+        }
+
+        const nudgeTimeSpan = e.querySelector(".next-timer-play");
+        if(nudgeTimeSpan) {
+            if(reminder.paused)
+                nudgeTimeSpan.textContent = "this reminder is paused"
+            else {
+                setTimeDisplay(reminder, nudgeTimeSpan);
+            }
+        }
+
+        // Create the pause toggle
+        const pauseToggle = e.querySelector(".reminder__pause-toggle");
+        const pauseToggleInput = e.querySelector(".reminder__pause-toggle__input");
+        const pauseToggleLabel = e.querySelector(".reminder__pause-toggle__label");
+        if(pauseToggleInput && pauseToggleLabel) {
+            pauseToggle?.setAttribute("visible", `${!reminder.isIgnored}`);
+
+            (pauseToggleInput as HTMLElement).title = (reminder.paused ? 'Unpause reminder' : 'Pause reminder');
+            (pauseToggleInput as HTMLInputElement).disabled = reminder.isIgnored;
+
+            (pauseToggleInput as HTMLInputElement).checked = !reminder.paused;
+            if((pauseToggleInput as HTMLInputElement).checked) {
+                (pauseToggle as HTMLElement).title = 'Pause reminder';
+            } else {
+                (pauseToggle as HTMLElement).title = 'Unpause reminder';
+            }
+        }
+
+        const acknowledgeButton = e.querySelector(".reminder__acknowledge");
+        if(acknowledgeButton) {
+            acknowledgeButton?.setAttribute("visible", `${reminder.isIgnored}`);
+        }
+    });
 }
 
 function initContextMenu() {
@@ -216,6 +247,9 @@ function loadReminderListPage() {
     });
 
     window.addEventListener('update-reminder-list', () => {
+        updateReminderList();
+    });
+    window.addEventListener('reset-reminder-list', () => {
         listReminders();
     });
     window.dispatchEvent(new Event('update-reminder-list'));
@@ -241,6 +275,7 @@ window.addEventListener("load", async () => {
     Reminders.loadReminders();
     loadReminderListPage()
     initContextMenu();
+    listReminders();
     setTimeout(Preloads.clearPreloads, 1);
 
     // handles the secondary display mode for reminder countdowns

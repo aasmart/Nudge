@@ -4,6 +4,8 @@ import { createPopupButton, showPopup } from "../../common/popup"
 import { DateUtils } from "../../common/date"
 import { addNavFromPageListener, addNavToPageListener, navPage } from "./nav"
 
+const contextMenu = document.getElementById("reminder__context-menu");
+
 function isDocumentFragment(node: Node | undefined): node is DocumentFragment {
     return node?.nodeType === Node.DOCUMENT_FRAGMENT_NODE;
 }
@@ -24,8 +26,6 @@ function listReminders() {
 
     const nudgeTemplate: HTMLTemplateElement | null = document.querySelector("#nudge-template");
     
-    const contextMenu = document.getElementById("reminder__context-menu");
-
     Reminders.activeReminders.forEach(reminder => {
         const templateClone: Node | undefined = nudgeTemplate?.content.cloneNode(true);
         
@@ -128,7 +128,6 @@ function updateReminderList() {
         if(title)
             title.textContent = reminder.title;
 
-        console.log(e)
         if(reminder.isIgnored)
             e.classList.add("ignored");
         else
@@ -286,11 +285,9 @@ window.addEventListener("load", async () => {
 });
 
 window.addEventListener("click", (_: Event) => {
-    const contextMenu = document.getElementById("reminder__context-menu");
     contextMenu?.setAttribute("visible", "false");
 })
 
 window.addEventListener("resize", () => {
-    const contextMenu = document.getElementById("reminder__context-menu");
     contextMenu?.setAttribute("visible", "false");
 })

@@ -356,6 +356,9 @@ REMINDERS
 }
 
 #reminder__context-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
     position: absolute;
     z-index: 1;
 
@@ -375,12 +378,18 @@ REMINDERS
     display: flex;
     flex-direction: row;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
     padding: 1px;
 
     cursor: pointer;
     border-radius: 4px;
     transition: 250ms background-color;
+}
+
+.reminder__context-menu__item[action="destructive"],
+.reminder__context-menu__item[action="destructive"] svg {
+    color: var(--input-invalid-color);
+    fill: var(--input-invalid-color);
 }
 
 .reminder__context-menu__item:hover {

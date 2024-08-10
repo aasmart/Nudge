@@ -289,3 +289,8 @@ window.addEventListener("click", (_: Event) => {
     const contextMenu = document.getElementById("reminder__context-menu");
     contextMenu?.setAttribute("visible", "false");
 })
+
+window.addEventListener("resize", () => {
+    const contextMenu = document.getElementById("reminder__context-menu");
+    contextMenu?.setAttribute("visible", "false");
+})

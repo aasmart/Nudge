@@ -19,6 +19,17 @@ const setTimeDisplay = (reminder: ReminderImpl, nudgeTimeSpan: Element) => {
     }
 }
 
+const toggleCountdownDisplay = (reminder: ReminderImpl, nudgeTimeSpan: Element) => {
+    if(reminder.nextReminderDisplayMode === NextReminderDisplayMode.EXACT)
+        reminder.nextReminderDisplayMode = NextReminderDisplayMode.COUNTDOWN;
+    else
+        reminder.nextReminderDisplayMode = NextReminderDisplayMode.EXACT;
+
+    Reminders.saveActiveReminders();
+    if(!reminder.paused)
+        setTimeDisplay(reminder, nudgeTimeSpan);
+}
+
 function listReminders() {
     const reminderList = (document.getElementById("reminder-list") as HTMLElement).children[1] as HTMLElement
     
@@ -58,14 +69,7 @@ function listReminders() {
         const nudgeTimeSpan = templateClone.querySelector(".next-timer-play");
         if(nudgeTimeSpan) {
             nudgeTimeSpan.addEventListener("click", () => {
-                if(reminder.nextReminderDisplayMode === NextReminderDisplayMode.EXACT)
-                    reminder.nextReminderDisplayMode = NextReminderDisplayMode.COUNTDOWN;
-                else
-                    reminder.nextReminderDisplayMode = NextReminderDisplayMode.EXACT;
-
-                Reminders.saveActiveReminders();
-                if(!reminder.paused)
-                    setTimeDisplay(reminder, nudgeTimeSpan);
+                toggleCountdownDisplay(reminder, nudgeTimeSpan);
             });
         }
 
@@ -223,9 +227,6 @@ function initContextMenu() {
             return;
         const reminder: ReminderImpl = Reminders.activeReminders[index];
 
-        if(reminder.isIgnored)
-            return;
-
         showPopup(
             "Reset Reminder", 
             "Are you sure you want to reset this reminder?",
@@ -234,6 +235,21 @@ function initContextMenu() {
                 createPopupButton("Cancel")
             ]
         );
+    })
+
+    const reminderList = (document.getElementById("reminder-list") as HTMLElement).children[1] as HTMLElement
+    const contextTimerToggleButton = contextMenu?.querySelector(".reminder__update-display");
+    contextTimerToggleButton?.addEventListener('click', () => {
+        // get the focused reminder
+        const index = contextMenu?.getAttribute("reminder-index");
+        if(!index)
+            return;
+        const reminder: ReminderImpl = Reminders.activeReminders[index];
+
+        const nudgeTimeSpan = reminderList.children[index]
+            .querySelector(".next-timer-play");
+
+        toggleCountdownDisplay(reminder, nudgeTimeSpan);
     })
 }
 

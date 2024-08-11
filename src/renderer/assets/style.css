@@ -350,7 +350,7 @@ REMINDERS
     transition: 250ms background;
 }
 
-.reminder > * {
+.reminder :where(h4, p) {
     transition: 250ms opacity;
 }
 
@@ -406,8 +406,9 @@ REMINDERS
     display: flex;
     flex-direction: row;
     align-items: center;
-    gap: 8px;
     padding: 4px 2px;
+    gap: 8px;
+    justify-content: space-between;
 
     cursor: pointer;
     border-radius: 4px;
@@ -426,6 +427,7 @@ REMINDERS
 
 .reminder__context-menu__item > svg {
     fill: var(--fore-color);
+    order: 2;
 }
 
 .reminder button,

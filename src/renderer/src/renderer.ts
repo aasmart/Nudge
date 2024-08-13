@@ -37,31 +37,65 @@ function listReminders() {
 
     const nudgeTemplate: HTMLTemplateElement | null = document.querySelector("#nudge-template");
     
-    Reminders.activeReminders.forEach(reminder => {
+    Reminders.activeReminders.forEach((reminder, index) => {
         const templateClone: Node | undefined = nudgeTemplate?.content.cloneNode(true);
         
         if(!isDocumentFragment(templateClone))
             return;
 
+        const openContextMenu = (
+            mouseX: number, 
+            mouseY: number, 
+            offsetX: number = 0, 
+            offsetY: number = 0,
+            openMethod: string = "context"
+        ) => {
+            let relX = mouseX;
+            let relY = mouseY;
+
+            contextMenu?.setAttribute("visible", "true");
+
+            const contextMenuRect = contextMenu?.getBoundingClientRect();
+            if(!contextMenuRect)
+                return;
+
+            if(relX + contextMenuRect.width >= window.innerWidth) {
+                relX -= contextMenuRect.width ?? 0;
+                offsetX = 0;
+            }
+            if(relY + contextMenuRect.height >= window.innerHeight) {
+                relY -= contextMenuRect.height ?? 0;
+                offsetY = 0;
+            }
+
+            (contextMenu as HTMLElement).style.left = `${relX + offsetX}px`;
+            (contextMenu as HTMLElement).style.top = `${relY + offsetY}px`;
+
+            const index = Reminders.activeReminders.indexOf(reminder);
+            contextMenu?.setAttribute("reminder-index", `${index}`);
+            contextMenu?.setAttribute("open-method", openMethod);
+        }
+
         const reminderLi = templateClone.querySelector(".reminder");
         if(reminderLi) {
             reminderLi.addEventListener("contextmenu", (e: any) => {
-                let relX = e.clientX;
-                let relY = e.clientY;
+                openContextMenu(e.clientX, e.clientY);
+            });
+        }
 
-                contextMenu?.setAttribute("visible", "true");
-
-                const contextMenuRect = contextMenu?.getBoundingClientRect();
-                if(relX + contextMenuRect?.width >= window.innerWidth)
-                    relX -= contextMenuRect?.width ?? 0;
-                if(relY + contextMenuRect?.height >= window.innerHeight)
-                    relY -= contextMenuRect?.height ?? 0;
-
-                (contextMenu as HTMLElement).style.top = `${relY}px`;
-                (contextMenu as HTMLElement).style.left = `${relX}px`;
-
-                const index = Reminders.activeReminders.indexOf(reminder);
-                contextMenu?.setAttribute("reminder-index", `${index}`);
+        const reminderMenuMoreButton = templateClone.querySelector(".reminder__more-button");
+        if(reminderMenuMoreButton) {
+            reminderMenuMoreButton.addEventListener("click", (e: any) => {
+                const rect = reminderMenuMoreButton.getBoundingClientRect();
+                if(contextMenu?.getAttribute("visible") === "true" 
+                    && `${index}` === contextMenu.getAttribute("reminder-index")
+                    && contextMenu.getAttribute("open-method") === "more"
+                ) {
+                    contextMenu?.setAttribute("visible", "false");
+                } else {
+                    openContextMenu(rect.x, rect.y, rect.width, 0, "more");
+                }
+                e.preventDefault();
             });
         }
 
@@ -300,7 +334,9 @@ window.addEventListener("load", async () => {
     )
 });
 
-window.addEventListener("click", (_: Event) => {
+window.addEventListener("click", (e: Event) => {
+    if((e.target as HTMLElement).classList.contains("reminder__more-button"))
+        return;
     contextMenu?.setAttribute("visible", "false");
 })
 

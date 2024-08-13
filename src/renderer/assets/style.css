@@ -274,6 +274,7 @@ REMINDER LIST
     min-width: min(fit-content, var(--max-width));
     max-width: var(--max-width);
     margin: 0 10px;
+    min-height: 6.5rem;
 }
 
 #reminder-list > * {
@@ -294,13 +295,11 @@ REMINDER LIST
     overflow-y: auto;
     overflow-x: hidden;
     padding: 10px;
-    justify-content: unset;
     list-style: none;
     list-style-type: none;
     margin: 0;
-    gap: 6px;
+    gap: 8px;
 
-    min-height: 6.5rem;
     width: 100%;
 }
 
@@ -354,8 +353,15 @@ REMINDERS
     transition: 250ms opacity;
 }
 
-.reminder h4 {
+.reminder .reminder__name-wrapper {
+    display: flex;
+    flex-direction: row;
     grid-row: 1;
+    align-items: center;
+    gap: 8px;
+}
+
+.reminder h4 {
     margin: 0;
     align-self: center;
     text-overflow: ellipsis;
@@ -374,11 +380,12 @@ REMINDERS
     width: min-content;
 }
 
-.reminder:not(:hover):not(:has(.reminder__pause-toggle__input:checked)) :is(h4, p) {
+.reminder:not(:hover, :focus-within):not(:has(.reminder__pause-toggle__input:checked)) :is(h4, p) {
     opacity: 0.6;
 }
 
-.reminder:hover {
+.reminder:hover,
+.reminder:focus-within {
     background-color: var(--reminder-bg-darker);
 }
 
@@ -428,6 +435,36 @@ REMINDERS
 .reminder__context-menu__item > svg {
     fill: var(--fore-color);
     order: 2;
+}
+
+
+.reminder__more-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    min-width: 1.25em;
+    width: 1.25em;
+
+    box-shadow: 0 0 2px 1px rgba(0,0,0,0.5) !important;
+}
+
+.reminder:hover .reminder__more-button,
+.reminder:focus-within .reminder__more-button {
+    opacity: 1;
+}
+
+.reminder__more-button {
+    border-radius: 4px;
+    transition: 250ms background-color;
+}
+
+.reminder__more-button:hover {
+    background-color: var(--reminder-bg-color);
+}
+
+.reminder__more-button svg {
+    pointer-events: none;
 }
 
 .reminder button,

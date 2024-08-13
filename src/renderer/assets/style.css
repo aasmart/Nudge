@@ -410,14 +410,22 @@ REMINDERS
 }
 
 .reminder__context-menu__item {
+    padding: 4px 2px;
+}
+
+.reminder__context-menu__item a {
     display: flex;
     flex-direction: row;
     align-items: center;
-    padding: 4px 2px;
     gap: 8px;
     justify-content: space-between;
+    
+    width: 100%;
+    height: 100%;
 
-    cursor: pointer;
+    text-decoration: none;
+    color: inherit;
+
     border-radius: 4px;
     transition: 250ms background-color;
 }
@@ -432,11 +440,10 @@ REMINDERS
     background-color: var(--input-color);
 }
 
-.reminder__context-menu__item > svg {
+.reminder__context-menu__item svg {
     fill: var(--fore-color);
     order: 2;
 }
-
 
 .reminder__more-button {
     display: flex;

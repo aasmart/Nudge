@@ -209,7 +209,9 @@ function initContextMenu() {
     // setup the context menu
     const contextMenu = document.getElementById("reminder__context-menu");
     const contextDeleteBtn = contextMenu?.querySelector(".reminder__delete");
-    contextDeleteBtn?.addEventListener('click', () => {
+    contextDeleteBtn?.addEventListener('click', e => {
+        e.preventDefault();
+        
         // get the focused reminder
         const index = contextMenu?.getAttribute("reminder-index");
         if(!index)
@@ -234,7 +236,9 @@ function initContextMenu() {
     });
 
     const contextEditBtn = contextMenu?.querySelector(".reminder__edit");
-    contextEditBtn?.addEventListener('click', () => {
+    contextEditBtn?.addEventListener('click', e => {
+        e.preventDefault();
+
         // get the focused reminder
         const indexStr = contextMenu?.getAttribute("reminder-index");
         if(!indexStr)
@@ -254,7 +258,9 @@ function initContextMenu() {
     });
 
     const contextRefreshButton = contextMenu?.querySelector(".reminder__reset");
-    contextRefreshButton?.addEventListener('click', () => {
+    contextRefreshButton?.addEventListener('click', e => {
+        e.preventDefault();
+
         // get the focused reminder
         const index = contextMenu?.getAttribute("reminder-index");
         if(!index)
@@ -273,7 +279,9 @@ function initContextMenu() {
 
     const reminderList = (document.getElementById("reminder-list") as HTMLElement).children[1] as HTMLElement
     const contextTimerToggleButton = contextMenu?.querySelector(".reminder__update-display");
-    contextTimerToggleButton?.addEventListener('click', () => {
+    contextTimerToggleButton?.addEventListener('click', e => {
+        e.preventDefault();
+
         // get the focused reminder
         const index = contextMenu?.getAttribute("reminder-index");
         if(!index)

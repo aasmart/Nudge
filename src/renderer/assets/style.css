@@ -288,7 +288,7 @@ REMINDER LIST
 #reminder-list > ul {
     display: flex;
     flex-direction: column;
-    align-items:start;
+    align-items: start;
 
     background: var(--reminder-list-bg-color);
     border-radius: 8px;
@@ -303,7 +303,7 @@ REMINDER LIST
     width: 100%;
 }
 
-#reminder-list > ul:has(p) {
+#reminder-list > ul:has(> p) {
     justify-content: center;
 }
 

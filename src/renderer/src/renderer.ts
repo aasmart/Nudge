@@ -163,8 +163,10 @@ function updateReminderList() {
     reminders.forEach((e, index) => {
         const reminder = Reminders.activeReminders[index];
         const title = e.querySelector(".reminder__name");
-        if(title)
+        if(title) {
             title.textContent = reminder.title;
+            title.setAttribute("title", reminder.title);
+        }
 
         if(reminder.isIgnored)
             e.classList.add("ignored");

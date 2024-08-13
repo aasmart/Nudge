@@ -395,7 +395,7 @@ REMINDERS
     position: absolute;
     z-index: 100;
     list-style: none;
-    padding: 8px;
+    padding: 10px;
     margin: 0;
 
     border-radius: 6px;
@@ -413,8 +413,8 @@ REMINDERS
     display: flex;
     flex-direction: row;
     align-items: center;
-    gap: 8px;
-    padding: 4px 2px;
+    gap: 18px;
+    padding: 4px 4px;
     justify-content: space-between;
     
     text-decoration: none;
@@ -430,7 +430,7 @@ REMINDERS
     fill: var(--input-invalid-color);
 }
 
-.reminder__context-menu__item:hover {
+.reminder__context-menu__item a:hover {
     background-color: var(--input-color);
 }
 

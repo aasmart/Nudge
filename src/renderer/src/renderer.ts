@@ -13,7 +13,7 @@ function isDocumentFragment(node: Node | undefined): node is DocumentFragment {
 
 const setTimeDisplay = (reminder: ReminderImpl, nudgeTimeSpan: Element, nudgeTimeSpanPrefix: Element) => {
     if(reminder.nextReminderDisplayMode === NextReminderDisplayMode.EXACT) {
-        nudgeTimeSpan.textContent = reminder.nextReminder.toLocaleString()
+        nudgeTimeSpan.textContent = `${reminder.nextReminder.toLocaleString()}.`
         nudgeTimeSpanPrefix.textContent = "Next nudge at ";
     } else {
         nudgeTimeSpan.textContent = `${DateUtils.getTimeDifferenceString(new Date(), reminder.nextReminder)}`;

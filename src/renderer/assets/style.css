@@ -390,6 +390,10 @@ REMINDERS
     background-color: var(--reminder-bg-darker);
 }
 
+.reminder.ignored {
+    cursor: pointer;
+}
+
 #reminder__context-menu {
     display: flex;
     flex-direction: column;

@@ -50,6 +50,12 @@ function listReminders() {
             });
         }
 
+        reminderLi?.addEventListener("click", () => {
+            if(!reminder.isIgnored)
+                return;
+            reminder.acknowledgeIgnored();
+        });
+
         const reminderMenuMoreButton = templateClone.querySelector(".reminder__more-button");
         if(reminderMenuMoreButton) {
             reminderMenuMoreButton.addEventListener("click", (e: any) => {

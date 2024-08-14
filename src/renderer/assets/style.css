@@ -380,12 +380,13 @@ REMINDERS
     width: min-content;
 }
 
-.reminder:not(:hover, :focus-within):not(:has(.reminder__pause-toggle__input:checked)) :is(h4, p) {
+.reminder:not(:hover, :focus-within, .hasContext):not(:has(.reminder__pause-toggle__input:checked)) :is(h4, p) {
     opacity: 0.6;
 }
 
 .reminder:hover,
-.reminder:focus-within {
+.reminder:focus-within,
+.reminder.hasContext {
     background-color: var(--reminder-bg-darker);
 }
 
@@ -399,6 +400,7 @@ REMINDERS
     margin: 0;
 
     border-radius: 6px;
+    box-shadow: 0 1px 8px 1px rgba(0, 0, 0, 0.4);
     background-color: var(--sidebar-color);
 
     transition: 250ms opacity;
@@ -408,6 +410,9 @@ REMINDERS
     border-color: var(--popup-accent-color);
 }
 
+.reminder__context-menu__item {
+    transition: 250ms background-color;
+}
 
 .reminder__context-menu__item a {
     display: flex;
@@ -421,7 +426,6 @@ REMINDERS
     color: inherit;
 
     border-radius: 4px;
-    transition: 250ms background-color;
 }
 
 .reminder__context-menu__item[action="destructive"],
@@ -430,7 +434,7 @@ REMINDERS
     fill: var(--input-invalid-color);
 }
 
-.reminder__context-menu__item a:hover {
+.reminder__context-menu__item[aria-current="true"] {
     background-color: var(--input-color);
 }
 
@@ -451,7 +455,8 @@ REMINDERS
 }
 
 .reminder:hover .reminder__more-button,
-.reminder:focus-within .reminder__more-button {
+.reminder:focus-within .reminder__more-button,
+.reminder.hasContext .reminder__more-button {
     opacity: 1;
 }
 

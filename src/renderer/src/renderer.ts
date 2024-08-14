@@ -43,43 +43,10 @@ function listReminders() {
         if(!isDocumentFragment(templateClone))
             return;
 
-        const openContextMenu = (
-            mouseX: number, 
-            mouseY: number, 
-            offsetX: number = 0, 
-            offsetY: number = 0,
-            openMethod: string = "context"
-        ) => {
-            let relX = mouseX;
-            let relY = mouseY;
-
-            contextMenu?.setAttribute("visible", "true");
-
-            const contextMenuRect = contextMenu?.getBoundingClientRect();
-            if(!contextMenuRect)
-                return;
-
-            if(relX + contextMenuRect.width >= window.innerWidth) {
-                relX -= contextMenuRect.width ?? 0;
-                offsetX = 0;
-            }
-            if(relY + contextMenuRect.height >= window.innerHeight) {
-                relY -= contextMenuRect.height ?? 0;
-                offsetY = 0;
-            }
-
-            (contextMenu as HTMLElement).style.left = `${relX + offsetX}px`;
-            (contextMenu as HTMLElement).style.top = `${relY + offsetY}px`;
-
-            const index = Reminders.activeReminders.indexOf(reminder);
-            contextMenu?.setAttribute("reminder-index", `${index}`);
-            contextMenu?.setAttribute("open-method", openMethod);
-        }
-
         const reminderLi = templateClone.querySelector(".reminder");
         if(reminderLi) {
             reminderLi.addEventListener("contextmenu", (e: any) => {
-                openContextMenu(e.clientX, e.clientY);
+                openContextMenu(index, reminderList, e.clientX, e.clientY);
             });
         }
 
@@ -91,10 +58,11 @@ function listReminders() {
                     && `${index}` === contextMenu.getAttribute("reminder-index")
                     && contextMenu.getAttribute("open-method") === "more"
                 ) {
-                    contextMenu?.setAttribute("visible", "false");
+                    closeContextMenu();
                 } else {
-                    openContextMenu(rect.x, rect.y, rect.width, 0, "more");
+                    openContextMenu(index, reminderList, rect.x, rect.y, rect.width, 0, "more");
                 }
+                (reminderMenuMoreButton as HTMLElement).blur();
                 e.preventDefault();
             });
         }
@@ -207,9 +175,159 @@ function updateReminderList() {
     });
 }
 
+function openContextMenu (
+    reminderIndex: number,
+    reminderList: HTMLElement,
+    mouseX: number, 
+    mouseY: number, 
+    offsetX: number = 0, 
+    offsetY: number = 0,
+    openMethod: string = "context"
+) {
+    let relX = mouseX;
+    let relY = mouseY;
+
+    const selected = contextMenu?.querySelector('[aria-current="true"]');
+    if(selected)
+        selected.setAttribute("aria-current", "false");
+
+    const contextMenuRect = contextMenu?.getBoundingClientRect();
+    if(!contextMenuRect)
+        return;
+
+    if(relX + contextMenuRect.width >= window.innerWidth) {
+        relX -= contextMenuRect.width ?? 0;
+        offsetX = 0;
+    }
+    if(relY + contextMenuRect.height >= window.innerHeight) {
+        relY -= contextMenuRect.height ?? 0;
+        offsetY = 0;
+    }
+
+    (contextMenu as HTMLElement).style.left = `${relX + offsetX}px`;
+    (contextMenu as HTMLElement).style.top = `${relY + offsetY}px`;
+
+    if(reminderIndex < 0 || reminderIndex >= reminderList.childElementCount)
+        return;
+
+    contextMenu?.setAttribute("reminder-index", `${reminderIndex}`);
+    contextMenu?.setAttribute("open-method", openMethod);
+    reminderList.children[reminderIndex]?.classList.add("hasContext");
+
+    contextMenu?.setAttribute("visible", "true");
+}
+
+function closeContextMenu(checkRefocus: boolean = true) {
+    if(contextMenu?.hasAttribute("visible") && contextMenu?.getAttribute("visible") === "false")
+        return;
+
+    contextMenu?.setAttribute("visible", "false");
+    const selected = contextMenu?.querySelector('[aria-current="true"]');
+        if(selected)
+            selected.setAttribute("aria-current", "false");
+
+    const reminderList = (document.getElementById("reminder-list") as HTMLElement).children[1] as HTMLElement
+
+    // Allows the reminder's more button to be focused if the last interation on the context menu
+    // was using the keyboard
+    if(checkRefocus && contextMenu?.hasAttribute("keyboard") && contextMenu.getAttribute("keyboard") === "true") {
+        if(!reminderList)
+            return;
+
+        const reminderIndex = parseInt(contextMenu?.getAttribute("reminder-index") ?? "-1");
+        if(reminderIndex < 0 || reminderIndex >= Reminders.activeReminders.length)
+            return;
+
+        const moreButton = reminderList.children[reminderIndex].querySelector(".reminder__more-button");
+        if(!moreButton)
+            return;
+
+        (moreButton as HTMLElement).focus();
+    }
+
+    Array.from(reminderList.getElementsByClassName("hasContext")).forEach(e => {
+        e.classList.remove("hasContext");
+    });
+}
+
 function initContextMenu() {
     // setup the context menu
     const contextMenu = document.getElementById("reminder__context-menu");
+
+    window.addEventListener("keydown", (e: KeyboardEvent) => {
+        if(contextMenu?.getAttribute("visible") !== "true")
+            return;
+        
+        if(e.key === "ArrowDown" || e.key === "ArrowUp") {
+            const selected = contextMenu?.querySelector('[aria-current="true"]');
+            if(!selected) {
+                const first = contextMenu?.firstElementChild;
+                if(!first)
+                    return;
+
+                first.setAttribute("aria-current", "true");
+            } else {
+                let sibling: Element | null;
+                if(e.key === "ArrowDown") {
+                    sibling  = selected.nextElementSibling ?? contextMenu?.firstElementChild;
+                } else {
+                    sibling  = selected.previousElementSibling ?? contextMenu.lastElementChild;
+                }
+
+                if(!sibling)
+                    return;
+
+                sibling.setAttribute("aria-current", "true");
+                selected.setAttribute("aria-current", "false");
+            }
+
+            contextMenu?.setAttribute("keyboard", "true");
+        } else if(e.key === "Escape") {
+            closeContextMenu();
+        } else if(e.key === "Tab") {
+            e.preventDefault();
+        }
+    });
+
+    window.addEventListener("click", (e: Event) => {
+        if((e.target as HTMLElement).classList.contains("reminder__more-button"))
+            return;
+        const isContextMenuButton = (e.target as HTMLElement).parentElement?.classList.contains("reminder__context-menu__item");
+        closeContextMenu(isContextMenuButton);
+    });
+    
+    window.addEventListener("resize", () => {
+        closeContextMenu(false);
+    });
+
+    // deselect selected element if mouse leaves menu
+    contextMenu?.addEventListener("mouseleave", _ => {
+        const selected = contextMenu?.querySelector('[aria-current="true"]');
+        if(selected)
+            selected.setAttribute("aria-current", "false");
+        contextMenu?.setAttribute("keyboard", "false");
+    })
+
+    contextMenu?.querySelectorAll(".reminder__context-menu__item").forEach(item => {
+        // Select any items that are hovered over
+        item.addEventListener("mouseover", _ => {
+            const selected = contextMenu?.querySelector('[aria-current="true"]');
+            if(selected)
+                selected.setAttribute("aria-current", "false");
+            item?.setAttribute("aria-current", "true");
+            contextMenu?.setAttribute("keyboard", "false");
+        });
+
+        // Detect "button press" when using keyboard
+        window.addEventListener("keydown", (event: KeyboardEvent) => {
+            if(!item.hasAttribute("aria-current") || item.getAttribute("aria-current") === "false")
+                return;
+            if(event.key === "Enter" || event.key === " ") {
+                (item.firstElementChild as HTMLElement)?.click();
+            }
+        })
+    });
+
     const contextDeleteBtn = contextMenu?.querySelector(".reminder__delete");
     contextDeleteBtn?.addEventListener('click', e => {
         e.preventDefault();
@@ -343,13 +461,3 @@ window.addEventListener("load", async () => {
         new Date().addMilliseconds(60 * 1000).setSeconds(0).valueOf() - new Date().valueOf()
     )
 });
-
-window.addEventListener("click", (e: Event) => {
-    if((e.target as HTMLElement).classList.contains("reminder__more-button"))
-        return;
-    contextMenu?.setAttribute("visible", "false");
-})
-
-window.addEventListener("resize", () => {
-    contextMenu?.setAttribute("visible", "false");
-})

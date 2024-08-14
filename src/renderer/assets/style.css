@@ -282,7 +282,7 @@ REMINDER LIST
 }
 
 #reminder-list > * {
-    margin: 16px;
+    margin: 16px 0;
 }
 
 #reminder-list > ul {
@@ -293,7 +293,7 @@ REMINDER LIST
     background: var(--reminder-list-bg-color);
     border-radius: 8px;
     overflow-y: auto;
-    overflow-x: hidden;
+    overflow-x: auto;
     padding: 10px;
     list-style: none;
     list-style-type: none;
@@ -338,7 +338,6 @@ REMINDERS
     
     border-radius: 8px;
     padding: 10px;
-    margin: 0 2px;
     box-shadow: 0 1px 2px black;
     background: var(--reminder-bg-color);
     min-width: fit-content;

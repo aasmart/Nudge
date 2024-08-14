@@ -149,9 +149,9 @@ function updateReminderList() {
 
         const nudgeTimeSpan = e.querySelector(".next-timer-play");
         if(nudgeTimeSpan) {
-            if(reminder.paused)
-                nudgeTimeSpan.textContent = "this reminder is paused"
-            else {
+            if(reminder.paused) {
+                nudgeTimeSpan.textContent = "This reminder is paused"
+            } else {
                 setTimeDisplay(reminder, nudgeTimeSpan);
             }
         }
@@ -329,6 +329,7 @@ function initContextMenu() {
                 return;
             if(event.key === "Enter" || event.key === " ") {
                 (item.firstElementChild as HTMLElement)?.click();
+                event.preventDefault();
             }
         })
     });

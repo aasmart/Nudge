@@ -11,15 +11,17 @@ function isDocumentFragment(node: Node | undefined): node is DocumentFragment {
 }
 
 
-const setTimeDisplay = (reminder: ReminderImpl, nudgeTimeSpan: Element) => {
+const setTimeDisplay = (reminder: ReminderImpl, nudgeTimeSpan: Element, nudgeTimeSpanPrefix: Element) => {
     if(reminder.nextReminderDisplayMode === NextReminderDisplayMode.EXACT) {
         nudgeTimeSpan.textContent = reminder.nextReminder.toLocaleString()
+        nudgeTimeSpanPrefix.textContent = "Next nudge at ";
     } else {
-        nudgeTimeSpan.textContent = `in ${DateUtils.getTimeDifferenceString(new Date(), reminder.nextReminder)}`;
+        nudgeTimeSpan.textContent = `${DateUtils.getTimeDifferenceString(new Date(), reminder.nextReminder)}`;
+        nudgeTimeSpanPrefix.textContent = "Next nudge in ";
     }
 }
 
-const toggleCountdownDisplay = (reminder: ReminderImpl, nudgeTimeSpan: Element) => {
+const toggleCountdownDisplay = (reminder: ReminderImpl, nudgeTimeSpan: Element, nudgeTimeSpanPrefix: Element) => {
     if(reminder.nextReminderDisplayMode === NextReminderDisplayMode.EXACT)
         reminder.nextReminderDisplayMode = NextReminderDisplayMode.COUNTDOWN;
     else
@@ -27,7 +29,7 @@ const toggleCountdownDisplay = (reminder: ReminderImpl, nudgeTimeSpan: Element) 
 
     Reminders.saveActiveReminders();
     if(!reminder.paused)
-        setTimeDisplay(reminder, nudgeTimeSpan);
+        setTimeDisplay(reminder, nudgeTimeSpan, nudgeTimeSpanPrefix);
 }
 
 function listReminders() {
@@ -75,9 +77,10 @@ function listReminders() {
 
         // Set the span displaying the next trigger time
         const nudgeTimeSpan = templateClone.querySelector(".next-timer-play");
-        if(nudgeTimeSpan) {
+        const nudgeTimeSpanPrefix = templateClone.querySelector(".reminder__next-play-prefix");
+        if(nudgeTimeSpan && nudgeTimeSpanPrefix) {
             nudgeTimeSpan.addEventListener("click", () => {
-                toggleCountdownDisplay(reminder, nudgeTimeSpan);
+                toggleCountdownDisplay(reminder, nudgeTimeSpan, nudgeTimeSpanPrefix);
             });
         }
 
@@ -148,11 +151,13 @@ function updateReminderList() {
             e.classList.remove("ignored")
 
         const nudgeTimeSpan = e.querySelector(".next-timer-play");
-        if(nudgeTimeSpan) {
+        const nudgeTimeSpanPrefix = e.querySelector(".reminder__next-play-prefix");
+        if(nudgeTimeSpan && nudgeTimeSpanPrefix) {
             if(reminder.paused) {
-                nudgeTimeSpan.textContent = "This reminder is paused"
+                nudgeTimeSpanPrefix.textContent = "This reminder is paused.";
+                nudgeTimeSpan.textContent = "";
             } else {
-                setTimeDisplay(reminder, nudgeTimeSpan);
+                setTimeDisplay(reminder, nudgeTimeSpan, nudgeTimeSpanPrefix);
             }
         }
 
@@ -416,8 +421,10 @@ function initContextMenu() {
 
         const nudgeTimeSpan = reminderList.children[index]
             .querySelector(".next-timer-play");
+        const nudgeTimeSpanPrefix = reminderList.children[index]
+            .querySelector(".reminder__next-play-prefix");
 
-        toggleCountdownDisplay(reminder, nudgeTimeSpan);
+        toggleCountdownDisplay(reminder, nudgeTimeSpan, nudgeTimeSpanPrefix);
     })
 }
 

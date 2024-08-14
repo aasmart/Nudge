@@ -197,6 +197,7 @@ function openContextMenu (
     if(selected)
         selected.setAttribute("aria-current", "false");
 
+    contextMenu?.setAttribute("visible", "true");
     const contextMenuRect = contextMenu?.getBoundingClientRect();
     if(!contextMenuRect)
         return;
@@ -219,8 +220,6 @@ function openContextMenu (
     contextMenu?.setAttribute("reminder-index", `${reminderIndex}`);
     contextMenu?.setAttribute("open-method", openMethod);
     reminderList.children[reminderIndex]?.classList.add("hasContext");
-
-    contextMenu?.setAttribute("visible", "true");
 }
 
 function closeContextMenu(checkRefocus: boolean = true) {

@@ -18,13 +18,13 @@ module DateUtils {
             throw new EvalError("Date b must be after date a");
         } else if(difference >= Constants.DAY_MS) {
             const days = Math.floor(difference / Constants.DAY_MS);
-            return `${days} ${days == 1 ? "day" : "days"}.`;
+            return `<${days} ${days == 1 ? "day" : "days"}.`;
         } else if(difference >= Constants.HOUR_MS) {
             const hours = Math.floor(difference / Constants.HOUR_MS);
-            return `${hours} ${hours == 1 ? "hour" : "hours"}.`;
+            return `<${hours} ${hours == 1 ? "hour" : "hours"}.`;
         } else if(difference >= Constants.MINUTES_TO_MS) {
             const minutes = Math.floor(difference / Constants.MINUTES_TO_MS);
-            return `${minutes} ${minutes == 1 ? "minute" : "minutes"}.`;
+            return `<${minutes} ${minutes == 1 ? "minute" : "minutes"}.`;
         }
         return "<1 minute.";
     }

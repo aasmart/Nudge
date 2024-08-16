@@ -4,13 +4,31 @@ import { createPopupButton, showPopup } from "../../common/popup"
 import { DateUtils } from "../../common/date"
 import { addNavFromPageListener, addNavToPageListener, navPage } from "./nav"
 
+enum ContextMenuOpenMethod {
+    CONTEXT,
+    MORE
+}
+
+/**
+ * The context menu that is displayed for reminders
+ */
 const contextMenu = document.getElementById("reminder__context-menu");
 
+/**
+ * Checks if a node is a document fragment
+ * @param node The node to check
+ * @returns True if the node is a document fragment
+ */
 function isDocumentFragment(node: Node | undefined): node is DocumentFragment {
     return node?.nodeType === Node.DOCUMENT_FRAGMENT_NODE;
 }
 
-
+/**
+ * Sets the current time display for a reminder
+ * @param reminder The reminder to set the time display for
+ * @param nudgeTimeSpan The span element to display the time in
+ * @param nudgeTimeSpanPrefix The element for the text that comes before the time
+ */
 const setTimeDisplay = (reminder: ReminderImpl, nudgeTimeSpan: Element, nudgeTimeSpanPrefix: Element) => {
     if(reminder.nextReminderDisplayMode === NextReminderDisplayMode.EXACT) {
         nudgeTimeSpan.textContent = `${reminder.nextReminder.toLocaleString()}.`
@@ -21,6 +39,12 @@ const setTimeDisplay = (reminder: ReminderImpl, nudgeTimeSpan: Element, nudgeTim
     }
 }
 
+/**
+ * Toggles the countdown display mode for a reminder
+ * @param reminder The reminder to toggle the time display for
+ * @param nudgeTimeSpan The span element to display the time in
+ * @param nudgeTimeSpanPrefix The element for the text that comes before the time
+ */
 const toggleCountdownDisplay = (reminder: ReminderImpl, nudgeTimeSpan: Element, nudgeTimeSpanPrefix: Element) => {
     if(reminder.nextReminderDisplayMode === NextReminderDisplayMode.EXACT)
         reminder.nextReminderDisplayMode = NextReminderDisplayMode.COUNTDOWN;
@@ -32,7 +56,13 @@ const toggleCountdownDisplay = (reminder: ReminderImpl, nudgeTimeSpan: Element, 
         setTimeDisplay(reminder, nudgeTimeSpan, nudgeTimeSpanPrefix);
 }
 
-function listReminders() {
+/**
+ * Loads all reminders as elements in the reminder list. Initializes any events and controls for the reminders.
+ * Should be called whenever a reminder's underlying data is changed, such as when it is edited.
+ * See {@link updateReminderList} instead for periodically updating the reminder's display elements,
+ * like the time.
+ */
+function listReminders(): void {
     const reminderList = (document.getElementById("reminder-list") as HTMLElement).children[1] as HTMLElement
     
     let reminders: Array<Node> = []
@@ -48,7 +78,7 @@ function listReminders() {
         const reminderLi = templateClone.querySelector(".reminder");
         if(reminderLi) {
             reminderLi.addEventListener("contextmenu", (e: any) => {
-                openContextMenu(index, reminderList, e.clientX, e.clientY);
+                openReminderContextMenu(index, reminderList, e.clientX, e.clientY);
             });
         }
 
@@ -64,11 +94,11 @@ function listReminders() {
                 const rect = reminderMenuMoreButton.getBoundingClientRect();
                 if(contextMenu?.getAttribute("visible") === "true" 
                     && `${index}` === contextMenu.getAttribute("reminder-index")
-                    && contextMenu.getAttribute("open-method") === "more"
+                    && contextMenu.getAttribute("open-method") === ContextMenuOpenMethod.MORE.toString()
                 ) {
-                    closeContextMenu();
+                    closeReminderContextMenu();
                 } else {
-                    openContextMenu(index, reminderList, rect.x, rect.y, rect.width, 0, "more");
+                    openReminderContextMenu(index, reminderList, rect.x, rect.y, rect.width, 0, ContextMenuOpenMethod.MORE);
                 }
                 (reminderMenuMoreButton as HTMLElement).blur();
                 e.preventDefault();
@@ -127,7 +157,10 @@ function listReminders() {
     }
 }
 
-function updateReminderList() {
+/**
+ * Updates the visuals for every reminder list item.
+ */
+function updateReminderList(): void {
     const reminderList = (document.getElementById("reminder-list") as HTMLElement).children[1] as HTMLElement
     const reminders = Array.from(reminderList.children).filter(e => e.classList.contains("reminder"));
 
@@ -186,15 +219,26 @@ function updateReminderList() {
     });
 }
 
-function openContextMenu (
+/**
+ * Opens the context menu for a particular reminder at some position
+ * 
+ * @param reminderIndex The index of the reminder to open the menu for
+ * @param reminderList The HTML reminder list element
+ * @param mouseX The x position to place the top left corner of the menu
+ * @param mouseY The y position to place the top left corner of the menu
+ * @param offsetX Offset in the x-direction. Will be set to 0 if the menu is flipped horizontally
+ * @param offsetY Offset in the y-direction. Will be set to 0 if the menu is flipped vertically
+ * @param openMethod How the context menu was opened
+ */
+function openReminderContextMenu (
     reminderIndex: number,
     reminderList: HTMLElement,
     mouseX: number, 
     mouseY: number, 
     offsetX: number = 0, 
     offsetY: number = 0,
-    openMethod: string = "context"
-) {
+    openMethod: ContextMenuOpenMethod = ContextMenuOpenMethod.CONTEXT
+): void {
     let relX = mouseX;
     let relY = mouseY;
 
@@ -223,11 +267,16 @@ function openContextMenu (
         return;
 
     contextMenu?.setAttribute("reminder-index", `${reminderIndex}`);
-    contextMenu?.setAttribute("open-method", openMethod);
+    contextMenu?.setAttribute("open-method", openMethod.toString());
     reminderList.children[reminderIndex]?.classList.add("hasContext");
 }
 
-function closeContextMenu(checkRefocus: boolean = true) {
+/**
+ * Closes the reminder context menu.
+ * @param checkRefocus If true, the reminder will attempt to refocus the reminder's more button
+ *                      if the last interaction with the menu was via keyboard.
+ */
+function closeReminderContextMenu(checkRefocus: boolean = true): void {
     if(contextMenu?.hasAttribute("visible") && contextMenu?.getAttribute("visible") === "false")
         return;
 
@@ -260,7 +309,12 @@ function closeContextMenu(checkRefocus: boolean = true) {
     });
 }
 
-function initContextMenu() {
+/**
+ * Initializes the controls of the context menu. Should only be called once during the application's
+ * lifetime.
+ */
+function initReminderContextMenu() {
+    const reminderList = (document.getElementById("reminder-list") as HTMLElement).children[1] as HTMLElement
     // setup the context menu
     const contextMenu = document.getElementById("reminder__context-menu");
 
@@ -293,7 +347,7 @@ function initContextMenu() {
 
             contextMenu?.setAttribute("keyboard", "true");
         } else if(e.key === "Escape") {
-            closeContextMenu();
+            closeReminderContextMenu();
         } else if(e.key === "Tab") {
             e.preventDefault();
         }
@@ -303,11 +357,11 @@ function initContextMenu() {
         if((e.target as HTMLElement).classList.contains("reminder__more-button"))
             return;
         const isContextMenuButton = (e.target as HTMLElement).parentElement?.classList.contains("reminder__context-menu__item");
-        closeContextMenu(isContextMenuButton);
+        closeReminderContextMenu(isContextMenuButton);
     });
     
     window.addEventListener("resize", () => {
-        closeContextMenu(false);
+        closeReminderContextMenu(false);
     });
 
     // deselect selected element if mouse leaves menu
@@ -344,10 +398,14 @@ function initContextMenu() {
         e.preventDefault();
         
         // get the focused reminder
-        const index = contextMenu?.getAttribute("reminder-index");
-        if(!index)
+        const indexStr = contextMenu?.getAttribute("reminder-index");
+        if(!indexStr || indexStr === "" || isNaN(Number(indexStr)))
             return;
-        const reminder = Reminders.activeReminders[index];
+
+        const index = Number(indexStr);
+        if(index < 0 || index >= reminderList.childElementCount)
+            return;
+        const reminder: ReminderImpl = Reminders.activeReminders[index];
 
         showPopup(
             "Confirm Nudge Deletion", 
@@ -372,12 +430,12 @@ function initContextMenu() {
 
         // get the focused reminder
         const indexStr = contextMenu?.getAttribute("reminder-index");
-        if(!indexStr)
+        if(!indexStr || indexStr === "" || isNaN(Number(indexStr)))
             return;
 
-        const index = parseInt(indexStr);
+        const index = Number(indexStr);
         
-        if(index as number < 0) {
+        if(index < 0 || index >= reminderList.childElementCount) {
             console.error("Failed to edit reminder for it does not exist");
             showPopup('Encountered An Error', 'An error was encounter while trying to edit the reminder');
             return;
@@ -393,8 +451,12 @@ function initContextMenu() {
         e.preventDefault();
 
         // get the focused reminder
-        const index = contextMenu?.getAttribute("reminder-index");
-        if(!index)
+        const indexStr = contextMenu?.getAttribute("reminder-index");
+        if(!indexStr || indexStr === "" || isNaN(Number(indexStr)))
+            return;
+
+        const index = Number(indexStr);
+        if(index < 0 || index >= reminderList.childElementCount)
             return;
         const reminder: ReminderImpl = Reminders.activeReminders[index];
 
@@ -408,14 +470,17 @@ function initContextMenu() {
         );
     })
 
-    const reminderList = (document.getElementById("reminder-list") as HTMLElement).children[1] as HTMLElement
     const contextTimerToggleButton = contextMenu?.querySelector(".reminder__update-display");
     contextTimerToggleButton?.addEventListener('click', e => {
         e.preventDefault();
 
         // get the focused reminder
-        const index = contextMenu?.getAttribute("reminder-index");
-        if(!index)
+        const indexStr = contextMenu?.getAttribute("reminder-index");
+        if(!indexStr || indexStr === "" || isNaN(Number(indexStr)))
+            return;
+
+        const index = Number(indexStr);
+        if(index < 0 || index >= reminderList.childElementCount)
             return;
         const reminder: ReminderImpl = Reminders.activeReminders[index];
 
@@ -423,6 +488,9 @@ function initContextMenu() {
             .querySelector(".next-timer-play");
         const nudgeTimeSpanPrefix = reminderList.children[index]
             .querySelector(".reminder__next-play-prefix");
+
+        if(!nudgeTimeSpan || !nudgeTimeSpanPrefix)
+            return;
 
         toggleCountdownDisplay(reminder, nudgeTimeSpan, nudgeTimeSpanPrefix);
     })
@@ -445,14 +513,6 @@ function loadReminderListPage() {
     window.dispatchEvent(new Event('update-reminder-list'));
 }
 
-function updateReminderTimes() {
-    window.dispatchEvent(new Event("update-reminder-list"));
-    setTimeout(
-        updateReminderTimes, 
-        new Date().addMilliseconds(60 * 1000).setSeconds(0).valueOf() - new Date().valueOf()
-    );
-}
-
 addNavToPageListener("index", () => {
     listReminders();
 });
@@ -461,10 +521,18 @@ addNavFromPageListener("index", () => {
     Reminders.saveActiveReminders();
 })
 
+function updateReminderTimes() {
+    window.dispatchEvent(new Event("update-reminder-list"));
+    setTimeout(
+        updateReminderTimes, 
+        new Date().addMilliseconds(60 * 1000).setSeconds(0).valueOf() - new Date().valueOf()
+    );
+}
+
 window.addEventListener("load", async () => {
     Reminders.loadReminders();
     loadReminderListPage()
-    initContextMenu();
+    initReminderContextMenu();
     listReminders();
     setTimeout(Preloads.clearPreloads, 1);
 

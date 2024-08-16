@@ -384,7 +384,7 @@ REMINDERS
 }
 
 .reminder:hover,
-.reminder:focus-within,
+.reminder:focus-visible,
 .reminder.hasContext {
     background-color: var(--reminder-bg-darker);
 }

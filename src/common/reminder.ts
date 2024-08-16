@@ -179,9 +179,13 @@ class ReminderImpl implements IReminder {
             this.cancel()
             this.pausedTime = new Date()
             this.sentPausedActivityNotification = false;
+            if(this.pausedActivityNotification)
+                this.addPausedReminderNotificationHandler();
         } else if(this.paused && !paused) {
             const nextPlay = (new Date(this.nextReminder).valueOf() - new Date(this.pausedTime).valueOf()) * Constants.MS_TO_MINUTES;
             this.setNextReminderDate(nextPlay)
+            if(this.pausedActivityNotification)
+                this.removePausedReminderNotificationHandler();
         }
 
         this.paused = paused;
@@ -190,20 +194,34 @@ class ReminderImpl implements IReminder {
         window.dispatchEvent(new Event('update-reminder-list'))
     }
 
-    addPausedReminderNotificationHandler() {
-        if(!this.sentPausedActivityNotification) {
-            window.api.addSingleActivityTrackingListener(() => {
-                if(this.paused) {
-                    window.api.showModal({
-                        title: "Paused Reminders",
-                        message: "It looks like you're active at your computer but have paused reminders!" +
-                                " You will only receive this message once for the reminders that are currently" +
-                                " in a pause state and have this feature enabled."
-                    });
-                    this.sentPausedActivityNotification = true;
+    private pauseReminderNotificationConsumer = () => {
+        if(this.paused) {
+            window.api.showModal({
+                title: "Paused Reminders",
+                message: "It looks like you're active at your computer but have paused reminders!" +
+                        " You will only receive this message once for the reminders that are currently" +
+                        " in a pause state and have this feature enabled."
+            });
+            this.sentPausedActivityNotification = true;
+
+            if(this.reminderAudioId.length > 0) {
+                try {
+                    const audio = new Audio(this.reminderAudioId);
+                    audio.play();
+                } catch(err) { 
+                    console.log(err) 
                 }
-            })
+            }
         }
+    }
+
+    addPausedReminderNotificationHandler() {
+        if(!this.sentPausedActivityNotification)
+            window.api.addSingleActivityTrackingListener(this.pauseReminderNotificationConsumer)
+    }
+
+    removePausedReminderNotificationHandler() {
+        window.api.removeSingleActivityTrackingListener(this.pauseReminderNotificationConsumer)
     }
 
     acknowledgeIgnored() {

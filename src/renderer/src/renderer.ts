@@ -146,8 +146,6 @@ function listReminders(): void {
             })
         }
 
-        if(reminder.paused && reminder.pausedActivityNotification)
-            reminder.addPausedReminderNotificationHandler();
         reminders.push(templateClone);
     })
 

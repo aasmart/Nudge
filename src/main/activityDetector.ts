@@ -1,5 +1,6 @@
 import { uIOhook } from "uiohook-napi";
 import { preferencesStore } from "../common/preferences";
+import { ipcMain } from "electron";
 
 const interactionIntervalMs = 4 * 1000;
 const numInteractionIntervals = 10;

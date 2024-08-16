@@ -80,6 +80,10 @@ function listReminders(): void {
             reminderLi.addEventListener("contextmenu", (e: any) => {
                 openReminderContextMenu(index, reminderList, e.clientX, e.clientY);
             });
+
+            reminderLi.addEventListener("mouseleave", () => {
+                (reminderLi as HTMLElement).blur();
+            })
         }
 
         reminderLi?.addEventListener("click", () => {

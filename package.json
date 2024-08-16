@@ -1,6 +1,6 @@
 {
   "name": "Nudge",
-  "version": "0.6.0-alpha.1",
+  "version": "0.6.0-alpha.2",
   "description": "Sometimes you just need a little nudge to get something done",
   "main": "./out/main/index.js",
   "scripts": {

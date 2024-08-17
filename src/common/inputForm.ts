@@ -60,7 +60,7 @@ class InputForm {
                 return
 
             // Handle the error message
-            if(isInputElement(e) && type !== "checkbox") {
+            if(isInputElement(e) && type !== "checkbox" && e.getAttribute("role") !== "combobox") {
                 const errorMessage = document.createElement('p')
                 errorMessage.classList.add('error-message')
 

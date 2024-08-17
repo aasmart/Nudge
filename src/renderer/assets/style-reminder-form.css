@@ -95,12 +95,12 @@ legend {
     flex: 9;
 }
 
-#play-reminder-audio {
+.play-audio {
     flex: 1;
     margin-top: 20px;
 }
 
-#upload-reminder-audio {
+.upload-reminder-audio {
     flex: 1;
     margin-top: 20px;
 }

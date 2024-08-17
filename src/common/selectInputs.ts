@@ -1,8 +1,62 @@
-export class SelectMenuElement {
-    selectMenuElement: HTMLInputElement;
-    selectWrapper: HTMLDivElement;
+export module OptionsProvider {
+    const providers: Record<string, any> = {};
+    const changeListeners: Map<string, ((options: Record<string, any>) => void)[]> = new Map();
+
+    /**
+     * Sets an option provider or updates an existing one. The update event can be subscribed to by {@link addUpdateListener}. 
+     * @param key The name of the key the select menu will look for. For example, "options-from": "fooBar" will look for the key
+     *              "fooBar"
+     * @param options The options associated with the given key
+     */
+    export function setOrUpdateProvider(key: string, options: Record<string, any>) {
+        providers[key] = options;
+        changeListeners.get(key)?.forEach((listener) => {
+            listener(options);
+        });
+    }
+
+    /**
+     * Retrieves the options associated with a given key
+     * @param key The key to retrieve
+     * @returns A record containing the options
+     */
+    export function getOptions(key: string): Record<string, any> {
+        return providers[key];
+    }
+
+    /**
+     * Adds a callback that is called whenever a provider is changed.
+     * @param key The key of the provider to listen to
+     * @param callback The callback function
+     */
+    export function addUpdateListener(key: string, callback: (options: Record<string, any>) => void) {
+        if(key in providers && providers[key] === "static")
+            throw new Error(`Key '${key}' is static`);
+        if(!changeListeners.has(key))
+            changeListeners.set(key, []);
+        changeListeners.get(key)?.push(callback);
+    }
+
+    /**
+     * Removes an update listener
+     * @param key The key of the listener ot remove
+     * @param callback The callback associated with the existing listener
+     */
+    export function removeUpdateListener(key: string, callback: (options: Record<string, any>) => void): void {
+        if(!changeListeners.has(key) || key !in providers)
+            throw new Error(`Key '${key}' is not a registered provider`);
+
+        const index = changeListeners.get(key)?.indexOf(callback) ?? -1;
+        if(index < 0)
+            return;
+        changeListeners.set(key, changeListeners.get(key)?.slice(0, index).concat(changeListeners.get(key)?.slice(index + 1) ?? []) || []);
+    }
+}
+
+export class BetterSelectMenu extends HTMLElement {
+    selectInput: HTMLInputElement;
     listbox: HTMLElement;
-    optionIds: string[];
+    optionIds: string[] = [];
     stateSvg: SVGElement;
     
     initialSelectedId: string;
@@ -12,46 +66,61 @@ export class SelectMenuElement {
 
     private static controlKeys = ['ArrowUp', 'ArrowDown', 'Enter', ' ', 'Escape'];
 
-    constructor(
-        selectMenuInputElement: HTMLInputElement,
-        optionStrings: string[], 
-        optionsEnum: any
-    ) {
-        this.selectMenuElement = selectMenuInputElement;
-        if(!this.selectMenuElement.parentElement)
-            throw new Error("Select menu must have parent element.");
+    constructor() {
+        super();
 
-        this.selectWrapper = <HTMLDivElement>this.selectMenuElement.parentElement;
-        
+        const inputs = this.getElementsByTagName("input");
+        if(inputs.length === 0)
+            throw new Error("Select menu must have an input");
+        this.selectInput = inputs[0];
+
         // Get the container for the options
-        const listbox = document.getElementById(`${this.selectMenuElement.id}--listbox`);
+        const listbox = document.getElementById(`${this.selectInput.id}--listbox`);
         if(!listbox)
-            throw new Error(`Select menu must have a listbox element with the id: ${this.selectMenuElement.id}--listbox.`);
+            throw new Error(`Select menu must have a listbox element with the id: ${this.selectInput.id}--listbox.`);
         this.listbox = listbox;
 
-        // Setup all of the options
-        this.createOptions(optionStrings, optionsEnum);
-        this.optionIds = Array.from(this.listbox.getElementsByTagName("li")).map(option => option.id);
+        const setOptions = (options: Record<string, any>) => {
+            const optionStrings = Object.keys(options);
+
+            // Setup all of the options
+            this.createOptions(optionStrings, options);
+            this.optionIds = Array.from(this.listbox.getElementsByTagName("li")).map(option => option.id);
+
+            // Setup selection stuff
+            let selected = this.getSelectedOptionId();
+            const defaultSelected = this.selectInput.getAttribute("default-selected");
+            if(selected.length == 0) {
+                if(defaultSelected !== null)
+                    selected = optionStrings.hasOwnProperty(defaultSelected) 
+                        ? `${this.selectInput.id}--${defaultSelected}` 
+                        : this.optionIds[0] ?? "";
+                else
+                    selected = this.optionIds[0] ?? "";
+            }
+            this.setSelectedOption(selected);
+        }
+
+        // retrieve options
+        const optionsFrom = this.selectInput.getAttribute("options-from");
+        if(!optionsFrom)
+            throw new Error("Select menu does not specify option provider");
+        const optionsEnum = OptionsProvider.getOptions(optionsFrom);
+        
+        if(optionsEnum)
+            setOptions(optionsEnum);
+
+        this.initialSelectedId = "";
+        OptionsProvider.addUpdateListener(optionsFrom, (options: Record<string, any>) => {
+            setOptions(options);
+            this.initialSelectedId = "";
+        });
 
         // Get the state svg arrow
-        const stateSvg = this.selectWrapper.getElementsByTagName("svg")[0];
+        const stateSvg = this.getElementsByTagName("svg")[0];
         if(!stateSvg)
             throw new Error("Select must have an SVG to indicate its expansion state.");
         this.stateSvg = stateSvg;
-
-        // Setup selection stuff
-        let selected = this.getSelectedOptionId();
-        const defaultSelected = this.selectMenuElement.getAttribute("default-selected");
-        if(selected.length == 0) {
-            if(defaultSelected !== null)
-                selected = optionsEnum.hasOwnProperty(defaultSelected) 
-                    ? `${this.selectMenuElement.id}--${defaultSelected}` 
-                    : this.optionIds[0] ?? "";
-            else
-                selected = this.optionIds[0] ?? "";
-        }
-        this.setSelectedOption(selected);
-        this.initialSelectedId = "";
 
         // Initialize controls
         this.initControls();
@@ -66,8 +135,8 @@ export class SelectMenuElement {
      * Initializes the various controls for the custom select
      */
     private initControls(): void {
-        this.selectMenuElement?.addEventListener("mousedown", () => {
-            this.selectMenuElement.focus();
+        this.selectInput?.addEventListener("mousedown", () => {
+            this.selectInput.focus();
             if(!this.getIsExpanded())
                 this.resetSearch();
             this.setExpanded(true);
@@ -75,13 +144,13 @@ export class SelectMenuElement {
     
         this.stateSvg?.addEventListener("mousedown", e => {
             e.preventDefault();
-            this.selectMenuElement.focus();
+            this.selectInput.focus();
             if(!this.getIsExpanded())
                 this.resetSearch();
             this.setExpanded(!this.getIsExpanded());
         })
     
-        this.selectMenuElement?.addEventListener("blur", () => {
+        this.selectInput?.addEventListener("blur", () => {
             this.setExpanded(false);
             this.setSelectedOption(this.getSelectedOptionId());
         });
@@ -93,7 +162,7 @@ export class SelectMenuElement {
         - Space toggles the visibility and keeps the selected option
         - Escape closes the menu without keeping the selected option
         */
-        this.selectMenuElement.addEventListener("keydown", (e: KeyboardEvent) => {
+        this.selectInput.addEventListener("keydown", (e: KeyboardEvent) => {
             const filteredOptions = Array.from(this.listbox.getElementsByTagName("li"))
                 .filter(opt => opt.getAttribute("data-filtered") === "false" || !opt.hasAttribute("data-filtered"))
                 .map(opt => opt.id);
@@ -138,7 +207,7 @@ export class SelectMenuElement {
                     break;
             }
 
-            if(SelectMenuElement.controlKeys.includes(e.key)) {
+            if(BetterSelectMenu.controlKeys.includes(e.key)) {
                 if(e.key !== " ")
                     this.interactingWithListbox = true;
 
@@ -158,14 +227,14 @@ export class SelectMenuElement {
      * Initializes the select menu's autocomplete functionality
      */
     private initAutocomplete() {
-        this.selectMenuElement.addEventListener("keyup", e => {
-            if(SelectMenuElement.controlKeys.includes(e.key) && (e.key !== ' ' || this.interactingWithListbox)) {
+        this.selectInput.addEventListener("keyup", e => {
+            if(BetterSelectMenu.controlKeys.includes(e.key) && (e.key !== ' ' || this.interactingWithListbox)) {
                 e.preventDefault();
                 return;
             } else if(!this.searchString?.length && (e.key === "Tab" || e.key === "Shift"))
                 return;
 
-            this.searchString = this.selectMenuElement.value;
+            this.searchString = this.selectInput.value;
 
             const options = Array.from(this.listbox.getElementsByTagName("li"))
             const matchedOptions = fuzzyMatchOptions(this.searchString, options.map(opt => opt.innerText), 0);
@@ -211,11 +280,11 @@ export class SelectMenuElement {
         optionStrings: string[], 
         optionsEnum: any
     ): void {
-        this.listbox.append(...optionStrings.map((option) => {
+        this.listbox.replaceChildren(...optionStrings.map((option) => {
             const optionElement = document.createElement("li");
             optionElement.innerText = optionsEnum[option]; // Get enum name as string
             optionElement.setAttribute("value", option);
-            optionElement.id = `${this.selectMenuElement.id}--${option}`;
+            optionElement.id = `${this.selectInput.id}--${option}`;
     
             optionElement.addEventListener("mousedown", e => {
                 // Stop the select menu from being blurred
@@ -236,8 +305,8 @@ export class SelectMenuElement {
      */
     setSelectedOption(id: string, updateInputVisually: boolean = true): void {
         const allOptions = Array.from(this.listbox.getElementsByTagName("li"));
-        SelectMenuElement.setSelectMenuSelectedOption(
-            this.selectMenuElement,
+        BetterSelectMenu.setSelectMenuSelectedOption(
+            this.selectInput,
             allOptions,
             id,
             updateInputVisually
@@ -285,7 +354,7 @@ export class SelectMenuElement {
      * @returns The currently selected option's ID
      */
     getSelectedOptionId(): string {
-        return this.selectMenuElement.getAttribute("aria-activedescendant") ?? "";
+        return this.selectInput.getAttribute("aria-activedescendant") ?? "";
     }
 
     /**
@@ -294,19 +363,19 @@ export class SelectMenuElement {
      * @param expand True to expand
      */
     setExpanded(expand: boolean): void {
-        if(expand && ((this.selectMenuElement.getAttribute("aria-expanded") ?? 'false') === 'false')) {
+        if(expand && ((this.selectInput.getAttribute("aria-expanded") ?? 'false') === 'false')) {
             this.initialSelectedId = this.getSelectedOptionId();
             this.interactingWithListbox = false;
         }
 
-        this.selectMenuElement.setAttribute("aria-expanded", `${expand}`);
+        this.selectInput.setAttribute("aria-expanded", `${expand}`);
     }
     
     /**
      * @returns The expansion state of the select
      */
     getIsExpanded(): boolean {
-        return this.selectMenuElement.getAttribute("aria-expanded") === "true";
+        return this.selectInput.getAttribute("aria-expanded") === "true";
     }
 
     resetSearch(): void {
@@ -329,6 +398,8 @@ export class SelectMenuElement {
         return element as HTMLInputElement && element.getAttribute("role") === "combobox"
     }
 }
+
+customElements.define("better-select-menu", BetterSelectMenu);
 
 /**
  * Fuzzy matching for the select menu. Returns an array of option values sorted in

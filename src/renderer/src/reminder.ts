@@ -129,6 +129,6 @@ function initAddAudioButton() {
     })
 }
 
-window.addEventListener("load", () => {
+window.addEventListener("navload", () => {
     loadReminderCreationPage()
 });

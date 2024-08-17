@@ -531,7 +531,7 @@ function updateReminderTimes() {
     );
 }
 
-window.addEventListener("load", async () => {
+window.addEventListener("navload", async () => {
     Reminders.loadReminders();
     loadReminderListPage()
     initReminderContextMenu();

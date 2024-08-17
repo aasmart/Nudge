@@ -50,14 +50,14 @@ function addNavFromPageListener(page: string, consumer: () => void) {
     window.addEventListener(`nav-unload-${page}`, consumer);
 }
 
-function initNav() {
+async function initNav() {
     const radios = Array.from(document.getElementsByClassName("nav__app-tab")) as HTMLInputElement[];
 
     // this is what we call a probable security vulnerability
     // (initializes all app pages and radio buttons)
     const pages = Array.from(document.getElementsByTagName("main"));
     const locationName = sessionStorage.getItem("current-page");
-    radios.forEach(async (radio) => {
+    await Promise.all(radios.map(async (radio) => {
         const radioPageId = radio.getAttribute("value");
         // import the html file if it doesn't exist
         if(!pages.find(page => page.id.endsWith(radioPageId || ""))) {
@@ -111,7 +111,9 @@ function initNav() {
                 }
             });
         }
-    });
+    }));
+
+    window.dispatchEvent(new Event("navload"));
 }
 
 window.addEventListener("load", () => {

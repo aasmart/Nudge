@@ -18,12 +18,54 @@
         </fieldset>
     </div>
     <div class="settings-tab" id="settings-nudges" visible="false">
-        <fieldset data-store-id="activityTracking">
+        <fieldset>
             <legend><strong>Activity Detection</strong></legend>
-            <input id="disable-activity-detection-toggle" name="disable-activity-detection-toggle" type="checkbox"/>
+            <input id="disable-activity-detection-toggle" name="disable-activity-detection-toggle" type="checkbox" data-store-id="activityTracking"/>
             <label for="disable-activity-detection-toggle" title="Toggles the activity feature for all paused Nudges even if they have the feature enabled.">
                 Detect computer activity for paused Nudges with activity feature enabled
             </label>
+
+            <div class="center-row">
+                <better-select-menu class="audio-combobox" id="pause-notification-audio-combobox" title="The audio played when the reminder is sent" data-store-id="activityDetectionNotificationAudio">
+                    <!-- Accessible select as per the ARIA 1.2 standards: https://www.w3.org/TR/wai-aria-1.2/#combobox -->
+                    <label for="pause-notification-audio-id">Paused Notification Audio</label>
+                    <div class="combobox--input">
+                        <input type="text" 
+                            id="pause-notification-audio-id"
+                            role="combobox"
+                            options-from="reminderAudio"
+                            aria-haspopup="listbox" 
+                            aria-expanded="false"
+                            aria-controls="pause-notification-audio-id--listbox" 
+                            aria-activedescendant=""
+                            aria-autocomplete="list"
+                            maxlength="32"
+                            default-selected=""
+                            required>
+        
+                        <svg xmlns="http://www.w3.org/2000/svg" height="48" viewBox="0 -960 960 960" width="48">
+                            <path d="M480-345 240-585l43-43 197 198 197-197 43 43-240 239Z"/>
+                        </svg>
+                    </div>
+                
+                    <div class="listbox-wrapper">
+                        <ul role="listbox" id="pause-notification-audio-id--listbox">
+                        
+                        </ul>
+                    </div>
+                </better-select-menu>
+                
+                <button class="primary svg-button play-audio" audioSource="pause-notification-audio-id" type="button" title="Play the selected audio">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24">
+                         <path d="M560-131v-82q90-26 145-100t55-168q0-94-55-168T560-749v-82q124 28 202 125.5T840-481q0 127-78 224.5T560-131ZM120-360v-240h160l200-200v640L280-360H120Zm440 40v-322q47 22 73.5 66t26.5 96q0 51-26.5 94.5T560-320Z"/>
+                     </svg>
+                 </button>
+                 <button class="primary svg-button upload-reminder-audio" type="button" title="Upload new audio">
+                     <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24">
+                         <path d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z"/>
+                     </svg>
+                 </button>
+            </div>
         </fieldset>
     </div>
 </main>

@@ -88,11 +88,11 @@
         animation: shake 3000ms ease-in-out infinite;
     }
 
-    .combobox-wrapper > svg {
+    better-select-menu > svg {
         transition: transform 0;
     }
 
-    .combobox-wrapper ul[role="listbox"] {
+    better-select-menu ul[role="listbox"] {
         transition: none;
     }
 
@@ -785,7 +785,7 @@ form label:has(
     +select:required,
     +textarea:required
 ))::after,
-form .combobox-wrapper label:not(
+form better-select-menu label:not(
     :has(+.combobox--input input:required)
 )::after {
     content: ' (optional)';
@@ -909,15 +909,16 @@ label.svg-radio svg {
 
 /* Select menu */
 
-.combobox-wrapper {
+better-select-menu {
     --listbox-max-height: 10rem;
     --listbox-item-padding: 0.35rem;
+    font-size: var(--input-font-size);
 
     position: relative;
     cursor: pointer;
 }
 
-.combobox-wrapper div {
+better-select-menu div {
     padding: 0;
     margin: 0;
 }
@@ -943,12 +944,12 @@ label.svg-radio svg {
     transform: rotateZ(180deg);
 }
 
-.combobox-wrapper .listbox-wrapper {
+better-select-menu .listbox-wrapper {
     position: relative;
     z-index: 90;
 }
 
-.combobox-wrapper ul[role="listbox"] {
+better-select-menu ul[role="listbox"] {
     position: absolute;
     list-style: none;
     padding-left: 0;
@@ -966,23 +967,39 @@ label.svg-radio svg {
     transition: clip-path 200ms;
 }
 
-.combobox-wrapper:has(input[aria-expanded="false"]) .listbox-wrapper ul {
+better-select-menu:has(input[aria-expanded="false"]) .listbox-wrapper ul {
     clip-path: inset(0 0 100% 0);
     overflow: hidden;
 }
 
-.combobox-wrapper ul[role="listbox"] li {
+better-select-menu ul[role="listbox"] li {
     padding: var(--listbox-item-padding);
     transition: background-color 250ms;
 }
 
-.combobox-wrapper ul[role="listbox"] li[data-filtered="true"] {
+better-select-menu ul[role="listbox"] li[data-filtered="true"] {
     display: none;
 }
 
-.combobox-wrapper ul[role="listbox"] li:hover,
+better-select-menu ul[role="listbox"] li:hover,
 ul[role="listbox"]:not(:has(li:hover)) li[selected="true"] {
     background-color: var(--primary-color);
+}
+
+/* CUSTOM FORMATTING */
+
+.audio-combobox {
+    flex: 9;
+}
+
+.play-audio {
+    flex: 1;
+    margin-top: 20px;
+}
+
+.upload-reminder-audio {
+    flex: 1;
+    margin-top: 20px;
 }
 
 /* POPUP */

@@ -159,8 +159,36 @@ function listReminders(): void {
     }
 }
 
+function pauseReminderNotificationConsumer() {
+    Reminders.activeReminders.forEach(reminder => { 
+        if(reminder.paused && reminder.pausedActivityNotification) {
+            reminder.sentPausedActivityNotification = true;
+        }
+    });
+    Reminders.saveActiveReminders();
+
+    window.api.showModal({
+        title: "Paused Reminders",
+        message: "It looks like you're active at your computer but have paused reminders!" +
+                " You will only receive this message once for the reminders that are currently" +
+                " in a pause state and have this feature enabled."
+    });
+
+    window.api.preferences.get("activityDetectionNotificationAudio").then((audioId) => {
+        if(audioId.length <= 0)
+            return;
+        try {
+            const audio = new Audio(audioId as string);
+            audio.play();
+        } catch(err) { 
+            console.log(err) 
+        }
+    });
+}
+
 /**
- * Updates the visuals for every reminder list item.
+ * Updates the visuals for every reminder list item. Also handles the 
+ * paused reminder notification scheduling
  */
 function updateReminderList(): void {
     const reminderList = (document.getElementById("reminder-list") as HTMLElement).children[1] as HTMLElement
@@ -171,6 +199,9 @@ function updateReminderList(): void {
         listReminders();
         return;
     }
+
+    let anyPaused = false;
+    let anyPausedReminderNotification = false;
 
     reminders.forEach((e, index) => {
         const reminder = Reminders.activeReminders[index];
@@ -218,7 +249,16 @@ function updateReminderList(): void {
         if(acknowledgeButton) {
             acknowledgeButton?.setAttribute("visible", `${reminder.isIgnored}`);
         }
+
+        if(reminder.paused)
+            anyPaused = true;
+        if(reminder.pausedActivityNotification && !reminder.sentPausedActivityNotification)
+            anyPausedReminderNotification = true;
     });
+
+    window.api.removeAllActivityTrackingListeners()
+    if(anyPausedReminderNotification && anyPaused)
+        window.api.addSingleActivityTrackingListener(pauseReminderNotificationConsumer)  
 }
 
 /**

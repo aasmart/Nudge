@@ -1,4 +1,5 @@
 import { Preferences } from "../../common/preferences";
+import { isBetterSelectMenu } from "../../common/selectInputs";
 import { addNavFromPageListener, addNavToPageListener } from "./nav";
 
 function initTabs() {
@@ -33,7 +34,7 @@ function initSettings() {
 
         Array.from(inputs).forEach(async input => {
             const type = input.getAttribute("type");
-            const storeId = (element.getAttribute("data-store-id") ?? groupStoreId ?? "") as keyof Preferences;
+            const storeId = (groupStoreId ?? input.getAttribute("data-store-id") ?? "") as keyof Preferences;
 
             const storedValue = await window.api.preferences.get(storeId) as Preferences[keyof Preferences];
 
@@ -55,6 +56,20 @@ function initSettings() {
                     break;
                 }
             }
+        });
+
+        // Handle select menus separately since they are special
+        const selectMenus = element.getElementsByTagName("better-select-menu");
+        Array.from(selectMenus).forEach(async selectMenu => {
+            const storeId = (groupStoreId ?? selectMenu.getAttribute("data-store-id") ?? "") as keyof Preferences;
+            const storedValue = await window.api.preferences.get(storeId) as Preferences[keyof Preferences];
+
+            if(!isBetterSelectMenu(selectMenu)) return;
+
+            selectMenu.setSelectedOptionWithoutId(storedValue as string);
+            selectMenu.addEventListener("change", () => {
+                window.api.preferences.set(storeId, selectMenu.getSelectOptionWithoutId());
+            });
         });
     });
 }

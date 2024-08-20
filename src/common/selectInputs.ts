@@ -53,6 +53,10 @@ export module OptionsProvider {
     }
 }
 
+export function isBetterSelectMenu(element: HTMLElement | Element): element is BetterSelectMenu {
+    return element instanceof BetterSelectMenu;
+};
+
 export class BetterSelectMenu extends HTMLElement {
     selectInput: HTMLInputElement;
     listbox: HTMLElement;
@@ -129,6 +133,11 @@ export class BetterSelectMenu extends HTMLElement {
         // Autocomplete controls
         this.interactingWithListbox = false;
         this.searchString = null;
+
+        // why wont this work?
+        this.selectInput.addEventListener("change", () => {
+            this.dispatchEvent(new Event("change"));
+        });
     }
 
     /**
@@ -314,6 +323,15 @@ export class BetterSelectMenu extends HTMLElement {
     }
 
     /**
+     * Sets the select's currently selected option without being prefixed by the select input's ID
+     * @param id The option to set as selected
+     * @param updateInputVisually True if the input's value should be updated
+     */
+    setSelectedOptionWithoutId(id: string, updateInputVisually: boolean = true): void {
+        this.setSelectedOption(`${this.selectInput.id}--${id}`, updateInputVisually);
+    }
+
+    /**
      * Allows the select menu's value to be set if you have the input element,
      * the options, and the ID you want selected
      * 
@@ -345,16 +363,27 @@ export class BetterSelectMenu extends HTMLElement {
 
         if(updateInputVisually)
             selectMenuElement.value = option.textContent ?? "";
+
+        selectMenuElement.dispatchEvent(new Event("change"));
     }
 
     /**
      * Gets the select's currently selected option's id. If there is none,
-     * the ID is blank
+     * the ID is blank. This ID will be in the form of `${selectInput.id}--${optionName}`
      * 
      * @returns The currently selected option's ID
      */
     getSelectedOptionId(): string {
         return this.selectInput.getAttribute("aria-activedescendant") ?? "";
+    }
+
+    /**
+     * @returns The currently selected option's ID without the select input's ID
+     */
+    getSelectOptionWithoutId(): string {
+        const selectedId = this.selectInput.getAttribute("aria-activedescendant");
+        const selected = selectedId?.replace(`${this.selectInput.id}--`, "");
+        return selected ?? "";
     }
 
     /**

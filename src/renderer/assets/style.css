@@ -912,7 +912,6 @@ label.svg-radio svg {
 better-select-menu {
     --listbox-max-height: 10rem;
     --listbox-item-padding: 0.35rem;
-    font-size: var(--input-font-size);
 
     position: relative;
     cursor: pointer;
@@ -945,6 +944,7 @@ better-select-menu div {
 }
 
 better-select-menu .listbox-wrapper {
+    font-size: var(--input-font-size);
     position: relative;
     z-index: 90;
 }

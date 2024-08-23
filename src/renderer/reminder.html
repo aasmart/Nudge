@@ -60,70 +60,31 @@
             >
         </div>
 
-        <div class="combobox-wrapper input-container-grid" title="The type of notification sent for the reminder">
-            <!-- Accessible select as per the ARIA 1.2 standards: https://www.w3.org/TR/wai-aria-1.2/#combobox -->
-            <label for="notification-type">Notification Type</label>
-            <div class="combobox--input">
-                <input type="text" 
-                    id="notification-type"
-                    role="combobox"
-                    options-from="reminderNotificationType"
-                    aria-haspopup="listbox" 
-                    aria-expanded="false"
-                    aria-controls="notification-type--listbox" 
-                    aria-activedescendant=""
-                    aria-autocomplete="list"
-                    maxlength="32"
-                    required>
-
-                <svg xmlns="http://www.w3.org/2000/svg" height="48" viewBox="0 -960 960 960" width="48">
-                    <path d="M480-345 240-585l43-43 197 198 197-197 43 43-240 239Z"/>
-                </svg>
-            </div>
-        
-            <div class="listbox-wrapper">
-                <ul role="listbox" id="notification-type--listbox">
-                
-                </ul>
-            </div>
-        </div>
+        <better-select-menu 
+            class="input-container-flex" 
+            id="notification-type" 
+            title="The type of notification sent for the reminder"
+            options-from="reminderNotificationType"
+        >
+            <label for="notification-type" slot="label">Notification Type</label>
+        </better-select-menu>
 
         <div class="input-container-flex">
-            <div class="combobox-wrapper" id="reminder-audio-combobox" title="The audio played when the reminder is sent">
-                <!-- Accessible select as per the ARIA 1.2 standards: https://www.w3.org/TR/wai-aria-1.2/#combobox -->
-                <label for="reminder-audio-id">Reminder Audio</label>
-                <div class="combobox--input">
-                    <input type="text" 
-                        id="reminder-audio-id"
-                        role="combobox"
-                        options-from="reminderAudio"
-                        aria-haspopup="listbox" 
-                        aria-expanded="false"
-                        aria-controls="reminder-audio-id--listbox" 
-                        aria-activedescendant=""
-                        aria-autocomplete="list"
-                        maxlength="32"
-                        default-selected=""
-                        required>
-    
-                    <svg xmlns="http://www.w3.org/2000/svg" height="48" viewBox="0 -960 960 960" width="48">
-                        <path d="M480-345 240-585l43-43 197 198 197-197 43 43-240 239Z"/>
-                    </svg>
-                </div>
+            <better-select-menu 
+                class="audio-combobox" 
+                id="reminder-audio-id" 
+                options-from="reminderAudio"
+                title="The audio played when the reminder is sent"
+            >
+                <label for="reminder-audio-id" slot="label">Reminder Audio Id</label>
+            </better-select-menu>
             
-                <div class="listbox-wrapper">
-                    <ul role="listbox" id="reminder-audio-id--listbox">
-                    
-                    </ul>
-                </div>
-            </div>
-            
-            <button class="primary svg-button" id="play-reminder-audio" type="button" title="Play the selected audio">
+            <button class="primary svg-button play-audio" audioSource="reminder-audio-id" type="button" title="Play the selected audio">
                 <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24">
                      <path d="M560-131v-82q90-26 145-100t55-168q0-94-55-168T560-749v-82q124 28 202 125.5T840-481q0 127-78 224.5T560-131ZM120-360v-240h160l200-200v640L280-360H120Zm440 40v-322q47 22 73.5 66t26.5 96q0 51-26.5 94.5T560-320Z"/>
                  </svg>
              </button>
-             <button class="primary svg-button" id="upload-reminder-audio" type="button" title="Upload new audio">
+             <button class="primary svg-button upload-reminder-audio" type="button" title="Upload new audio">
                  <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24">
                      <path d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z"/>
                  </svg>
@@ -131,8 +92,7 @@
         </div>
 
         <div class="input-container-flex"
-            title="If enabled, a message will be sent if you're active at your computer if this reminder is paused. Useful if you forget to unpause the reminder. 
-                Will be sent only once."
+            title="If enabled, a message will be sent if you're active at your computer if this reminder is paused. Useful if you forget to unpause the reminder. Will be sent only once (unless the app is reloaded)."
         >
             <input id="paused-activity-notification" name="paused-activity-notification" type="checkbox" />
             <label for="paused-activity-notification">User activity push notification if paused</label>

@@ -303,11 +303,11 @@ function registerIpcEvents() {
     return "";
   });
 
-  ipcMain.handle("read-html-file", (_event: any, fileName: string) => {
+  ipcMain.handle("read-renderer-file", (_event: any, fileName: string) => {
     if (is.dev)
-      fileName = `src/renderer/${fileName}.html`
+      fileName = `src/renderer/${fileName}`
     else
-      fileName = join(__dirname, `../renderer/${fileName}.html`);
+      fileName = join(__dirname, `../renderer/${fileName}`);
 
     try {
       return fs.readFileSync(fileName, 'utf-8');

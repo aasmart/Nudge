@@ -88,11 +88,11 @@
         animation: shake 3000ms ease-in-out infinite;
     }
 
-    .combobox-wrapper > svg {
+    better-select-menu > svg {
         transition: transform 0;
     }
 
-    .combobox-wrapper ul[role="listbox"] {
+    better-select-menu ul[role="listbox"] {
         transition: none;
     }
 
@@ -547,9 +547,11 @@ INPUTS
 ================================== */
 
 input,
+*::part(default-input),
 button,
 textarea,
 select {
+    /* Styling is not automatically mirroed to style-select */
     background-color: var(--input-color);
     border-radius: 4px;
     color: var(--fore-color);
@@ -561,32 +563,32 @@ select {
     transition: opacity 250ms;
 }
 
-input:has(+.units) {
+:is(input, *::part(default-input)):has(+.units) {
     border-top-right-radius: 0;
     border-bottom-right-radius: 0;
     z-index: 1;
 }
 
-input::-webkit-outer-spin-button,
-input::-webkit-inner-spin-button {
+:is(input, *::part(default-input))::-webkit-outer-spin-button,
+:is(input, *::part(default-input))::-webkit-inner-spin-button {
     -webkit-appearance: none;
     margin: 0;
 }
 
-input[type=number] {
+:is(input, *::part(default-input))[type=number] {
     -moz-appearance: textfield;
     appearance: textfield;
 }
 
-input[use-units] {
+:is(input, *::part(default-input))[use-units] {
     text-align: right;
 }
 
-input[use-units]:focus {
+:is(input, *::part(default-input))[use-units]:focus {
     text-align: left;
 }
 
-input:disabled { 
+:is(input, *::part(default-input)):disabled { 
     opacity: 0.5;
 }
 
@@ -784,10 +786,7 @@ form label:has(
     +input:required, 
     +select:required,
     +textarea:required
-))::after,
-form .combobox-wrapper label:not(
-    :has(+.combobox--input input:required)
-)::after {
+))::after {
     content: ' (optional)';
     color: var(--popup-accent-color)
 }
@@ -909,7 +908,7 @@ label.svg-radio svg {
 
 /* Select menu */
 
-.combobox-wrapper {
+better-select-menu {
     --listbox-max-height: 10rem;
     --listbox-item-padding: 0.35rem;
 
@@ -917,72 +916,20 @@ label.svg-radio svg {
     cursor: pointer;
 }
 
-.combobox-wrapper div {
-    padding: 0;
-    margin: 0;
+/* CUSTOM FORMATTING */
+
+.audio-combobox {
+    flex: 9;
 }
 
-.combobox--input input {
-    width: 100%;
+.play-audio {
+    flex: 1;
+    margin-top: 20px;
 }
 
-.combobox--input svg {
-    position: absolute;
-    margin: auto;
-    top: 50%;
-    bottom: 50%;
-    right: 0;
-    translate: 0 20%;
-
-    fill: var(--fore-color);
-
-    transition: transform 200ms;
-}
-
-.combobox--input input[aria-expanded="true"] ~ svg {
-    transform: rotateZ(180deg);
-}
-
-.combobox-wrapper .listbox-wrapper {
-    position: relative;
-    z-index: 90;
-}
-
-.combobox-wrapper ul[role="listbox"] {
-    position: absolute;
-    list-style: none;
-    padding-left: 0;
-    margin: 0;
-    width: 100%;
-    max-height: var(--listbox-max-height);
-    overflow-x: hidden;
-    overflow-y: auto;
-
-    background-color: var(--select-options-color);
-    border-radius: 4px;
-    clip-path: inset(0 -6px -6px -6px);
-    box-shadow: 0 0 6px black;
-
-    transition: clip-path 200ms;
-}
-
-.combobox-wrapper:has(input[aria-expanded="false"]) .listbox-wrapper ul {
-    clip-path: inset(0 0 100% 0);
-    overflow: hidden;
-}
-
-.combobox-wrapper ul[role="listbox"] li {
-    padding: var(--listbox-item-padding);
-    transition: background-color 250ms;
-}
-
-.combobox-wrapper ul[role="listbox"] li[data-filtered="true"] {
-    display: none;
-}
-
-.combobox-wrapper ul[role="listbox"] li:hover,
-ul[role="listbox"]:not(:has(li:hover)) li[selected="true"] {
-    background-color: var(--primary-color);
+.upload-reminder-audio {
+    flex: 1;
+    margin-top: 20px;
 }
 
 /* POPUP */
@@ -1127,5 +1074,4 @@ UTILITY CLASSES
     word-wrap: normal;
     white-space: nowrap;
     direction: ltr;
-}
-  
+} 

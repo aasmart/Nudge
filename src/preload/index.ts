@@ -20,11 +20,11 @@ export const API = {
   setActivityDetection: (enabled: boolean) => ipcRenderer.send("set-activity-detection", enabled),
   resetActivityDetection: () => ipcRenderer.send("reset-activity-detection"),
   addSingleActivityTrackingListener: (consumer: () => void) => ipcRenderer.once("continuous-activity", consumer),
-  removeSingleActivityTrackingListener: (consumer: () => void) => ipcRenderer.removeListener("continuous-activity", consumer),
+  removeAllActivityTrackingListeners: () => ipcRenderer.removeAllListeners("continuous-activity"), // not the best solution
   getUserPath: (): Promise<string> => ipcRenderer.invoke("get-user-path"),
   readUserDirectory: (path: string) : Promise<string[]> => ipcRenderer.invoke("read-user-directory", path),
   readFile: (path: string): Promise<string> => ipcRenderer.invoke("read-file", path),
-  readHtmlFile: (fileName: string): Promise<string> => ipcRenderer.invoke("read-html-file", fileName),
+  readRendererFile: (fileName: string): Promise<string> => ipcRenderer.invoke("read-renderer-file", fileName),
   showFileDialog: (validExtensions: FileFilter[]): Promise<Electron.OpenDialogReturnValue> => ipcRenderer.invoke("open-file-dialog", validExtensions),
   copyFile: (source: string, destination: string): Promise<boolean> => ipcRenderer.invoke("copy-file", source, destination),
 }

@@ -4,7 +4,8 @@ export type Theme = "system" | "light" | "dark";
 
 export interface Preferences {
     theme: Theme,
-    activityTracking: boolean
+    activityTracking: boolean,
+    activityDetectionNotificationAudio: string
 }
 
 const preferencesSchema: Schema<Preferences> = {
@@ -16,6 +17,10 @@ const preferencesSchema: Schema<Preferences> = {
     activityTracking: {
         type: "boolean",
         default: "true"
+    },
+    activityDetectionNotificationAudio: {
+        type: "string",
+        default: ""
     }
 };
 

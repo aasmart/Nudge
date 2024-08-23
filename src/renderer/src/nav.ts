@@ -61,7 +61,7 @@ async function initNav() {
         const radioPageId = radio.getAttribute("value");
         // import the html file if it doesn't exist
         if(!pages.find(page => page.id.endsWith(radioPageId || ""))) {
-            const data = await window.api.readHtmlFile(`${radioPageId}`);
+            const data = await window.api.readRendererFile(`${radioPageId}.html`);
             if(!data) {
                 console.error(`Failed to find HTML file ${radioPageId}`);
                 return;

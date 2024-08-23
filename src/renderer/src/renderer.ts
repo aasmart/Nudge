@@ -1,6 +1,6 @@
 import { showPopup } from "../../common/popup";
 import { ReminderNotificationType, Reminders } from "../../common/reminder";
-import { OptionsProvider } from "../../common/selectInputs";
+import { BetterSelectMenu, OptionsProvider } from "../../common/selectInputs";
 
 function initPlaySelectedAudioButtons() {
     const PLAY_AUDIO_BUTTON_CLASS = "play-audio";
@@ -20,7 +20,7 @@ function initPlaySelectedAudioButtons() {
                 return;
             }
     
-            const selected = (audioInput.getAttribute("aria-activedescendant") ?? "").replaceAll(`${audioSourceId}--`, "");
+            const selected = (audioInput as BetterSelectMenu).getSelectedOptionWithoutId();
             if(selected === "")
                 return;
             

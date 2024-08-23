@@ -3,6 +3,7 @@ import { createPopupButton, showPopup } from "../../common/popup"
 import { DateUtils } from "../../common/date"
 import { addNavFromPageListener, addNavToPageListener, navPage } from "./nav"
 import { Preloads } from "../../common/preloads";
+import { isDocumentFragment } from "../../common/utils";
 
 enum ContextMenuOpenMethod {
     CONTEXT,
@@ -13,15 +14,6 @@ enum ContextMenuOpenMethod {
  * The context menu that is displayed for reminders
  */
 const contextMenu = document.getElementById("reminder__context-menu");
-
-/**
- * Checks if a node is a document fragment
- * @param node The node to check
- * @returns True if the node is a document fragment
- */
-function isDocumentFragment(node: Node | undefined): node is DocumentFragment {
-    return node?.nodeType === Node.DOCUMENT_FRAGMENT_NODE;
-}
 
 /**
  * Sets the current time display for a reminder

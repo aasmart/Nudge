@@ -1,0 +1,108 @@
+/* Since the select menu is a custom element, its internals are in the shadow dom. This file makes it easy
+to specify the styling of the select without puttting it directly in code.
+*/
+:root {
+    --listbox-max-height: 10rem;
+    --listbox-item-padding: 0.35rem;
+}
+
+*, *::before, *::after {
+    box-sizing: border-box;
+    font-family: 'Ubuntu', sans-serif;
+}
+
+div {
+    padding: 0;
+    margin: 0;
+}
+
+:host {
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+.combobox--input input {
+    width: 100%;
+}
+
+.combobox--input svg {
+    position: absolute;
+    margin: auto;
+    top: 50%;
+    bottom: 50%;
+    right: 0;
+    translate: 0 20%;
+
+    fill: var(--fore-color);
+
+    transition: transform 200ms;
+}
+
+.combobox--input input[aria-expanded="true"] ~ svg {
+    transform: rotateZ(180deg);
+}
+
+.listbox-wrapper {
+    font-size: var(--input-font-size);
+    position: relative;
+    z-index: 90;
+}
+
+ul[role="listbox"] {
+    position: absolute;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    width: 100%;
+    max-height: var(--listbox-max-height);
+    overflow-x: hidden;
+    overflow-y: auto;
+
+    background-color: var(--select-options-color);
+    border-radius: 0 0 4px 4px;
+    clip-path: inset(0 -6px -6px -6px);
+    box-shadow: 0 0 6px black;
+
+    transition: clip-path 200ms;
+}
+
+.combobox--input:has(input[aria-expanded="false"]) + .listbox-wrapper ul {
+    clip-path: inset(0 0 100% 0);
+    overflow: hidden;
+}
+
+ul[role="listbox"] li {
+    padding: var(--listbox-item-padding);
+    transition: background-color 250ms;
+}
+
+ul[role="listbox"] li[data-filtered="true"] {
+    display: none;
+}
+
+ul[role="listbox"] li:hover,
+ul[role="listbox"]:not(:has(li:hover)) li[selected="true"] {
+    background-color: var(--primary-color);
+}
+
+input {
+    background-color: var(--input-color);
+    border-radius: 4px;
+    color: var(--fore-color);
+    transition: all 250ms;
+    padding: 8px;
+    font-size: var(--input-font-size);
+    border: 2px solid transparent;
+    box-shadow: 0 0.75px 4px black;
+    transition: opacity 250ms;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input:disabled { 
+    opacity: 0.5;
+}

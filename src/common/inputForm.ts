@@ -28,13 +28,8 @@ class InputForm {
             const json = JSON.parse(this.formElement.toJSON());
 
             // Update custom select menus to use option values, not name
-            Array.from(this.inputs.values()).filter(e => {
-                return e as HTMLInputElement && e.getAttribute("role") === "combobox";
-            }).forEach(select => {
-                const selectedId = select.getAttribute("aria-activedescendant");
-                const selected = selectedId?.replace(`${select.id}--`, "");
-
-                json[simplifyInputName(select.id)] = selected;
+            Array.from(this.customSelectInputs.values()).forEach(select => {
+                json[simplifyInputName(select.id)] = select.getSelectedOptionWithoutId();
             });
 
             onSubmit(json);
@@ -60,7 +55,7 @@ class InputForm {
                 return
 
             // Handle the error message
-            if(isInputElement(e) && type !== "checkbox" && e.getAttribute("role") !== "combobox") {
+            if(isInputElement(e) && type !== "checkbox") {
                 const errorMessage = document.createElement('p')
                 errorMessage.classList.add('error-message')
 
@@ -116,15 +111,16 @@ class InputForm {
             e.onmousedown = () => e.setDirty(true)
 
             this.inputs.set(id, e)
-        })
+        });
+
+        Array.from(this.formElement.querySelectorAll("better-select-menu")).forEach(e => {
+            this.customSelectInputs.set(e.id, e as BetterSelectMenu);
+        });
     }
 
     clear() {
         this.inputs.forEach(input => {
             const type = input.getAttribute('type');
-            if(BetterSelectMenu.isCustomSelect(input)) {
-                return;
-            }
 
             // add different ways to handle different input types here
             switch(type) {
@@ -202,18 +198,13 @@ class InputForm {
         const obj = JSON.parse(json);
         for(let key in obj) {
             const id = key.match(camelCaseRegex)?.flatMap(s => s.toLowerCase()).join('-') || ''
-            const element = <FormInputElement>document.getElementById(id);
+            const element = <FormInputElement | BetterSelectMenu>document.getElementById(id);
 
             if(element == null)
                 continue
 
-            // 
-            if(BetterSelectMenu.isCustomSelect(element)) {
-                if(!element.parentElement?.parentElement)
-                    continue;
-                const options = Array.from(element.parentElement.parentElement.getElementsByTagName("li"));
-                const optionId = options.filter(e => e.getAttribute("value")?.endsWith(obj[key]))[0]?.id;
-                BetterSelectMenu.setSelectMenuSelectedOption(element as HTMLInputElement, options, optionId)
+            if(BetterSelectMenu.isBetterSelectMenu(element)) {
+                element.setSelectedOptionWithoutId(obj[key]);
             } else if(element as HTMLInputElement) {
                 if(element.getAttribute("type") === "checkbox" && element)
                     (element as HTMLInputElement).checked = obj[key];

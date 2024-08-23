@@ -550,6 +550,7 @@ input,
 button,
 textarea,
 select {
+    /* Styling is not automatically mirroed to style-select */
     background-color: var(--input-color);
     border-radius: 4px;
     color: var(--fore-color);
@@ -784,10 +785,7 @@ form label:has(
     +input:required, 
     +select:required,
     +textarea:required
-))::after,
-form better-select-menu label:not(
-    :has(+.combobox--input input:required)
-)::after {
+))::after {
     content: ' (optional)';
     color: var(--popup-accent-color)
 }
@@ -915,75 +913,6 @@ better-select-menu {
 
     position: relative;
     cursor: pointer;
-}
-
-better-select-menu div {
-    padding: 0;
-    margin: 0;
-}
-
-.combobox--input input {
-    width: 100%;
-}
-
-.combobox--input svg {
-    position: absolute;
-    margin: auto;
-    top: 50%;
-    bottom: 50%;
-    right: 0;
-    translate: 0 20%;
-
-    fill: var(--fore-color);
-
-    transition: transform 200ms;
-}
-
-.combobox--input input[aria-expanded="true"] ~ svg {
-    transform: rotateZ(180deg);
-}
-
-better-select-menu .listbox-wrapper {
-    font-size: var(--input-font-size);
-    position: relative;
-    z-index: 90;
-}
-
-better-select-menu ul[role="listbox"] {
-    position: absolute;
-    list-style: none;
-    padding-left: 0;
-    margin: 0;
-    width: 100%;
-    max-height: var(--listbox-max-height);
-    overflow-x: hidden;
-    overflow-y: auto;
-
-    background-color: var(--select-options-color);
-    border-radius: 4px;
-    clip-path: inset(0 -6px -6px -6px);
-    box-shadow: 0 0 6px black;
-
-    transition: clip-path 200ms;
-}
-
-better-select-menu:has(input[aria-expanded="false"]) .listbox-wrapper ul {
-    clip-path: inset(0 0 100% 0);
-    overflow: hidden;
-}
-
-better-select-menu ul[role="listbox"] li {
-    padding: var(--listbox-item-padding);
-    transition: background-color 250ms;
-}
-
-better-select-menu ul[role="listbox"] li[data-filtered="true"] {
-    display: none;
-}
-
-better-select-menu ul[role="listbox"] li:hover,
-ul[role="listbox"]:not(:has(li:hover)) li[selected="true"] {
-    background-color: var(--primary-color);
 }
 
 /* CUSTOM FORMATTING */
@@ -1144,5 +1073,4 @@ UTILITY CLASSES
     word-wrap: normal;
     white-space: nowrap;
     direction: ltr;
-}
-  
+} 

@@ -1,5 +1,5 @@
 import { Preferences } from "../../common/preferences";
-import { isBetterSelectMenu } from "../../common/selectInputs";
+import { BetterSelectMenu } from "../../common/selectInputs";
 import { addNavFromPageListener, addNavToPageListener } from "./nav";
 
 function initTabs() {
@@ -29,11 +29,13 @@ function initTabs() {
 function initSettings() {
     const fields = document.getElementsByTagName("fieldset");
     Array.from(fields).forEach(element => {
-        const groupStoreId = element.getAttribute("data-store-id");
+        const groupStoreId = element.getAttribute("data-store-id"); // attempt to get ID for all elements in the group
         const inputs = element.getElementsByTagName("input");
 
         Array.from(inputs).forEach(async input => {
             const type = input.getAttribute("type");
+
+            // if the store ID doesn't exist on the group level, then get the store for the individual item
             const storeId = (groupStoreId ?? input.getAttribute("data-store-id") ?? "") as keyof Preferences;
 
             const storedValue = await window.api.preferences.get(storeId) as Preferences[keyof Preferences];
@@ -61,14 +63,15 @@ function initSettings() {
         // Handle select menus separately since they are special
         const selectMenus = element.getElementsByTagName("better-select-menu");
         Array.from(selectMenus).forEach(async selectMenu => {
+            // if the store ID doesn't exist on the group level, then get the store for the individual item
             const storeId = (groupStoreId ?? selectMenu.getAttribute("data-store-id") ?? "") as keyof Preferences;
             const storedValue = await window.api.preferences.get(storeId) as Preferences[keyof Preferences];
 
-            if(!isBetterSelectMenu(selectMenu)) return;
+            if(!BetterSelectMenu.isBetterSelectMenu(selectMenu)) return;
 
-            selectMenu.setSelectedOptionWithoutId(storedValue as string);
+            selectMenu.setSelectedOptionWithoutId(storedValue as string ?? "");
             selectMenu.addEventListener("change", () => {
-                window.api.preferences.set(storeId, selectMenu.getSelectOptionWithoutId());
+                window.api.preferences.set(storeId, selectMenu.getSelectedOptionWithoutId());
             });
         });
     });

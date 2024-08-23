@@ -1,3 +1,5 @@
+import { isDocumentFragment } from "./utils";
+
 export module OptionsProvider {
     const providers: Record<string, any> = {};
     const changeListeners: Map<string, ((options: Record<string, any>) => void)[]> = new Map();
@@ -53,35 +55,37 @@ export module OptionsProvider {
     }
 }
 
-export function isBetterSelectMenu(element: HTMLElement | Element): element is BetterSelectMenu {
-    return element instanceof BetterSelectMenu;
-};
-
 export class BetterSelectMenu extends HTMLElement {
-    selectInput: HTMLInputElement;
-    listbox: HTMLElement;
+    selectInput!: HTMLInputElement;
+    listbox!: HTMLElement;
     optionIds: string[] = [];
-    stateSvg: SVGElement;
+    stateSvg!: SVGElement;
     
-    initialSelectedId: string;
+    initialSelectedId!: string;
 
-    interactingWithListbox: boolean;
-    searchString: string | null;
+    interactingWithListbox!: boolean;
+    searchString!: string | null;
 
     private static controlKeys = ['ArrowUp', 'ArrowDown', 'Enter', ' ', 'Escape'];
+    private static styleString: string | undefined = undefined;
 
     constructor() {
         super();
+    }
 
-        const inputs = this.getElementsByTagName("input");
-        if(inputs.length === 0)
+    connectedCallback() {
+        this.render();
+
+        const input = this.shadowRoot?.getElementById(`${this.id}`);
+        if(!input)
             throw new Error("Select menu must have an input");
-        this.selectInput = inputs[0];
+        this.selectInput = input as HTMLInputElement;
 
         // Get the container for the options
-        const listbox = document.getElementById(`${this.selectInput.id}--listbox`);
+        const listboxId = this.selectInput.getAttribute("aria-controls") ?? "";
+        const listbox = this.shadowRoot?.getElementById(listboxId);
         if(!listbox)
-            throw new Error(`Select menu must have a listbox element with the id: ${this.selectInput.id}--listbox.`);
+            throw new Error(`Select menu must have a listbox element with the id: ${listboxId}.`);
         this.listbox = listbox;
 
         const setOptions = (options: Record<string, any>) => {
@@ -106,7 +110,7 @@ export class BetterSelectMenu extends HTMLElement {
         }
 
         // retrieve options
-        const optionsFrom = this.selectInput.getAttribute("options-from");
+        const optionsFrom = this.getAttribute("options-from");
         if(!optionsFrom)
             throw new Error("Select menu does not specify option provider");
         const optionsEnum = OptionsProvider.getOptions(optionsFrom);
@@ -121,10 +125,10 @@ export class BetterSelectMenu extends HTMLElement {
         });
 
         // Get the state svg arrow
-        const stateSvg = this.getElementsByTagName("svg")[0];
+        const stateSvg = this.shadowRoot?.querySelector("svg");
         if(!stateSvg)
             throw new Error("Select must have an SVG to indicate its expansion state.");
-        this.stateSvg = stateSvg;
+        this.stateSvg = stateSvg as SVGElement;
 
         // Initialize controls
         this.initControls();
@@ -138,6 +142,48 @@ export class BetterSelectMenu extends HTMLElement {
         this.selectInput.addEventListener("change", () => {
             this.dispatchEvent(new Event("change"));
         });
+    }
+
+    /**
+     * Creates most of the internal HTML for the select menu
+     */
+    private render() {
+        const shadow = this.attachShadow({ mode: "open"});
+
+        const template: HTMLTemplateElement | null = document.querySelector("#select-template");
+        if(!template)
+            throw new Error("Failed to retrieve select template");
+
+        const clone: Node = template.content.cloneNode(true);
+        if(!isDocumentFragment(clone))
+            return;
+
+        const listboxWrapper = clone.querySelector(".listbox-wrapper");
+        const listboxUl = listboxWrapper?.querySelector("ul");
+        listboxUl?.setAttribute("id", this.id + "--listbox");
+
+        const input = clone.querySelector("input");
+        input?.setAttribute("aria-controls", `${this.id}--listbox`);
+        (input as HTMLInputElement).id = `${this.id}`;
+
+        // I love shadows
+        const sheet = new CSSStyleSheet();
+        if(!BetterSelectMenu.styleString) {
+            window.api.readRendererFile("assets/style-select.css").then(data => {
+                if(!data) {
+                    console.error("Failed to retrieve select menu styling");
+                    return;
+                }
+                sheet.replaceSync(data);
+                shadow.adoptedStyleSheets = [sheet];
+                BetterSelectMenu.styleString = data;
+            });
+        } else {
+            sheet.replaceSync(BetterSelectMenu.styleString);
+            shadow.adoptedStyleSheets = [sheet];
+        }
+
+        shadow.appendChild(clone);
     }
 
     /**
@@ -294,6 +340,7 @@ export class BetterSelectMenu extends HTMLElement {
             optionElement.innerText = optionsEnum[option]; // Get enum name as string
             optionElement.setAttribute("value", option);
             optionElement.id = `${this.selectInput.id}--${option}`;
+            optionElement.setAttribute("part", "item");
     
             optionElement.addEventListener("mousedown", e => {
                 // Stop the select menu from being blurred
@@ -314,38 +361,8 @@ export class BetterSelectMenu extends HTMLElement {
      */
     setSelectedOption(id: string, updateInputVisually: boolean = true): void {
         const allOptions = Array.from(this.listbox.getElementsByTagName("li"));
-        BetterSelectMenu.setSelectMenuSelectedOption(
-            this.selectInput,
-            allOptions,
-            id,
-            updateInputVisually
-        );
-    }
-
-    /**
-     * Sets the select's currently selected option without being prefixed by the select input's ID
-     * @param id The option to set as selected
-     * @param updateInputVisually True if the input's value should be updated
-     */
-    setSelectedOptionWithoutId(id: string, updateInputVisually: boolean = true): void {
-        this.setSelectedOption(`${this.selectInput.id}--${id}`, updateInputVisually);
-    }
-
-    /**
-     * Allows the select menu's value to be set if you have the input element,
-     * the options, and the ID you want selected
-     * 
-     * @param selectMenuElement The input element acting as a select menu
-     * @param options The array of select options
-     * @param id The id to select
-     * @param updateInputVisually True if the input's value should be updated
-     */
-    static setSelectMenuSelectedOption(
-        selectMenuElement: HTMLInputElement,
-        options: HTMLLIElement[],
-        id: string,
-        updateInputVisually: boolean = true
-    ): void {
+        
+        const options = allOptions;
         const option = options.filter(opt => opt.id === id)[0] ?? null;
         if(!option) {
             console.error(`No option with id \'${id}\'`);
@@ -356,15 +373,24 @@ export class BetterSelectMenu extends HTMLElement {
             e.setAttribute("selected", "false");
         });
     
-        selectMenuElement.setAttribute("aria-activedescendant", id);
+        this.selectInput.setAttribute("aria-activedescendant", id);
         option.setAttribute("selected", "true");
         if(option.parentElement)
             option.parentElement.scrollTop = option.offsetTop;
 
         if(updateInputVisually)
-            selectMenuElement.value = option.textContent ?? "";
+            this.selectInput.value = option.textContent ?? "";
+    
+        this.selectInput.dispatchEvent(new Event("change"));
+    }
 
-        selectMenuElement.dispatchEvent(new Event("change"));
+    /**
+     * Sets the select's currently selected option without being prefixed by the select input's ID
+     * @param id The option to set as selected
+     * @param updateInputVisually True if the input's value should be updated
+     */
+    setSelectedOptionWithoutId(id: string, updateInputVisually: boolean = true): void {
+        this.setSelectedOption(`${this.selectInput.id}--${id}`, updateInputVisually);
     }
 
     /**
@@ -380,7 +406,7 @@ export class BetterSelectMenu extends HTMLElement {
     /**
      * @returns The currently selected option's ID without the select input's ID
      */
-    getSelectOptionWithoutId(): string {
+    getSelectedOptionWithoutId(): string {
         const selectedId = this.selectInput.getAttribute("aria-activedescendant");
         const selected = selectedId?.replace(`${this.selectInput.id}--`, "");
         return selected ?? "";
@@ -423,9 +449,9 @@ export class BetterSelectMenu extends HTMLElement {
         this.searchString = null;
     }
 
-    static isCustomSelect(element: HTMLElement): boolean {
-        return element as HTMLInputElement && element.getAttribute("role") === "combobox"
-    }
+    static isBetterSelectMenu(element: HTMLElement | Element): element is BetterSelectMenu {
+        return element instanceof BetterSelectMenu;
+    };
 }
 
 customElements.define("better-select-menu", BetterSelectMenu);

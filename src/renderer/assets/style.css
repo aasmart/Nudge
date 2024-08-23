@@ -547,6 +547,7 @@ INPUTS
 ================================== */
 
 input,
+*::part(default-input),
 button,
 textarea,
 select {
@@ -562,32 +563,32 @@ select {
     transition: opacity 250ms;
 }
 
-input:has(+.units) {
+:is(input, *::part(default-input)):has(+.units) {
     border-top-right-radius: 0;
     border-bottom-right-radius: 0;
     z-index: 1;
 }
 
-input::-webkit-outer-spin-button,
-input::-webkit-inner-spin-button {
+:is(input, *::part(default-input))::-webkit-outer-spin-button,
+:is(input, *::part(default-input))::-webkit-inner-spin-button {
     -webkit-appearance: none;
     margin: 0;
 }
 
-input[type=number] {
+:is(input, *::part(default-input))[type=number] {
     -moz-appearance: textfield;
     appearance: textfield;
 }
 
-input[use-units] {
+:is(input, *::part(default-input))[use-units] {
     text-align: right;
 }
 
-input[use-units]:focus {
+:is(input, *::part(default-input))[use-units]:focus {
     text-align: left;
 }
 
-input:disabled { 
+:is(input, *::part(default-input)):disabled { 
     opacity: 0.5;
 }
 

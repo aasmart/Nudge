@@ -84,25 +84,3 @@ ul[role="listbox"] li:hover,
 ul[role="listbox"]:not(:has(li:hover)) li[selected="true"] {
     background-color: var(--primary-color);
 }
-
-input {
-    background-color: var(--input-color);
-    border-radius: 4px;
-    color: var(--fore-color);
-    transition: all 250ms;
-    padding: 8px;
-    font-size: var(--input-font-size);
-    border: 2px solid transparent;
-    box-shadow: 0 0.75px 4px black;
-    transition: opacity 250ms;
-}
-
-input::-webkit-outer-spin-button,
-input::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-}
-
-input:disabled { 
-    opacity: 0.5;
-}

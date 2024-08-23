@@ -27,7 +27,7 @@ async function loadReminderCreationPage() {
         navPage("index");
     });
 
-    addNavToPageListener("reminder", () => {
+    const checkEdit = () => {
         // Update display if the user is editing
         const editIndex = Reminders.getEditIndex()
         if(editIndex >= 0) {
@@ -49,7 +49,10 @@ async function loadReminderCreationPage() {
             left: 0,
             behavior: "instant"
         });
-    });
+    }
+
+    addNavToPageListener("reminder", checkEdit);
+    checkEdit();
 }
 
 window.addEventListener("navload", () => {

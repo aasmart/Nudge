@@ -236,7 +236,7 @@ module Reminders {
         localStorage.setItem("active_reminders", JSON.stringify(activeReminders))
     }
     
-    /*
+    /**
     Loads reminders in from storage. Will rewrite all eleemnts in "activeReminders"!
     */
     export function loadReminders() {
@@ -247,10 +247,8 @@ module Reminders {
             return reminder;
         })
     
-        const editReminder = getEditReminder()
-    
         activeReminders.forEach(reminder => {
-            if((editReminder !== null && reminder === editReminder) || reminder.paused)
+            if(reminder.paused)
                 return;
             const nextStart = Math.max(new Date(reminder.nextReminder).valueOf() - new Date().valueOf(), 0) * Constants.MS_TO_MINUTES
             reminder.setNextReminderDate(nextStart)
@@ -261,11 +259,11 @@ module Reminders {
     }
     
     export function setEditReminder(index: number) {
-        localStorage.setItem('edit-reminder-index', index.toString())
+        sessionStorage.setItem('edit-reminder-index', index.toString())
     }
     
     export function getEditIndex(): number {
-        return parseInt(localStorage.getItem('edit-reminder-index') || '-1')
+        return parseInt(sessionStorage.getItem('edit-reminder-index') || '-1')
     }
     
     export function getEditReminder(): ReminderImpl {

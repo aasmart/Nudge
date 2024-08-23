@@ -721,12 +721,13 @@ input[type="checkbox"] + label {
     height: 100%;
     line-height: var(--checkbox-height);
     vertical-align: bottom;
-    text-align: center;
-    display: inline-block;
     cursor: pointer;
     margin: var(--checkbox-margin) 0;
 
-    left: calc((var(--checkbox-width) + var(--checkbox-margin)));
+    display: flex;
+    gap: 10px;
+
+    right: 0;
 }
 
 /* Styles the checkbox's background */
@@ -737,14 +738,11 @@ input[type="checkbox"] + label::before {
     line-height: 20px;
     box-shadow: 0 2px 2px #22222255;
 
-    position: absolute;
+    position: relative;
     display: inline-block;
     height: var(--checkbox-height);
     width: var(--checkbox-width);
-    left: calc(-1 * (var(--checkbox-width) + var(--checkbox-margin)));
-
-    top: 50%;
-    transform: translateY(-50%);
+    min-width: var(--checkbox-width);
 
     transition: all 250ms;
 }
@@ -756,18 +754,18 @@ input[type="checkbox"]:checked + label::before {
 
 /* Styles the checkbox's little notch */
 input[type="checkbox"] + label::after {
+    --end-cap-offset: 5px;
+
     content: '';
     background-color: var(--fore-color);
     border-radius: 100%;
     box-shadow: 0 1px 1px #22222222;
 
-    height: calc(var(--checkbox-height) * 1.1);
-    width: calc(var(--checkbox-height) * 1.1);
+    height: calc(var(--checkbox-height));
+    width: calc(var(--checkbox-height));
+    transform: scale(1.2);
     position: absolute;
-    left: calc(-1 * (var(--checkbox-width) + var(--checkbox-margin)));
-
-    top: 50%;
-    transform: translateY(-50%);
+    left: 0;
 
     transition: all 250ms;
 }
@@ -775,7 +773,7 @@ input[type="checkbox"] + label::after {
 /* Shifts the notch over to the other side of the checkbox when it is 
 checked */
 input[type="checkbox"]:checked + label::after {
-    left: calc(-1 * (var(--checkbox-width) + var(--checkbox-margin)) + (var(--checkbox-width) + var(--checkbox-margin)) * .5);
+    left: calc(var(--checkbox-width) - var(--checkbox-height) * 1.1 + var(--end-cap-offset));
 }
 
 form label:has(

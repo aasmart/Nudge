@@ -56,6 +56,13 @@ export module OptionsProvider {
     }
 }
 
+/**
+ * A custom select menu that supports CSS styling and is programatically filled with options
+ * 
+ * WHAT THIS DOES NOT YET SUPPORT AS IT HAS NOT BEEN NEEDED (TENATIVE):
+ * * Being disabled
+ * * 
+ */
 export class BetterSelectMenu extends HTMLElement {
     selectInput!: HTMLInputElement;
     listbox!: HTMLElement;
@@ -488,6 +495,7 @@ function fuzzyMatchOptions(
 }
 
 // https://en.wikipedia.org/wiki/Levenshtein_distance
+// Future todo: convert to dp, but this really isn't necessary atm
 function levenshteinDistance(str1: string, str2: string) {
     let v0: number[] = [];
     let v1: number[] = [];

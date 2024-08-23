@@ -1,4 +1,5 @@
 import { isDocumentFragment } from "./utils";
+import selectStyle from '../renderer/assets/style-select.css?inline'
 
 export module OptionsProvider {
     const providers: Record<string, any> = {};
@@ -67,7 +68,6 @@ export class BetterSelectMenu extends HTMLElement {
     searchString!: string | null;
 
     private static controlKeys = ['ArrowUp', 'ArrowDown', 'Enter', ' ', 'Escape'];
-    private static styleString: string | undefined = undefined;
 
     constructor() {
         super();
@@ -168,20 +168,8 @@ export class BetterSelectMenu extends HTMLElement {
 
         // I love shadows
         const sheet = new CSSStyleSheet();
-        if(!BetterSelectMenu.styleString) {
-            window.api.readRendererFile("assets/style-select.css").then(data => {
-                if(!data) {
-                    console.error("Failed to retrieve select menu styling");
-                    return;
-                }
-                sheet.replaceSync(data);
-                shadow.adoptedStyleSheets = [sheet];
-                BetterSelectMenu.styleString = data;
-            });
-        } else {
-            sheet.replaceSync(BetterSelectMenu.styleString);
-            shadow.adoptedStyleSheets = [sheet];
-        }
+        sheet.replaceSync(selectStyle);
+        shadow.adoptedStyleSheets = [sheet];
 
         shadow.appendChild(clone);
     }

@@ -1060,6 +1060,7 @@ UTILITY CLASSES
 .center-horizontal {
     display: flex;
     justify-content: center;
+    align-items: start;
 }
 
 .material-icons {

@@ -8,7 +8,6 @@ REMINDER FORM
     color: inherit;
     font-size: var(--input-font-size);
     width: var(--input-char-size);
-    margin: 8px;
 }
 
 .reminder-form .input-container-grid {
@@ -87,4 +86,20 @@ legend {
 
 .reminder-form > p span {
     color: var(--input-invalid-color)
+}
+
+/* CUSTOM FORMATTING */
+
+#reminder-audio-combobox {
+    flex: 9;
+}
+
+#play-reminder-audio {
+    flex: 1;
+    margin-top: 20px;
+}
+
+#upload-reminder-audio {
+    flex: 1;
+    margin-top: 20px;
 }

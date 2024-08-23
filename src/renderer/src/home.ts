@@ -192,8 +192,7 @@ function updateReminderList(): void {
         return;
     }
 
-    let anyPaused = false;
-    let anyPausedReminderNotification = false;
+    let canSendPausedReminderNotification = false;
 
     reminders.forEach((e, index) => {
         const reminder = Reminders.activeReminders[index];
@@ -242,14 +241,12 @@ function updateReminderList(): void {
             acknowledgeButton?.setAttribute("visible", `${reminder.isIgnored}`);
         }
 
-        if(reminder.paused)
-            anyPaused = true;
-        if(reminder.pausedActivityNotification && !reminder.sentPausedActivityNotification)
-            anyPausedReminderNotification = true;
+        if(reminder.pausedActivityNotification && !reminder.sentPausedActivityNotification && reminder.paused)
+            canSendPausedReminderNotification = true;
     });
 
     window.api.removeAllActivityTrackingListeners()
-    if(anyPausedReminderNotification && anyPaused)
+    if(canSendPausedReminderNotification)
         window.api.addSingleActivityTrackingListener(pauseReminderNotificationConsumer)  
 }
 

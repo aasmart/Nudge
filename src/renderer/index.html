@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title class="app-name"></title>
     <link rel="stylesheet" href="./assets/style.css">
+    <link rel="stylesheet" href="./assets/style-reminder-form.css">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -41,23 +42,111 @@
                 </label>
             </fieldset>
         </div>
-        <!-- <div class="nav__foldout">
-            
-        </div> -->
+        <div class="nav__foldout">
+            <fieldset class="settings-nav" visible="false">
+                <legend><strong>App Settings</strong></legend>
+                <label for="settings-tab-appearance">
+                    <input type="radio" id="settings-tab-appearance" class="settings-tab-radio" name="settings-tab" value="settings-appearance">
+                    <span>Appearance</span>
+                </label>
+                <label for="settings-tab-nudges">
+                    <input type="radio" id="settings-tab-nudges" class="settings-tab-radio" name="settings-tab" value="settings-nudges">
+                    <span>Nudges</span>
+                </label>
+            </fieldset>
+        </div>
     </nav>
 
-    <main class="center-row">
+    <main class="center-row" id="page-index" visible="false">
         <section id="reminder-list">
-            <h2>Active Reminders</h2>
-            <ul>
-                
-            </ul>
+            <h2>Nudges</h2>
+            <ul></ul>
             <button id="create-new-reminder" class="primay">
-                Create New Reminder
+                Create New Nudge
             </button>
         </section>
     </main>
+
+    <menu id="reminder__context-menu" visible="false">
+        <li class="reminder__context-menu__item reminder__reset">
+            <a href="" title="Reset the reminder time">
+                Reset Reminder
+                <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24" fill="#000000">
+                    <path d="M480-160q-134 0-227-93t-93-227q0-134 93-227t227-93q69 0 132 28.5T720-690v-110h80v280H520v-80h168q-32-56-87.5-88T480-720q-100 0-170 70t-70 170q0 100 70 170t170 70q77 0 139-44t87-116h84q-28 106-114 173t-196 67Z"/>
+                </svg>
+            </a>
+        </li>
+        <li class="reminder__context-menu__item reminder__edit">
+            <a href="" title="Edit the reminder">
+                Edit Reminder
+                <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" fill="#000000"><path d="M0 0h24v24H0z" fill="none"/><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+            </a>
+        </li>
+        <li class="reminder__context-menu__item reminder__update-display">
+            <a href="" title="Change how the reminder time is displayed">
+                Change Time Display
+                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e8eaed"><path d="M480-120q-75 0-140.5-28.5t-114-77q-48.5-48.5-77-114T120-480q0-75 28.5-140.5t77-114q48.5-48.5 114-77T480-840q82 0 155.5 35T760-706v-94h80v240H600v-80h110q-41-56-101-88t-129-32q-117 0-198.5 81.5T200-480q0 117 81.5 198.5T480-200q105 0 183.5-68T756-440h82q-15 137-117.5 228.5T480-120Zm112-192L440-464v-216h80v184l128 128-56 56Z"/></svg>
+            </a>
+        </li>
+        <li class="reminder__context-menu__item reminder__delete" action="destructive">
+            <a href="" title="Delete the reminder">
+                Delete Reminder
+                <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" fill="#000000"><path d="M0 0h24v24H0z" fill="none"/><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+            </a>
+        </li>
+    </menu>
+
+    <!-- TEMPLATES -->
+    <template id="nudge-template">
+        <li class="reminder">
+            <div class="reminder__name-wrapper">
+                <h4 class="reminder__name"></h4>
+                <button class="reminder__more-button svg-button" href="" title="More">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e8eaed"><path d="M240-400q-33 0-56.5-23.5T160-480q0-33 23.5-56.5T240-560q33 0 56.5 23.5T320-480q0 33-23.5 56.5T240-400Zm240 0q-33 0-56.5-23.5T400-480q0-33 23.5-56.5T480-560q33 0 56.5 23.5T560-480q0 33-23.5 56.5T480-400Zm240 0q-33 0-56.5-23.5T640-480q0-33 23.5-56.5T720-560q33 0 56.5 23.5T800-480q0 33-23.5 56.5T720-400Z"/></svg>
+                </button>
+            </div>
+            <p>
+                <span class="reminder__next-play-prefix"></span>
+                <span class="next-timer-play"></span>
+            </p>
+            <div class="reminder__pause-toggle">
+                <input class="reminder__pause-toggle__input" name="pause-reminder" type="checkbox"/>
+                <label class="reminder__pause-toggle__label" for=""></label>
+            </div>
+            <button class="primary reminder__acknowledge" title="Acknowledge ignored reminder">
+                <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"><path d="M450-428h60v-212h-60v212Zm29.982 108q14.018 0 23.518-9.482 9.5-9.483 9.5-23.5 0-14.018-9.482-23.518-9.483-9.5-23.5-9.5-14.018 0-23.518 9.482-9.5 9.483-9.5 23.5 0 14.018 9.482 23.518 9.483 9.5 23.5 9.5ZM160-200v-60h84v-306q0-84.174 49.5-149.587Q343-781 424-798v-29q0-23 16.265-38 16.264-15 39.5-15Q503-880 519.5-865t16.5 38v29q81 17 131 82.413T717-566v306h83v60H160ZM480-80q-32 0-56-23.5T400-160h160q0 33-23.5 56.5T480-80Z"/></svg>
+            </button>
+        </li>
+    </template>
+
+    <template id="select-template">
+        <slot name="label">LABEL</slot>
+        <div class="combobox--input">
+            <input type="text" 
+                role="combobox"
+                aria-haspopup="listbox" 
+                aria-expanded="false"
+                aria-controls="reminder-audio-id--listbox" 
+                aria-activedescendant=""
+                aria-autocomplete="list"
+                maxlength="32"
+                default-selected=""
+                required
+                part="default-input">
+
+            <svg id="toggle" xmlns="http://www.w3.org/2000/svg" height="48" viewBox="0 -960 960 960" width="48">
+                <path d="M480-345 240-585l43-43 197 198 197-197 43 43-240 239Z"/>
+            </svg>
+        </div>
+    
+        <div class="listbox-wrapper">
+            <ul role="listbox"></ul>
+        </div>
+    </template>
+
     <script type="module" src="./src/renderer.ts"></script>
-    <script type="module" src="./src/nav.ts"></script>
+    <script type="module" src="./src/home.ts"></script>
+    <script type="module" src="./src/reminder.ts"></script>
+    <script type="module" src="./src/settings.ts"></script>
 </body>
 </html>

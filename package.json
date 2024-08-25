@@ -1,6 +1,6 @@
 {
   "name": "Nudge",
-  "version": "0.5.3",
+  "version": "0.6.0-alpha.3",
   "description": "Sometimes you just need a little nudge to get something done",
   "main": "./out/main/index.js",
   "scripts": {
@@ -26,12 +26,14 @@
     "@electron-toolkit/preload": "^2.0.0",
     "@electron-toolkit/tsconfig": "^1.0.1",
     "@electron-toolkit/utils": "^1.0.2",
+    "@electron/rebuild": "^3.6.0",
     "electron": "^31.2.0",
     "electron-builder": "^24.6.3",
     "electron-vite": "^1.0.23"
   },
   "dependencies": {
     "electron-squirrel-startup": "^1.0.0",
-    "electron-store": "^8.1.0"
+    "electron-store": "^8.1.0",
+    "uiohook-napi": "^1.5.4"
   }
 }

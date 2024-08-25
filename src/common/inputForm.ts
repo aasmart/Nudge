@@ -2,7 +2,7 @@ import "../common/htmlElement"
 import "../common/htmlFormElement"
 import "../common/date"
 import { FormInputElement, simplifyInputName } from "../common/htmlFormElement";
-import { SelectMenuElement } from "./selectMenuElement";
+import { BetterSelectMenu } from "./selectInputs";
 
 function isInputElement(_obj: any): _obj is FormInputElement  {
     return true;
@@ -11,17 +11,16 @@ function isInputElement(_obj: any): _obj is FormInputElement  {
 class InputForm {
     formElement: HTMLFormElement
     inputs: Map<String, FormInputElement>
-    selectInputOptionsProvider: Record<string, any> 
+    customSelectInputs: Map<String, BetterSelectMenu>
 
     constructor(
         formClass: string, 
         onSubmit: (json: unknown) => void, 
         onReset: (e: Event) => void,
-        selectInputOptionsProvider: Record<string, any> = {}
     ) {
-        this.inputs = new Map()
+        this.inputs = new Map();
+        this.customSelectInputs = new Map();
         this.formElement = <HTMLFormElement>document.getElementsByClassName(formClass)[0];
-        this.selectInputOptionsProvider = selectInputOptionsProvider
 
         this.formElement.addEventListener('submit', e => {
             e.preventDefault();
@@ -29,13 +28,8 @@ class InputForm {
             const json = JSON.parse(this.formElement.toJSON());
 
             // Update custom select menus to use option values, not name
-            Array.from(this.inputs.values()).filter(e => {
-                return e as HTMLInputElement && e.getAttribute("role") === "combobox";
-            }).forEach(select => {
-                const selectedId = select.getAttribute("aria-activedescendant");
-                const selected = selectedId?.replace(`${select.id}--`, "");
-
-                json[simplifyInputName(select.id)] = selected;
+            Array.from(this.customSelectInputs.values()).forEach(select => {
+                json[simplifyInputName(select.id)] = select.getSelectedOptionWithoutId();
             });
 
             onSubmit(json);
@@ -45,7 +39,6 @@ class InputForm {
 
         this.formElement.addEventListener('reset', e => {
             e.preventDefault();
-            
             onReset(e);
 
             return false;
@@ -62,7 +55,7 @@ class InputForm {
                 return
 
             // Handle the error message
-            if(isInputElement(e)) {
+            if(isInputElement(e) && type !== "checkbox") {
                 const errorMessage = document.createElement('p')
                 errorMessage.classList.add('error-message')
 
@@ -79,9 +72,6 @@ class InputForm {
                     updateValidationMessage()
                 }
             }
-
-            if(e instanceof HTMLSelectElement || e.getAttribute("role") === "combobox")
-                initSelectMenu(e, selectInputOptionsProvider);
 
             // Add unit selection dropdowns
             const useUnits = e.getAttribute('use-units')
@@ -121,7 +111,29 @@ class InputForm {
             e.onmousedown = () => e.setDirty(true)
 
             this.inputs.set(id, e)
-        })
+        });
+
+        Array.from(this.formElement.querySelectorAll("better-select-menu")).forEach(e => {
+            this.customSelectInputs.set(e.id, e as BetterSelectMenu);
+        });
+    }
+
+    clear() {
+        this.inputs.forEach(input => {
+            const type = input.getAttribute('type');
+
+            // add different ways to handle different input types here
+            switch(type) {
+                case "checkbox":
+                    (input as HTMLInputElement).checked = false;
+                    break;
+                default:
+                    input.value = "";
+                    input.setDirty(false);
+            }
+        });
+
+        this.customSelectInputs.forEach(input => input.reset());
     }
 
     setValue(input: string, value: any) {
@@ -186,20 +198,21 @@ class InputForm {
         const obj = JSON.parse(json);
         for(let key in obj) {
             const id = key.match(camelCaseRegex)?.flatMap(s => s.toLowerCase()).join('-') || ''
-            const element = <FormInputElement>document.getElementById(id);
+            const element = <FormInputElement | BetterSelectMenu>document.getElementById(id);
 
             if(element == null)
                 continue
 
-            // 
-            if(SelectMenuElement.isCustomSelect(element)) {
-                if(!element.parentElement?.parentElement)
-                    continue;
-                const options = Array.from(element.parentElement.parentElement.getElementsByTagName("li"));
-                const optionId = options.filter(e => e.getAttribute("value")?.endsWith(obj[key]))[0]?.id;
-                SelectMenuElement.setSelectMenuSelectedOption(element as HTMLInputElement, options, optionId)
-            } else if(element as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement)
+            if(BetterSelectMenu.isBetterSelectMenu(element)) {
+                element.setSelectedOptionWithoutId(obj[key]);
+            } else if(element as HTMLInputElement) {
+                if(element.getAttribute("type") === "checkbox" && element)
+                    (element as HTMLInputElement).checked = obj[key];
+                else
+                    element.value = obj[key]
+            } else if(element as HTMLTextAreaElement | HTMLSelectElement) {
                 element.value = obj[key]
+            }
         }
 
         // Set the toggle checkboxes
@@ -214,34 +227,6 @@ class InputForm {
 
             this.setChecked(input.id, this.hasValue(toggles))
         })
-    }
-}
-
-function initSelectMenu(element: FormInputElement, selectInputOptionsProvider: Record<string, any> = {}) {
-    const optionsFrom = element.getAttribute("options-from");
-    if(!optionsFrom) {
-        console.error(`Select element \'${element.name}\' does not have a valid \'options-from\` attribute.`);
-        return;
-    }
-
-    // Convert the corresponding enum type to its keys
-    const enumObj = selectInputOptionsProvider[optionsFrom];
-    const optionStrings = Object.keys(enumObj);
-    if(!optionStrings) {
-        console.error(`Failed to find registered select options provider called \'${optionsFrom}\'`);
-        return;
-    }
-
-    if(element.getAttribute("role") === "combobox")
-        new SelectMenuElement(element as HTMLInputElement, optionStrings, enumObj);
-    else {
-        element.append(...optionStrings.map(option => {
-            const optionElement = document.createElement("option");
-            optionElement.innerText = enumObj[option]; // Get enum name as string
-            optionElement.setAttribute("value", option);
-
-            return optionElement;
-        }));
     }
 }
 

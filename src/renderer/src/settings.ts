@@ -1,6 +1,6 @@
 import { Preferences } from "../../common/preferences";
-import { Preloads } from "../../common/preloads";
-import { Reminders } from "../../common/reminder";
+import { BetterSelectMenu } from "../../common/selectInputs";
+import { addNavFromPageListener, addNavToPageListener } from "./nav";
 
 function initTabs() {
     const tabs = Array.from(document.getElementsByClassName("settings-tab"));
@@ -29,17 +29,19 @@ function initTabs() {
 function initSettings() {
     const fields = document.getElementsByTagName("fieldset");
     Array.from(fields).forEach(element => {
-        const groupStoreId = element.getAttribute("data-store-id");
+        const groupStoreId = element.getAttribute("data-store-id"); // attempt to get ID for all elements in the group
         const inputs = element.getElementsByTagName("input");
 
         Array.from(inputs).forEach(async input => {
             const type = input.getAttribute("type");
-            const storeId = (element.getAttribute("data-store-id") ?? groupStoreId ?? "") as keyof Preferences;
+
+            // if the store ID doesn't exist on the group level, then get the store for the individual item
+            const storeId = (groupStoreId ?? input.getAttribute("data-store-id") ?? "") as keyof Preferences;
 
             const storedValue = await window.api.preferences.get(storeId) as Preferences[keyof Preferences];
 
             switch(type) {
-                case "radio":
+                case "radio": {
                     const value = input.getAttribute("value") as Preferences[keyof Preferences];
                     input.toggleAttribute("checked", value === storedValue);     
                     
@@ -47,20 +49,52 @@ function initSettings() {
                         window.api.preferences.set(storeId, value ?? "");
                     });
                     break;
+                }
+                case "checkbox": {
+                    input.checked = storedValue as boolean;
+                    input.addEventListener("change", () => {
+                        window.api.preferences.set(storeId, input.checked);
+                    });
+                    break;
+                }
             }
+        });
+
+        // Handle select menus separately since they are special
+        const selectMenus = element.getElementsByTagName("better-select-menu");
+        Array.from(selectMenus).forEach(async selectMenu => {
+            // if the store ID doesn't exist on the group level, then get the store for the individual item
+            const storeId = (groupStoreId ?? selectMenu.getAttribute("data-store-id") ?? "") as keyof Preferences;
+            const storedValue = await window.api.preferences.get(storeId) as Preferences[keyof Preferences];
+
+            if(!BetterSelectMenu.isBetterSelectMenu(selectMenu)) return;
+
+            selectMenu.setSelectedOptionWithoutId(storedValue as string ?? "");
+            selectMenu.addEventListener("change", () => {
+                window.api.preferences.set(storeId, selectMenu.getSelectedOptionWithoutId());
+            });
         });
     });
 }
 
-window.addEventListener("load", async () => {
+addNavToPageListener("settings", () => {
     document.documentElement.style.setProperty("--nav-foldout-width", "12em");
+    document.getElementsByClassName("settings-nav")[0].setAttribute("visible", "true");
     initSettings();
     initTabs();
-    
+})
+
+addNavFromPageListener("settings", () => {
+    document.documentElement.style.setProperty("--nav-foldout-width", "0em");
+    document.getElementsByClassName("settings-nav")[0].setAttribute("visible", "false");
+})
+
+window.addEventListener("load", () => {
     window.api.preferences.addChangeListener("theme", value => {
         window.api.setTheme(value);
     });
-
-    Reminders.loadReminders()
-    setTimeout(Preloads.clearPreloads, 1);
+    
+    window.api.preferences.addChangeListener("activityTracking", value => {
+        window.api.setActivityDetection(value);
+    });
 });

@@ -4,6 +4,8 @@ import { join } from "path"
 import { Preferences, Theme, preferencesStore } from '../common/preferences';
 import fs from "fs"
 import { protocol } from "electron";
+import { uIOhook } from 'uiohook-napi'
+import { ActivityDetection } from './activityDetector';
 
 let tray: any = null;
 let win: any = null;
@@ -32,6 +34,7 @@ function createTray () {
   tray.setContextMenu(contextMenu)
 }
 
+let activityDetector: ActivityDetection;
 const createWindow = () => {
     if (!tray)
         createTray()
@@ -39,7 +42,7 @@ const createWindow = () => {
     win = new BrowserWindow({
         width: 1000,
         height: 900,
-        minWidth: 550,
+        minWidth: 625,
         minHeight: 375,
         icon: join(__dirname, '../../resources/icon.png'),
         autoHideMenuBar: true,
@@ -67,6 +70,10 @@ const createWindow = () => {
       win.show();
     });
 
+    win.on('before-quit', (_event: any) => {
+      uIOhook.stop();
+    });
+
     win.on('close', (event: any) => {
         if(win.quitting) {
           app.quit() 
@@ -77,6 +84,23 @@ const createWindow = () => {
         win.hide()
     });
 
+    const locked = app.requestSingleInstanceLock();
+    if(!locked) {
+      app.quit();
+      return;
+    }
+
+    app.on("second-instance", () => {
+      if(win) {
+        if(win.isMinimized())
+          win.restore();
+        win.show();
+        win.focus();
+      }
+    });
+  
+    activityDetector = new ActivityDetection(win);
+      
     createModal();
 }
 
@@ -119,8 +143,8 @@ app.whenReady().then(() => {
     registerFileProtocol();
     registerContentSecurity();
 
-    if (process.platform === 'win32')
-          app.setAppUserModelId(app.name);
+    if(process.platform === 'win32')
+        app.setAppUserModelId(app.name);
 
     app.on('activate', () => {
         if (BrowserWindow.getAllWindows().length === 0) createWindow()
@@ -175,7 +199,7 @@ function createModal() {
 
     event.preventDefault();
     modal.hide();
-});
+  });
 }
 
 function showModal(params: ModalParams) {
@@ -231,6 +255,17 @@ function registerIpcEvents() {
     nativeTheme.themeSource = theme;
   });
 
+  ipcMain.on("set-activity-detection", (_event: any, enabled: boolean) => {
+    if(enabled)
+      uIOhook.start();
+    else
+      uIOhook.stop();
+  });
+
+  ipcMain.on("reset-activity-detection", (_event:any) => {
+    activityDetector.reset();
+  });
+
   function getUserPath(): string {
     return `${app.getPath("appData")}/nudge/config`;
   }
@@ -262,6 +297,20 @@ function registerIpcEvents() {
   ipcMain.handle("read-file", (_event: any, path: string) => {
     try {
       return fs.readFileSync(path, 'utf-8');
+    } catch(err) {
+      console.error(err);
+    }
+    return "";
+  });
+
+  ipcMain.handle("read-renderer-file", (_event: any, fileName: string) => {
+    if (is.dev)
+      fileName = `src/renderer/${fileName}`
+    else
+      fileName = join(__dirname, `../renderer/${fileName}`);
+
+    try {
+      return fs.readFileSync(fileName, 'utf-8');
     } catch(err) {
       console.error(err);
     }

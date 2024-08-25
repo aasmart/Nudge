@@ -1,28 +1,98 @@
 import { createPopupButton, showPopup } from "../../common/popup";
 import { Reminders } from "../../common/reminder";
 
-export { };
+export { navPage, addNavFromPageListener, addNavToPageListener, getCurrentPageMain };
 
-function initNav() {
-    const body = document.getElementsByTagName("body")[0];
+function getCurrentPageMain(): HTMLElement | undefined {
+    const pages = Array.from(document.getElementsByTagName("main"));
+    const currLocation = pages.find(page => page.getAttribute("visible") === "true");
+
+    return currLocation;
+}
+/*
+Only changes the page without changing the navbar
+*/
+const changePage = (page: string) => { 
+    const currLocation = getCurrentPageMain();
+    const nextLocation = document.getElementById(`page-${page}`);
+
+    currLocation?.setAttribute("visible", "false");
+    const unload = new Event(`nav-unload-${currLocation?.id.substring(currLocation?.id.indexOf("-") + 1)}`);
+    window.dispatchEvent(unload);
+    
+    nextLocation?.setAttribute("visible", "true");
+    const load = new Event(`nav-load-${page}`);
+    window.dispatchEvent(load);
+
+    window.sessionStorage.setItem("current-page", page);
+};
+
+/*
+Updates the currently selected radio button in the nav bar and changes the page
+*/
+const navPage = (page: string) => { 
+    const nextLocation = document.getElementById(`page-${page}`);
     const radios = Array.from(document.getElementsByClassName("nav__app-tab")) as HTMLInputElement[];
-
     radios.forEach((radio) => {
         const radioAppTabId = radio.getAttribute("value");
-
-        const location = window.location.href.split("/").pop();
-        const isPageRadio = location?.startsWith(radioAppTabId || "") ?? false;
+        const isPageRadio = nextLocation?.id.endsWith(radioAppTabId || "") ?? false;
         radio.checked = isPageRadio;
-        if(isPageRadio)
-            body.addEventListener("clearPreload", () => { radio.focus(); });
+    });
 
-        if(radioAppTabId?.length ?? 0 > 0) {
-            const changeWindow = () => { window.api.openPage(`${radioAppTabId}`); };
+    changePage(page);
+};
+
+function addNavToPageListener(page: string, consumer: () => void) {
+    window.addEventListener(`nav-load-${page}`, consumer);
+}
+
+function addNavFromPageListener(page: string, consumer: () => void) {
+    window.addEventListener(`nav-unload-${page}`, consumer);
+}
+
+async function initNav() {
+    const radios = Array.from(document.getElementsByClassName("nav__app-tab")) as HTMLInputElement[];
+
+    // this is what we call a probable security vulnerability
+    // (initializes all app pages and radio buttons)
+    const pages = Array.from(document.getElementsByTagName("main"));
+    const locationName = sessionStorage.getItem("current-page");
+    await Promise.all(radios.map(async (radio) => {
+        const radioPageId = radio.getAttribute("value");
+        // import the html file if it doesn't exist
+        if(!pages.find(page => page.id.endsWith(radioPageId || ""))) {
+            const data = await window.api.readRendererFile(`${radioPageId}.html`);
+            if(!data) {
+                console.error(`Failed to find HTML file ${radioPageId}`);
+                return;
+            }
+            const doc = new DOMParser().parseFromString(data.toString(), "text/html");
+            const main = doc.getElementsByTagName("main")[0];
+            if(!main) {
+                console.error(`Failed to find main in ${radioPageId}.html`);
+                return;
+            }
+
+            // configure the main element
+            main.id = `page-${radioPageId}`;
+            main.setAttribute("visible", "false");
+            pages[pages.length - 1].insertAdjacentElement("afterend", main);
+
+            pages.push(main);
+        }
+
+        // if the current radio is the current page, update the display as such
+        const isPageRadio = locationName?.endsWith(radioPageId || "") ?? false;
+        if(isPageRadio)
+            navPage(locationName ?? "index");
+
+        // Add click listener
+        if(radioPageId?.length ?? 0 > 0) {
             radio.addEventListener("change", () => {
                 if(Reminders.getEditIndex() !== -1) {
                     // undo the checking of the clicked radio button
-                    const location = window.location.href.split("/").pop();
-                    const currRadio = radios.find(r => location?.startsWith(r.getAttribute("value") || ""));
+                    const currLocation = pages.find(page => page.getAttribute("visible") === "true");
+                    const currRadio = radios.find(r => currLocation?.id.endsWith(r.getAttribute("value") || ""));
                     if(currRadio)
                         currRadio.checked = true;
                     showPopup(
@@ -30,18 +100,20 @@ function initNav() {
                         "Are you sure you want to change pages? Any changes will be lost",
                         [
                             createPopupButton("Confirm", "destructive", () => { 
-                                changeWindow();
+                                navPage(radioPageId ?? "");
                                 Reminders.setEditReminder(-1);
                             }),
                             createPopupButton("Cancel")
                         ]
                     );
                 } else {
-                    changeWindow();
+                    changePage(radioPageId ?? "");
                 }
             });
         }
-    });
+    }));
+
+    window.dispatchEvent(new Event("navload"));
 }
 
 window.addEventListener("load", () => {

@@ -266,7 +266,7 @@ function registerIpcEvents() {
     });
 
     function getUserPath(): string {
-        return `${app.getPath("appData")}/nudge/config`;
+        return `${app.getPath("appData")}/Nudge/config`;
     }
 
     ipcMain.handle('get-user-path', (_event: any) => { return getUserPath() });

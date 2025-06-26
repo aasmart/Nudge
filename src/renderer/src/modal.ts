@@ -1,17 +1,4 @@
-export { };
-
-function reminderCountAsString(count: number) {
-    switch (count) {
-        case 1:
-            return `${count}st`;
-        case 2:
-            return `${count}nd`;
-        case 3:
-            return `${count}rd`;
-        default:
-            return `${count}th`;
-    }
-}
+import { countAsString } from "../../common/utils.ts"
 
 window.addEventListener("load", () => {
     const title = document.getElementById("modal-title");
@@ -44,7 +31,7 @@ window.addEventListener("load", () => {
         );
         if (res.reminderCount) {
             console.log("eeeeee")
-            reminderCount.innerText = reminderCountAsString(res.reminderCount);
+            reminderCount.innerText = countAsString(res.reminderCount);
         }
     });
 

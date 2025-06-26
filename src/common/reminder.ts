@@ -144,7 +144,10 @@ class ReminderImpl implements IReminder {
     private sendNotification(message: string) {
         switch (ReminderNotificationType[this.notificationType]) {
             case ReminderNotificationType.SYSTEM:
-                new Notification(this.title, { body: message }).onclick = () => {
+                let body = `${message} ${this.message.endsWith('.') ? '' : '.'} 
+                    This is your ${countAsString(this.reminderCount)} Nudge.`;
+
+                new Notification(this.title, { body }).onclick = () => {
                     if (this === null)
                         return
 

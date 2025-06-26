@@ -13,7 +13,7 @@ async function loadReminderCreationPage() {
         reminder.setNextReminderDate(startDelta)
 
         const editIndex = Reminders.getEditIndex();
-        if(editIndex >= 0) {
+        if (editIndex >= 0) {
             Reminders.activeReminders[editIndex] = reminder;
             Reminders.setEditReminder(-1)
         } else
@@ -30,15 +30,15 @@ async function loadReminderCreationPage() {
     const checkEdit = () => {
         // Update display if the user is editing
         const editIndex = Reminders.getEditIndex()
-        if(editIndex >= 0) {
+        if (editIndex >= 0) {
             const editReminder = Reminders.activeReminders[editIndex]
-    
+
             form.setFromJson(JSON.stringify(editReminder))
-    
+
             const createButton = form.getInputElement(CREATE_BUTTON)
-            if(!createButton)
+            if (!createButton)
                 return
-    
+
             createButton.innerText = createButton.getAttribute('when-editing') || createButton.innerText
         } else {
             form.clear();

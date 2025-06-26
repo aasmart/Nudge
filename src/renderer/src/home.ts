@@ -498,7 +498,7 @@ function initReminderContextMenu() {
             "Reset Reminder",
             "Are you sure you want to reset this reminder?",
             [
-                createPopupButton("Confirm", "destructive", () => { reminder.resetTimer() }),
+                createPopupButton("Confirm", "destructive", () => { reminder.reset() }),
                 createPopupButton("Cancel")
             ]
         );

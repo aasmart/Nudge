@@ -1,4 +1,4 @@
-import { countAsString } from "../../common/utils.ts"
+import { countAsString } from "../../common/utils"
 
 window.addEventListener("load", () => {
     const title = document.getElementById("modal-title");

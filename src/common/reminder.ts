@@ -34,9 +34,9 @@ interface IReminder {
     reminderAudioId: string;
     nextReminderDisplayMode?: NextReminderDisplayMode;
     pausedActivityNotification: boolean;
-    sentPausedActivityNotification: boolean;
+    sentPausedActivityNotification?: boolean;
     autoPauseAfterAcknowledge: boolean;
-    reminderCount: number;
+    reminderCount?: number;
 }
 
 type ReminderAudio = {
@@ -86,10 +86,10 @@ class ReminderImpl implements IReminder {
         this.reminderCount = 0;
     }
 
-    setNextReminderDate(delayAmountMinutes: number) {
-        delayAmountMinutes = Math.min(delayAmountMinutes, MAX_TIMER_DELAY_MINS);
-        const delayAmount = delayAmountMinutes * Constants.MINUTES_TO_MS
-        this.nextReminder = new Date().addMilliseconds(delayAmount);
+    setNextReminderDate(intervalMinutes: number) {
+        intervalMinutes = Math.min(intervalMinutes, MAX_TIMER_DELAY_MINS);
+        const interval = intervalMinutes * Constants.MINUTES_TO_MS
+        this.nextReminder = new Date().addMilliseconds(interval);
         this.nextReminder.setMilliseconds(0);
 
         Reminders.saveActiveReminders()
@@ -207,10 +207,44 @@ class ReminderImpl implements IReminder {
 
     reset() {
         this.isIgnored = false;
-        this.paused = false;
         this.reminderCount = 0;
+        this.sentPausedActivityNotification = false;
         this.setNextReminderDate(this.reminderIntervalAmount);
         window.dispatchEvent(new Event('update-reminder-list'));
+    }
+
+    /*
+     * Update the reminder without resetting fields like how many times
+     * the reminder has been triggered
+     */
+    update(reminder: IReminder) {
+        // update next time if something related to the time changed.
+        if (reminder.reminderStartOverrideAmount) {
+            this.setNextReminderDate(reminder.reminderStartOverrideAmount);
+        } else if (this.reminderStartOverrideAmount
+            || reminder.reminderIntervalAmount < this.reminderIntervalAmount
+            || this.isIgnored
+        ) {
+            this.setNextReminderDate(reminder.reminderIntervalAmount);
+        }
+
+        this.reminderIntervalAmount = reminder.reminderIntervalAmount;
+        this.reminderStartOverrideAmount = reminder.reminderStartOverrideAmount
+        this.ignoredReminderIntervalAmount = reminder.ignoredReminderIntervalAmount;
+        this.maxIgnoredReminders = reminder.maxIgnoredReminders;
+        this.ignoredReminders = 0;
+        this.isIgnored = false;
+        this.notificationType = reminder.notificationType || this.notificationType;
+        this.message = reminder.message;
+        this.title = reminder.title;
+        this.paused = reminder.paused || this.paused;
+        this.pausedTime = reminder?.pausedTime || this.pausedTime;
+        this.reminderAudioId = reminder.reminderAudioId || this.reminderAudioId;
+        this.nextReminderDisplayMode = reminder.nextReminderDisplayMode ?? this.nextReminderDisplayMode
+        this.pausedActivityNotification = reminder.pausedActivityNotification;
+        this.autoPauseAfterAcknowledge = reminder.autoPauseAfterAcknowledge;
+        this.sentPausedActivityNotification = reminder.sentPausedActivityNotification ?? this.sentPausedActivityNotification;
+        this.reminderCount = reminder.reminderCount ?? this.reminderCount;
     }
 
     toJSON(): IReminder {

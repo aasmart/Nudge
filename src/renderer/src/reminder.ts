@@ -7,17 +7,19 @@ async function loadReminderCreationPage() {
 
     const form = new InputForm('reminder-form', (json: unknown) => {
         const reminderFormJson: ReminderImpl = json as ReminderImpl;
-        const reminder = new ReminderImpl(reminderFormJson);
-
-        const startDelta = reminder?.reminderStartOverrideAmount ?? reminder.reminderIntervalAmount
-        reminder.setNextReminderDate(startDelta)
 
         const editIndex = Reminders.getEditIndex();
-        if(editIndex >= 0) {
-            Reminders.activeReminders[editIndex] = reminder;
+        if (editIndex >= 0) {
+            Reminders.activeReminders[editIndex].update(reminderFormJson);
             Reminders.setEditReminder(-1)
-        } else
+        } else {
+            const reminder = new ReminderImpl(reminderFormJson);
+
+            const startDelta = reminder?.reminderStartOverrideAmount ?? reminder.reminderIntervalAmount
+            reminder.setNextReminderDate(startDelta)
+
             Reminders.activeReminders.push(reminder)
+        }
 
         Reminders.saveActiveReminders()
         navPage("index");
@@ -30,15 +32,15 @@ async function loadReminderCreationPage() {
     const checkEdit = () => {
         // Update display if the user is editing
         const editIndex = Reminders.getEditIndex()
-        if(editIndex >= 0) {
+        if (editIndex >= 0) {
             const editReminder = Reminders.activeReminders[editIndex]
-    
+
             form.setFromJson(JSON.stringify(editReminder))
-    
+
             const createButton = form.getInputElement(CREATE_BUTTON)
-            if(!createButton)
+            if (!createButton)
                 return
-    
+
             createButton.innerText = createButton.getAttribute('when-editing') || createButton.innerText
         } else {
             form.clear();

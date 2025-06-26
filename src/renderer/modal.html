@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -7,6 +8,7 @@
     <title class="app-name"></title>
     <link rel="stylesheet" href="./assets/style.css">
 </head>
+
 <body>
     <header class="titlebar">
         <img src="./assets/icon.png">
@@ -16,10 +18,12 @@
     <main class="modal center-column">
         <h1 id="modal-title"></h1>
         <p id="modal-body"></p>
+        <p id="modal-reminder_count">This is your <span id="modal-reminder_count__count"></span> Nudge.</p>
         <button id="modal-button">
             Okay
         </button>
     </main>
     <script type="module" src="./src/modal.ts"></script>
 </body>
+
 </html>

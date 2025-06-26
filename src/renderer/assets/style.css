@@ -10,7 +10,7 @@
     --input-color: #ffffff;
     --sidebar-color: #ebebeb;
     --nav-foldout-color: #ffffff;
-    
+
     --reminder-bg-color: #ffffff;
     --reminder-bg-darker: #dadada;
     --outline-buttton-color: #ffffff;
@@ -18,7 +18,7 @@
     --select-options-color: #dddddd;
     --settings-radio-hover: rgba(200, 200, 200, 0.25);
     color-scheme: light;
-    
+
     --header-fallback-height: 1rem;
     --header-height: env(titlebar-area-height, var(--header-fallback-height));
 
@@ -73,7 +73,7 @@
         --nav-foldout-color: #242424;
         color-scheme: dark;
     }
-    
+
     .reminder-form div .units {
         background-image: linear-gradient(rgb(0 0 0/20%) 0 0);
     }
@@ -84,11 +84,11 @@
         animation: ignored-reminder-pulse 2400ms ease-out infinite;
     }
 
-    .reminder.ignored .reminder__acknowledge > svg {
+    .reminder.ignored .reminder__acknowledge>svg {
         animation: shake 3000ms ease-in-out infinite;
     }
 
-    better-select-menu > svg {
+    better-select-menu>svg {
         transition: transform 0;
     }
 
@@ -96,12 +96,14 @@
         transition: none;
     }
 
-    label.radio input[type="radio"]:checked + span::after {
+    label.radio input[type="radio"]:checked+span::after {
         transition: none;
     }
 }
 
-*, *::before, *::after {
+*,
+*::before,
+*::after {
     box-sizing: border-box;
     font-family: 'Ubuntu', sans-serif;
 }
@@ -181,7 +183,7 @@ nav {
     display: grid;
     grid-template-columns: var(--nav-sidebar-width) var(--nav-foldout-width);
 
-    box-shadow: 0px 0 10px 5px rgba(0,0,0,0.4);
+    box-shadow: 0px 0 10px 5px rgba(0, 0, 0, 0.4);
 }
 
 nav hr {
@@ -201,7 +203,7 @@ nav hr {
     padding: 0.5rem;
 
     background-color: var(--sidebar-color);
-    box-shadow: 0px 0 10px 0px rgba(0,0,0,0.4);
+    box-shadow: 0px 0 10px 0px rgba(0, 0, 0, 0.4);
 }
 
 .nav__foldout {
@@ -239,11 +241,11 @@ nav hr {
     z-index: -1;
 }
 
-.settings-nav label input[type="radio"]:focus-visible + span {
+.settings-nav label input[type="radio"]:focus-visible+span {
     outline: var(--focus-visible-outline);
 }
 
-.settings-nav label input[type="radio"]:checked + span {
+.settings-nav label input[type="radio"]:checked+span {
     background-color: var(--select-options-color);
 }
 
@@ -277,15 +279,15 @@ REMINDER LIST
     min-height: 6.5rem;
 }
 
-#reminder-list > * {
+#reminder-list>* {
     font-size: 1.35rem;
 }
 
-#reminder-list > * {
+#reminder-list>* {
     margin: 16px 0;
 }
 
-#reminder-list > ul {
+#reminder-list>ul {
     display: flex;
     flex-direction: column;
     align-items: start;
@@ -303,22 +305,22 @@ REMINDER LIST
     width: 100%;
 }
 
-#reminder-list > ul:has(> p) {
+#reminder-list>ul:has(> p) {
     justify-content: center;
 }
 
-#reminder-list > ul > p {
+#reminder-list>ul>p {
     width: 100%;
     text-align: center;
     font-size: 1.5ch;
     opacity: 0.8;
 }
 
-#reminder-list > button {
+#reminder-list>button {
     width: 100%;
 }
 
-#reminder-list li > button {
+#reminder-list li>button {
     min-width: 60px;
     padding: 5px;
     aspect-ratio: 1;
@@ -335,7 +337,7 @@ REMINDERS
     display: grid;
     grid-template-columns: minmax(13em, 7fr) var(--grid-button-width);
     grid-template-rows: 50% 50%;
-    
+
     border-radius: 8px;
     padding: 10px;
     box-shadow: 0 1px 2px black;
@@ -424,7 +426,7 @@ REMINDERS
     gap: 18px;
     padding: 4px 4px;
     justify-content: space-between;
-    
+
     text-decoration: none;
     color: inherit;
 
@@ -454,7 +456,7 @@ REMINDERS
     min-width: 1.25em;
     width: 1.25em;
 
-    box-shadow: 0 0 2px 1px rgba(0,0,0,0.5) !important;
+    box-shadow: 0 0 2px 1px rgba(0, 0, 0, 0.5) !important;
 }
 
 .reminder:hover .reminder__more-button,
@@ -511,7 +513,7 @@ REMINDERS
     pointer-events: none;
 }
 
-.reminder.ignored .reminder__acknowledge > svg {
+.reminder.ignored .reminder__acknowledge>svg {
     animation: shake 1200ms ease-in-out infinite;
 }
 
@@ -588,7 +590,7 @@ select {
     text-align: left;
 }
 
-:is(input, *::part(default-input)):disabled { 
+:is(input, *::part(default-input)):disabled {
     opacity: 0.5;
 }
 
@@ -657,16 +659,16 @@ button.svg-button svg {
     inset: 0;
 }
 
-button.svg-button:not(:disabled):hover > svg,
-button.svg-button:not(:disabled):focus-visible > svg {
+button.svg-button:not(:disabled):hover>svg,
+button.svg-button:not(:disabled):focus-visible>svg {
     fill: var(--primary-color);
 }
 
-button:focus-visible, 
+button:focus-visible,
 textarea:focus-visible,
 select:focus-visible,
 input:focus-visible,
-input[type="checkbox"]:focus-visible + label::after {
+input[type="checkbox"]:focus-visible+label::after {
     outline: var(--focus-visible-outline);
 }
 
@@ -716,7 +718,7 @@ div:has(input[type="checkbox"]) {
     align-items: center;
 }
 
-input[type="checkbox"] + label {
+input[type="checkbox"]+label {
     position: relative;
     height: 100%;
     line-height: var(--checkbox-height);
@@ -731,7 +733,7 @@ input[type="checkbox"] + label {
 }
 
 /* Styles the checkbox's background */
-input[type="checkbox"] + label::before {
+input[type="checkbox"]+label::before {
     content: '';
     background-color: var(--input-invalid-color);
     border-radius: 20px;
@@ -748,12 +750,12 @@ input[type="checkbox"] + label::before {
 }
 
 /* Changes the checkbox's background color when checked */
-input[type="checkbox"]:checked + label::before {
+input[type="checkbox"]:checked+label::before {
     background-color: var(--input-success-color);
 }
 
 /* Styles the checkbox's little notch */
-input[type="checkbox"] + label::after {
+input[type="checkbox"]+label::after {
     --end-cap-offset: 5px;
 
     content: '';
@@ -772,19 +774,15 @@ input[type="checkbox"] + label::after {
 
 /* Shifts the notch over to the other side of the checkbox when it is 
 checked */
-input[type="checkbox"]:checked + label::after {
+input[type="checkbox"]:checked+label::after {
     left: calc(var(--checkbox-width) - var(--checkbox-height) * 1.1 + var(--end-cap-offset));
 }
 
-form label:has(
-    +input,
+form label:has(+input,
     +select,
-    +textarea
-):not(:has(+.combobox--input)):not(:has(
-    +input:required, 
-    +select:required,
-    +textarea:required
-))::after {
+    +textarea):not(:has(+.combobox--input)):not(:has(+input:required,
+        +select:required,
+        +textarea:required))::after {
     content: ' (optional)';
     color: var(--popup-accent-color)
 }
@@ -818,11 +816,11 @@ label.radio input[type="radio"] {
     opacity: 0;
 }
 
-label.radio input[type="radio"] + span {
+label.radio input[type="radio"]+span {
     margin-left: calc(var(--radio-size) + .25em);
 }
 
-label.radio input[type="radio"] + span::before {
+label.radio input[type="radio"]+span::before {
     content: "";
 
     display: block;
@@ -836,7 +834,7 @@ label.radio input[type="radio"] + span::before {
     border: 0.2em solid var(--popup-accent-color)
 }
 
-label.radio input[type="radio"] + span::after {
+label.radio input[type="radio"]+span::after {
     content: "";
 
     display: block;
@@ -852,13 +850,13 @@ label.radio input[type="radio"] + span::after {
     scale: 0;
 }
 
-label.radio input[type="radio"]:checked + span::after {
+label.radio input[type="radio"]:checked+span::after {
     opacity: 1;
     scale: 1;
     transition: opacity 100ms, scale 100ms;
 }
 
-label.radio input[type="radio"]:focus-visible + span::before {
+label.radio input[type="radio"]:focus-visible+span::before {
     outline: var(--focus-visible-outline);
 }
 
@@ -876,14 +874,14 @@ label:has(input[type="radio"]) {
 /* Svg Radio Button */
 
 label.svg-radio {
-   cursor: pointer; 
+    cursor: pointer;
 }
 
 label.svg-radio:hover svg {
     background-color: var(--input-color);
 }
 
-label.svg-radio input:focus-visible + svg {
+label.svg-radio input:focus-visible+svg {
     outline: var(--focus-visible-outline);
 }
 
@@ -893,7 +891,7 @@ label.svg-radio input {
     z-index: -1;
 }
 
-label.svg-radio input:checked + svg {
+label.svg-radio input:checked+svg {
     background-color: var(--primary-color);
 }
 
@@ -951,14 +949,14 @@ better-select-menu {
     background-color: var(--bg-color-start);
     box-shadow: 0 0 15px black;
     border: none;
-    
+
     animation: dialog-show 350ms ease-in-out normal;
 }
 
 #popup .title {
     width: 100%;
     margin-bottom: 0;
-    
+
     text-align: center;
     border-bottom: 0.3rem solid var(--popup-accent-color);
 }
@@ -973,12 +971,12 @@ better-select-menu {
     overflow-y: auto;
 }
 
-#popup > form {
+#popup>form {
     justify-self: center;
     align-self: end;
 }
 
-#popup > form > * {
+#popup>form>* {
     margin: 0 4px;
 }
 
@@ -1032,6 +1030,18 @@ dialog::backdrop {
     text-align: center;
 }
 
+#modal-reminder_count {
+    width: 100%;
+    flex: 1;
+    word-wrap: break-word;
+    text-align: center;
+}
+
+#modal-reminder_count__count {
+    color: var(--primary-color);
+    font-weight: bold;
+}
+
 #modal-button {
     flex: 1;
     width: 100%;
@@ -1065,7 +1075,8 @@ UTILITY CLASSES
     font-family: 'Material Icons';
     font-weight: normal;
     font-style: normal;
-    font-size: 24px;  /* Preferred icon size */
+    font-size: 24px;
+    /* Preferred icon size */
     display: inline-block;
     line-height: 1;
     text-transform: none;
@@ -1073,4 +1084,4 @@ UTILITY CLASSES
     word-wrap: normal;
     white-space: nowrap;
     direction: ltr;
-} 
+}

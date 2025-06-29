@@ -213,6 +213,7 @@ class ReminderImpl implements IReminder {
         this.isIgnored = false;
         this.reminderCount = 0;
         this.sentPausedActivityNotification = false;
+        this.pausedTime = new Date();
         this.setNextReminderDate(this.reminderIntervalAmount);
         window.dispatchEvent(new Event('update-reminder-list'));
     }
@@ -225,11 +226,15 @@ class ReminderImpl implements IReminder {
         // update next time if something related to the time changed.
         if (reminder.reminderStartOverrideAmount) {
             this.setNextReminderDate(reminder.reminderStartOverrideAmount);
+            this.pausedTime = new Date();
         } else if (this.reminderStartOverrideAmount
             || reminder.reminderIntervalAmount < this.reminderIntervalAmount
             || this.isIgnored
         ) {
             this.setNextReminderDate(reminder.reminderIntervalAmount);
+            this.pausedTime = new Date();
+        } else {
+            this.pausedTime = reminder.pausedTime || this.pausedTime
         }
 
         this.reminderIntervalAmount = reminder.reminderIntervalAmount;
@@ -242,7 +247,6 @@ class ReminderImpl implements IReminder {
         this.message = reminder.message;
         this.title = reminder.title;
         this.paused = reminder.paused || this.paused;
-        this.pausedTime = reminder?.pausedTime || this.pausedTime;
         this.reminderAudioId = reminder.reminderAudioId || this.reminderAudioId;
         this.nextReminderDisplayMode = reminder.nextReminderDisplayMode ?? this.nextReminderDisplayMode
         this.pausedActivityNotification = reminder.pausedActivityNotification;

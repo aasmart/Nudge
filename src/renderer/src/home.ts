@@ -23,7 +23,7 @@ const contextMenu = document.getElementById("reminder__context-menu");
  * @param nudgeTimeSpanPrefix The element for the text that comes before the time
  */
 const setTimeDisplay = (reminder: ReminderImpl, nudgeTimeSpan: Element, nudgeTimeSpanPrefix: Element) => {
-    const nextNudgeCount = (reminder.isIgnored ? reminder.ignoredReminders : reminder.reminderCount + 1);
+    const nextNudgeCount = (reminder.isIgnored ? reminder.ignoredReminderCount : reminder.reminderCount + 1);
     const nextNudgeCountString = `${countAsString(nextNudgeCount)} ${reminder.isIgnored ? "ignored " : ""} Nudge`;
 
     if (reminder.nextReminderDisplayMode === NextReminderDisplayMode.EXACT) {

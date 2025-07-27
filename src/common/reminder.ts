@@ -150,10 +150,9 @@ class ReminderImpl implements IReminder {
         let isIgnored = this.isIgnored && this.ignoredReminderCount > 0;
         switch (ReminderNotificationType[this.notificationType]) {
             case ReminderNotificationType.SYSTEM:
-                let body = `${message} ${this.message.endsWith('.') ? '' : '.'} 
-                    This is your ${countAsString(this.reminderCount)} Nudge${isIgnored ? `, and ${countAsString(this.ignoredReminderCount)} ignored Nudge` : ""}.
-                    `;
+                let body = `${message} ${this.message.endsWith('.') ? '' : '.'}. Nudge #: ${countAsString(this.reminderCount)}${isIgnored ? `; Ignored Nudge #: ${countAsString(this.ignoredReminderCount)}` : ""}.`;
 
+                console.log(body);
                 new Notification(this.title, { body }).onclick = () => {
                     if (this === null)
                         return

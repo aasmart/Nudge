@@ -8,7 +8,7 @@ export function isDocumentFragment(node: Node | undefined): node is DocumentFrag
 }
 
 export function countAsString(count: number) {
-    switch (count) {
+    switch (count % 10) {
         case 1:
             return `${count}st`;
         case 2:

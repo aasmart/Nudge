@@ -6,6 +6,7 @@ import alarmClockAudio from "../renderer/assets/audio/alarm-clock.mp3"
 import attentionAudio from "../renderer/assets/audio/call-to-attention.mp3"
 import emergencyAlarmAudio from "../renderer/assets/audio/emergency-alarm.mp3"
 import { countAsString } from "./utils"
+import { createModal } from "../renderer/src/modal"
 
 export enum ReminderNotificationType {
     SYSTEM = "System Notification",
@@ -146,10 +147,13 @@ class ReminderImpl implements IReminder {
     }
 
     private sendNotification(message: string) {
+        let isIgnored = this.isIgnored && this.ignoredReminders > 0;
         switch (ReminderNotificationType[this.notificationType]) {
             case ReminderNotificationType.SYSTEM:
                 let body = `${message} ${this.message.endsWith('.') ? '' : '.'} 
-                    This is your ${countAsString(this.reminderCount)} Nudge.`;
+                    This is your ${countAsString(this.reminderCount)} Nudge
+                    ${isIgnored ? `, and ${countAsString(this.ignoredReminders)} ignored Nudge` : ""}.
+                    `;
 
                 new Notification(this.title, { body }).onclick = () => {
                     if (this === null)
@@ -165,12 +169,18 @@ class ReminderImpl implements IReminder {
 
                 break;
             case ReminderNotificationType.APP_WINDOW:
-                window.api.showModal({
-                    title: this.title,
-                    message: this.message,
-                    reminderCount: this.reminderCount,
+                window.api.showModal(createModal("nudge", {
+                    templateArgs: {
+                        title: this.title,
+                        body: this.message,
+                        reminder_count: countAsString(this.reminderCount),
+                        ignored_reminder: isIgnored ? {
+                            count: countAsString(this.ignoredReminders),
+                            minutes: Math.round(this.ignoredReminderIntervalAmount * this.ignoredReminders)
+                        } : undefined,
+                    },
                     intrusive: this.intrusiveReminder
-                });
+                }));
                 break;
             default:
                 console.error(`Invalid reminder notification type: ${this.notificationType}`);

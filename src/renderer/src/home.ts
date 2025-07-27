@@ -4,6 +4,7 @@ import { DateUtils } from "../../common/date"
 import { addNavFromPageListener, addNavToPageListener, navPage } from "./nav"
 import { Preloads } from "../../common/preloads";
 import { countAsString, isDocumentFragment } from "../../common/utils";
+import { createModal } from "./modal";
 
 enum ContextMenuOpenMethod {
     CONTEXT,
@@ -22,15 +23,15 @@ const contextMenu = document.getElementById("reminder__context-menu");
  * @param nudgeTimeSpanPrefix The element for the text that comes before the time
  */
 const setTimeDisplay = (reminder: ReminderImpl, nudgeTimeSpan: Element, nudgeTimeSpanPrefix: Element) => {
-    const nextNudgeCount = reminder.reminderCount + 1;
-    const nextNudgeString = countAsString(nextNudgeCount);
+    const nextNudgeCount = (reminder.isIgnored ? reminder.ignoredReminders : reminder.reminderCount + 1);
+    const nextNudgeCountString = `${countAsString(nextNudgeCount)} ${reminder.isIgnored ? "ignored " : ""} Nudge`;
 
     if (reminder.nextReminderDisplayMode === NextReminderDisplayMode.EXACT) {
         nudgeTimeSpan.textContent = `${reminder.nextReminder.toLocaleString()}.`
-        nudgeTimeSpanPrefix.textContent = `${nextNudgeString} nudge at `;
+        nudgeTimeSpanPrefix.textContent = `${nextNudgeCountString} at `;
     } else {
         nudgeTimeSpan.textContent = `${DateUtils.getTimeDifferenceString(new Date(), reminder.nextReminder)}`;
-        nudgeTimeSpanPrefix.textContent = `${nextNudgeString} nudge in `;
+        nudgeTimeSpanPrefix.textContent = `${nextNudgeCountString} in `;
     }
 }
 
@@ -162,12 +163,14 @@ function pauseReminderNotificationConsumer() {
     });
     Reminders.saveActiveReminders();
 
-    window.api.showModal({
-        title: "Paused Reminders",
-        message: "It looks like you're active at your computer but have paused reminders!" +
-            " You will only receive this message once for the reminders that are currently" +
-            " in a pause state and have this feature enabled."
-    });
+    window.api.showModal(createModal("simple", {
+        templateArgs: {
+            title: "Paused Reminders",
+            message: "It looks like you're active at your computer but have paused reminders!" +
+                " You will only receive this message once for the reminders that are currently" +
+                " in a pause state and have this feature enabled."
+        }
+    }));
 
     window.api.preferences.get("activityDetectionNotificationAudio").then((audioId) => {
         if (audioId.length <= 0)

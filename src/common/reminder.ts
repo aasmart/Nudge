@@ -26,7 +26,7 @@ interface IReminder {
     reminderStartOverrideAmount: number;
     ignoredReminderIntervalAmount: number;
     maxIgnoredReminders: number;
-    ignoredReminders?: number;
+    ignoredReminderCount?: number;
     isIgnored?: boolean;
     notificationType: ReminderNotificationType;
     message: string;
@@ -53,7 +53,7 @@ class ReminderImpl implements IReminder {
     reminderStartOverrideAmount: number;
     ignoredReminderIntervalAmount: number;
     maxIgnoredReminders: number;
-    ignoredReminders: number;
+    ignoredReminderCount: number;
     isIgnored: boolean;
     notificationType: ReminderNotificationType;
     message: string;
@@ -73,7 +73,7 @@ class ReminderImpl implements IReminder {
         this.reminderStartOverrideAmount = reminder.reminderStartOverrideAmount
         this.ignoredReminderIntervalAmount = reminder.ignoredReminderIntervalAmount;
         this.maxIgnoredReminders = reminder.maxIgnoredReminders;
-        this.ignoredReminders = reminder.ignoredReminders || 0;
+        this.ignoredReminderCount = reminder.ignoredReminderCount || 0;
         this.isIgnored = reminder.isIgnored || false
         this.notificationType = reminder.notificationType || ReminderNotificationType.SYSTEM;
         this.message = reminder.message;
@@ -120,12 +120,12 @@ class ReminderImpl implements IReminder {
 
         this.sendNotification(this.message)
 
-        if (this.maxIgnoredReminders && this.ignoredReminders >= this.maxIgnoredReminders) {
+        if (this.maxIgnoredReminders && this.ignoredReminderCount >= this.maxIgnoredReminders) {
             this.isIgnored = false
-            this.ignoredReminders = 0
+            this.ignoredReminderCount = 0
         } else if (this.ignoredReminderIntervalAmount > 0) {
             this.isIgnored = true
-            this.ignoredReminders += 1
+            this.ignoredReminderCount += 1
         }
 
         const nextReminderDelay = this.isIgnored ?
@@ -144,12 +144,12 @@ class ReminderImpl implements IReminder {
     }
 
     private sendNotification(message: string) {
-        let isIgnored = this.isIgnored && this.ignoredReminders > 0;
+        let isIgnored = this.isIgnored && this.ignoredReminderCount > 0;
         switch (ReminderNotificationType[this.notificationType]) {
             case ReminderNotificationType.SYSTEM:
                 let body = `${message} ${this.message.endsWith('.') ? '' : '.'} 
                     This is your ${countAsString(this.reminderCount)} Nudge
-                    ${isIgnored ? `, and ${countAsString(this.ignoredReminders)} ignored Nudge` : ""}.
+                    ${isIgnored ? `, and ${countAsString(this.ignoredReminderCount)} ignored Nudge` : ""}.
                     `;
 
                 new Notification(this.title, { body }).onclick = () => {
@@ -172,8 +172,8 @@ class ReminderImpl implements IReminder {
                         body: this.message,
                         reminder_count: countAsString(this.reminderCount),
                         ignored_reminder: isIgnored ? {
-                            count: countAsString(this.ignoredReminders),
-                            minutes: (this.ignoredReminderIntervalAmount * this.ignoredReminders).toFixed(2)
+                            count: countAsString(this.ignoredReminderCount),
+                            minutes: (this.ignoredReminderIntervalAmount * this.ignoredReminderCount).toFixed(2)
                         } : undefined
                     }
                 }));
@@ -216,11 +216,13 @@ class ReminderImpl implements IReminder {
         if (this.autoPauseAfterAcknowledge)
             this.setPaused(true)
         this.isIgnored = false;
+        this.ignoredReminderCount = 0;
         window.dispatchEvent(new Event('update-reminder-list'));
     }
 
     reset() {
         this.isIgnored = false;
+        this.ignoredReminderCount = 0;
         this.reminderCount = 0;
         this.sentPausedActivityNotification = false;
         this.pausedTime = new Date();
@@ -251,7 +253,7 @@ class ReminderImpl implements IReminder {
         this.reminderStartOverrideAmount = reminder.reminderStartOverrideAmount
         this.ignoredReminderIntervalAmount = reminder.ignoredReminderIntervalAmount;
         this.maxIgnoredReminders = reminder.maxIgnoredReminders;
-        this.ignoredReminders = 0;
+        this.ignoredReminderCount = 0;
         this.isIgnored = false;
         this.notificationType = reminder.notificationType || this.notificationType;
         this.message = reminder.message;

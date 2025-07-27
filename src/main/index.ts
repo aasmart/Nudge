@@ -202,7 +202,7 @@ function createModal() {
     });
 }
 
-function showModal(params: ModalParams) {
+function showModal(params: Modal<any>) {
     ipcMain.removeHandler("get-modal-params");
     ipcMain.handleOnce("get-modal-params", () => params);
 
@@ -225,7 +225,7 @@ function registerIpcEvents() {
 
     ipcMain.handle('app-name', () => app.getName());
 
-    ipcMain.on("show-modal", (_event: any, params: ModalParams) => {
+    ipcMain.on("show-modal", (_event: any, params: Modal<any>) => {
         showModal(params);
     });
 

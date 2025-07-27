@@ -1014,14 +1014,14 @@ dialog::backdrop {
     padding: 1.5rem;
 }
 
-#modal-title {
+.modal__title {
     width: 100%;
     margin: 0;
     text-align: center;
     word-wrap: break-word;
 }
 
-#modal-body {
+.modal__body {
     overflow-x: hidden;
     overflow-y: auto;
     width: 100%;
@@ -1030,14 +1030,14 @@ dialog::backdrop {
     text-align: center;
 }
 
-#modal-reminder_count {
+.modal-bottom {
     width: 100%;
     flex: 1;
     word-wrap: break-word;
     text-align: center;
 }
 
-#modal-reminder_count__count {
+.bold-primary {
     color: var(--primary-color);
     font-weight: bold;
 }

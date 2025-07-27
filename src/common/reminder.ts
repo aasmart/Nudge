@@ -85,7 +85,7 @@ class ReminderImpl implements IReminder {
         this.pausedActivityNotification = reminder.pausedActivityNotification || false;
         this.autoPauseAfterAcknowledge = reminder.autoPauseAfterAcknowledge;
         this.sentPausedActivityNotification = false;
-        this.reminderCount = 0;
+        this.reminderCount = reminder.reminderCount ?? 0;
     }
 
     setNextReminderDate(intervalMinutes: number) {

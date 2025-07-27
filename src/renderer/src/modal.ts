@@ -34,6 +34,8 @@ window.addEventListener("load", () => {
     const modal = document.getElementsByClassName("modal")[0];
 
     window.api.getModalParams().then(res => {
+        modal.setAttribute("visible", "false");
+
         const templatePrefix = `modal__${res.template}`;
         const template = document.getElementById(`${res.template}-template`) as HTMLTemplateElement | null;
 
@@ -71,6 +73,8 @@ window.addEventListener("load", () => {
                 element.innerText = `${value}`;
             }
         });
+
+        modal.setAttribute("visible", "true");
     });
 
     button?.addEventListener("click", () => {

@@ -3,8 +3,8 @@ import { createPopupButton, showPopup } from "../../common/popup"
 import { DateUtils } from "../../common/date"
 import { addNavFromPageListener, addNavToPageListener, navPage } from "./nav"
 import { Preloads } from "../../common/preloads";
-import { countAsString, isDocumentFragment } from "../../common/utils";
 import { createModal } from "./modal";
+import { countAsString, isDocumentFragment } from "../../common/utils";
 
 enum ContextMenuOpenMethod {
     CONTEXT,
@@ -23,6 +23,12 @@ const contextMenu = document.getElementById("reminder__context-menu");
  * @param nudgeTimeSpanPrefix The element for the text that comes before the time
  */
 const setTimeDisplay = (reminder: ReminderImpl, nudgeTimeSpan: Element, nudgeTimeSpanPrefix: Element) => {
+    if (reminder.paused) {
+        nudgeTimeSpanPrefix.textContent = `The next (${countAsString(reminder.reminderCount + 1)}) Nudge is paused.`;
+        nudgeTimeSpan.textContent = "";
+        return;
+    }
+
     const nextNudgeCount = (reminder.isIgnored ? reminder.ignoredReminderCount : reminder.reminderCount + 1);
     const nextNudgeCountString = `${countAsString(nextNudgeCount)} ${reminder.isIgnored ? "ignored " : ""} Nudge`;
 
@@ -216,12 +222,7 @@ function updateReminderList(): void {
         const nudgeTimeSpan = e.querySelector(".next-timer-play");
         const nudgeTimeSpanPrefix = e.querySelector(".reminder__next-play-prefix");
         if (nudgeTimeSpan && nudgeTimeSpanPrefix) {
-            if (reminder.paused) {
-                nudgeTimeSpanPrefix.textContent = "This reminder is paused.";
-                nudgeTimeSpan.textContent = "";
-            } else {
-                setTimeDisplay(reminder, nudgeTimeSpan, nudgeTimeSpanPrefix);
-            }
+            setTimeDisplay(reminder, nudgeTimeSpan, nudgeTimeSpanPrefix);
         }
 
         // Create the pause toggle

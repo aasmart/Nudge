@@ -6,7 +6,7 @@ export function createModal<T extends ModalTemplates>(template: T, params: Omit<
 }
 
 function flatten(obj: Record<any, any>) {
-    if (obj && typeof obj !== "object" || Array.isArray(obj)) {
+    if (!obj || typeof obj !== "object" || Array.isArray(obj)) {
         return [];
     }
     const entries = Object.entries(obj);

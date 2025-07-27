@@ -176,10 +176,10 @@ class ReminderImpl implements IReminder {
                         reminder_count: countAsString(this.reminderCount),
                         ignored_reminder: isIgnored ? {
                             count: countAsString(this.ignoredReminders),
-                            minutes: Math.round(this.ignoredReminderIntervalAmount * this.ignoredReminders)
+                            minutes: Math.round(this.ignoredReminderIntervalAmount * (this.ignoredReminders ?? 0))
                         } : undefined,
+                        intrusive: this.intrusiveReminder
                     },
-                    intrusive: this.intrusiveReminder
                 }));
                 break;
             default:

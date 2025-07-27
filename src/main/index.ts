@@ -220,7 +220,7 @@ function showModal(params: Modal<any>) {
     modal.setAlwaysOnTop(true);
     win.setAlwaysOnTop(true);
 
-    if (params.intrusive) {
+    if ("intrusive" in params.templateArgs && params.templateArgs.intrusive) {
         modal.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
         win.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
     }

@@ -6,7 +6,8 @@ type NudgeModalTemplateArgs = {
     ignored_reminder: {
         count: string | undefined
         minutes: int | undefined
-    } | undefined
+    } | undefined,
+    intrusive: boolean,
 }
 
 type SimpleModalTemplateArgs = {
@@ -19,6 +20,5 @@ declare type Modal<Template extends ModalTemplates> = {
     templateArgs: Template extends "nudge" ? NudgeModalTemplateArgs : Template extends "simple" ? SimpleModalTemplateArgs : never,
     winWidth?: number,
     winHeight?: number,
-    intrusive: boolean,
 }
 

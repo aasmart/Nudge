@@ -166,7 +166,7 @@ function pauseReminderNotificationConsumer() {
     window.api.showModal(createModal("simple", {
         templateArgs: {
             title: "Paused Reminders",
-            message: "It looks like you're active at your computer but have paused reminders!" +
+            body: "It looks like you're active at your computer but have paused reminders!" +
                 " You will only receive this message once for the reminders that are currently" +
                 " in a pause state and have this feature enabled."
         }

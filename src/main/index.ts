@@ -209,7 +209,7 @@ function hideModal() {
     modal.hide();
 }
 
-function showModal(params: ModalParams) {
+function showModal(params: Modal<any>) {
     ipcMain.removeHandler("get-modal-params");
     ipcMain.handleOnce("get-modal-params", () => params);
 
@@ -220,7 +220,7 @@ function showModal(params: ModalParams) {
     modal.setAlwaysOnTop(true);
     win.setAlwaysOnTop(true);
 
-    if (params.intrusive) {
+    if ("intrusive" in params.templateArgs && params.templateArgs.intrusive) {
         modal.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
         win.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
     }
@@ -240,7 +240,7 @@ function registerIpcEvents() {
 
     ipcMain.handle('app-name', () => app.getName());
 
-    ipcMain.on("show-modal", (_event: any, params: ModalParams) => {
+    ipcMain.on("show-modal", (_event: any, params: Modal<any>) => {
         showModal(params);
     });
 

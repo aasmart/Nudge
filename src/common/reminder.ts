@@ -5,6 +5,7 @@ import beepSound from "../renderer/assets/audio/beep-warning.mp3"
 import alarmClockAudio from "../renderer/assets/audio/alarm-clock.mp3"
 import attentionAudio from "../renderer/assets/audio/call-to-attention.mp3"
 import emergencyAlarmAudio from "../renderer/assets/audio/emergency-alarm.mp3"
+import { createModal } from "../renderer/src/modal"
 import { countAsString } from "./utils"
 
 export enum ReminderNotificationType {
@@ -29,7 +30,7 @@ interface IReminder {
     reminderStartOverrideAmount: number;
     ignoredReminderIntervalAmount: number;
     maxIgnoredReminders: number;
-    ignoredReminders?: number;
+    ignoredReminderCount?: number;
     isIgnored?: boolean;
     notificationType: ReminderNotificationType;
     message: string;
@@ -65,7 +66,7 @@ class ReminderImpl implements IReminder {
     reminderStartOverrideAmount: number;
     ignoredReminderIntervalAmount: number;
     maxIgnoredReminders: number;
-    ignoredReminders: number;
+    ignoredReminderCount: number;
     isIgnored: boolean;
     notificationType: ReminderNotificationType;
     message: string;
@@ -89,7 +90,7 @@ class ReminderImpl implements IReminder {
         this.reminderStartOverrideAmount = reminder.reminderStartOverrideAmount
         this.ignoredReminderIntervalAmount = reminder.ignoredReminderIntervalAmount;
         this.maxIgnoredReminders = reminder.maxIgnoredReminders;
-        this.ignoredReminders = reminder.ignoredReminders || 0;
+        this.ignoredReminderCount = reminder.ignoredReminderCount || 0;
         this.isIgnored = reminder.isIgnored || false
         this.notificationType = reminder.notificationType || ReminderNotificationType.SYSTEM;
         this.message = reminder.message;
@@ -101,8 +102,8 @@ class ReminderImpl implements IReminder {
         this.pausedActivityNotification = reminder.pausedActivityNotification || false;
         this.autoPauseAfterAcknowledge = reminder.autoPauseAfterAcknowledge;
         this.sentPausedActivityNotification = false;
-        this.reminderCount = 0;
-        this.intrusiveReminder = false;
+        this.reminderCount = reminder.reminderCount ?? 0;
+        this.intrusiveReminder = reminder.intrusiveReminder;
     }
 
     get reminderIntervalAmount(): number {
@@ -142,12 +143,12 @@ class ReminderImpl implements IReminder {
 
         this.sendNotification(this.message)
 
-        if (this.maxIgnoredReminders && this.ignoredReminders >= this.maxIgnoredReminders) {
+        if (this.maxIgnoredReminders && this.ignoredReminderCount >= this.maxIgnoredReminders) {
             this.isIgnored = false
-            this.ignoredReminders = 0
+            this.ignoredReminderCount = 0
         } else if (this.ignoredReminderIntervalAmount > 0) {
             this.isIgnored = true
-            this.ignoredReminders += 1
+            this.ignoredReminderCount += 1
         }
 
         const nextReminderDelay = this.isIgnored ?
@@ -166,11 +167,12 @@ class ReminderImpl implements IReminder {
     }
 
     private sendNotification(message: string) {
+        let isIgnored = this.isIgnored && this.ignoredReminderCount > 0;
         switch (ReminderNotificationType[this.notificationType]) {
             case ReminderNotificationType.SYSTEM:
-                let body = `${message} ${this.message.endsWith('.') ? '' : '.'} 
-                    This is your ${countAsString(this.reminderCount)} Nudge.`;
+                let body = `${message} ${this.message.endsWith('.') ? '' : '.'}. Nudge #: ${countAsString(this.reminderCount)}${isIgnored ? `; Ignored Nudge #: ${countAsString(this.ignoredReminderCount)}` : ""}.`;
 
+                console.log(body);
                 new Notification(this.title, { body }).onclick = () => {
                     if (this === null)
                         return
@@ -185,12 +187,18 @@ class ReminderImpl implements IReminder {
 
                 break;
             case ReminderNotificationType.APP_WINDOW:
-                window.api.showModal({
-                    title: this.title,
-                    message: this.message,
-                    reminderCount: this.reminderCount,
-                    intrusive: this.intrusiveReminder
-                });
+                window.api.showModal(createModal("nudge", {
+                    templateArgs: {
+                        title: this.title,
+                        body: this.message,
+                        reminder_count: countAsString(this.reminderCount),
+                        ignored_reminder: isIgnored ? {
+                            count: countAsString(this.ignoredReminderCount),
+                            minutes: (this.ignoredReminderIntervalAmount * this.ignoredReminderCount).toFixed(2)
+                        } : undefined,
+                        intrusive: this.intrusiveReminder
+                    },
+                }));
                 break;
             default:
                 console.error(`Invalid reminder notification type: ${this.notificationType}`);
@@ -230,11 +238,13 @@ class ReminderImpl implements IReminder {
         if (this.autoPauseAfterAcknowledge)
             this.setPaused(true)
         this.isIgnored = false;
+        this.ignoredReminderCount = 0;
         window.dispatchEvent(new Event('update-reminder-list'));
     }
 
     reset() {
         this.isIgnored = false;
+        this.ignoredReminderCount = 0;
         this.reminderCount = 0;
         this.sentPausedActivityNotification = false;
         this.pausedTime = new Date();
@@ -268,7 +278,7 @@ class ReminderImpl implements IReminder {
         this.reminderStartOverrideAmount = reminder.reminderStartOverrideAmount
         this.ignoredReminderIntervalAmount = reminder.ignoredReminderIntervalAmount;
         this.maxIgnoredReminders = reminder.maxIgnoredReminders;
-        this.ignoredReminders = 0;
+        this.ignoredReminderCount = 0;
         this.isIgnored = false;
         this.notificationType = reminder.notificationType || this.notificationType;
         this.message = reminder.message;

@@ -15,15 +15,35 @@
         <p class="app-name"></p>
     </header>
 
-    <main class="modal center-column">
-        <h1 id="modal-title"></h1>
-        <p id="modal-body"></p>
-        <p id="modal-reminder_count">This is your <span id="modal-reminder_count__count"></span> Nudge.</p>
+    <main class="modal center-column" visible="false">
+        <div></div>
         <button id="modal-button">
             Okay
         </button>
     </main>
     <script type="module" src="./src/modal.ts"></script>
 </body>
+
+<template id="nudge-template">
+    <h1 class="modal__title" id="modal__nudge__title"></h1>
+    <p class="modal__body" id="modal__nudge__body"></p>
+    <div class="modal-bottom">
+        <p id="modal__nudge__reminder_count-container">
+            This is your <span id="modal__nudge__reminder_count" class="bold-primary"></span>
+            Nudge<span id="modal__nudge__ignored_reminder-container">
+                and
+                <span id="modal__nudge__ignored_reminder_count" class="bold-primary"></span>
+                ignored Nudge. You ignored
+                <span id="modal__nudge__ignored_reminder_minutes" class="bold-primary"></span>
+                minutes of Nudges</span>.
+        </p>
+
+    </div>
+</template>
+
+<template id="simple-template">
+    <h1 class="modal__title" id="modal__simple__title"></h1>
+    <p class="modal__body" id="modal__simple__body"></p>
+</template>
 
 </html>

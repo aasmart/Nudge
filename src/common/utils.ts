@@ -8,7 +8,11 @@ export function isDocumentFragment(node: Node | undefined): node is DocumentFrag
 }
 
 export function countAsString(count: number) {
-    switch (count) {
+    if (count >= 10 && count <= 19) {
+        return `${count}th`;
+    }
+
+    switch (count % 10) {
         case 1:
             return `${count}st`;
         case 2:

@@ -1,4 +1,4 @@
-import { app, BrowserWindow, Menu, nativeImage, Tray, ipcMain, nativeTheme, dialog, FileFilter } from 'electron'
+import { screen, app, BrowserWindow, Menu, nativeImage, Tray, ipcMain, nativeTheme, dialog, FileFilter } from 'electron'
 import { is } from '@electron-toolkit/utils'
 import { join } from "path"
 import { Preferences, Theme, preferencesStore } from '../common/preferences';
@@ -6,6 +6,7 @@ import fs from "fs"
 import { protocol } from "electron";
 import { uIOhook } from 'uiohook-napi'
 import { ActivityDetection } from './activityDetector';
+
 
 let tray: any = null;
 let win: any = null;
@@ -62,6 +63,8 @@ const createWindow = () => {
             allowRunningInsecureContent: false
         }
     })
+
+
 
     win.maximize();
     loadHtml(win, "index");
@@ -164,10 +167,16 @@ function loadHtml(window: any, fileName: string) {
         window.loadFile(join(__dirname, `../renderer/${fileName}.html`))
 }
 
+const modalSize = {
+    width: 500,
+    height: 400,
+}
+
 function createModal() {
+
     modal = new BrowserWindow({
-        width: 500,
-        height: 400,
+        width: modalSize.width,
+        height: modalSize.height,
         minWidth: 350,
         minHeight: 200,
         parent: win,
@@ -223,6 +232,9 @@ function showModal(params: Modal<any>) {
     if ("intrusive" in params.templateArgs && params.templateArgs.intrusive) {
         modal.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
         win.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
+
+        const screenPoint = screen.getCursorScreenPoint();
+        modal.setPosition(screenPoint.x - (modalSize.width / 2), screenPoint.y - (modalSize.height / 2));
     }
 
     modal.show();

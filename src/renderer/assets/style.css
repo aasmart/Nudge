@@ -778,14 +778,6 @@ input[type="checkbox"]:checked+label::after {
     left: calc(var(--checkbox-width) - var(--checkbox-height) * 1.1 + var(--end-cap-offset));
 }
 
-form label:has(+input,
-    +select,
-    +textarea):not(:has(+.combobox--input)):not(:has(+input:required,
-        +select:required,
-        +textarea:required))::after {
-    content: ' (optional)';
-    color: var(--popup-accent-color)
-}
 
 fieldset {
     border: none;

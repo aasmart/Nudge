@@ -21,7 +21,11 @@ const MAX_TIMER_DELAY_MINS = 24 * 24 * 60;
 
 interface IReminder {
     nextReminder?: Date;
-    reminderIntervalAmount: number;
+
+    reminderIntervalHours: string
+    reminderIntervalMinutes: string
+    reminderIntervalSeconds: string
+
     reminderStartOverrideAmount: number;
     ignoredReminderIntervalAmount: number;
     maxIgnoredReminders: number;
@@ -41,6 +45,10 @@ interface IReminder {
     intrusiveReminder: boolean;
 }
 
+function reminderIntervalAmount(reminder: IReminder): number {
+    return parseInt(reminder.reminderIntervalHours) * 60 + parseInt(reminder.reminderIntervalMinutes) + parseInt(reminder.reminderIntervalSeconds) / 60.0;
+}
+
 type ReminderAudio = {
     name: string;
     id: string;
@@ -49,7 +57,11 @@ type ReminderAudio = {
 class ReminderImpl implements IReminder {
     reminderTimeout!: ReturnType<typeof setInterval>;
     nextReminder: Date;
-    reminderIntervalAmount: number;
+
+    reminderIntervalHours: string
+    reminderIntervalMinutes: string
+    reminderIntervalSeconds: string;
+
     reminderStartOverrideAmount: number;
     ignoredReminderIntervalAmount: number;
     maxIgnoredReminders: number;
@@ -70,7 +82,10 @@ class ReminderImpl implements IReminder {
 
     constructor(reminder: IReminder) {
         this.nextReminder = reminder.nextReminder || new Date()
-        this.reminderIntervalAmount = reminder.reminderIntervalAmount;
+        this.reminderIntervalHours = reminder.reminderIntervalHours ?? "00";
+        this.reminderIntervalMinutes = reminder.reminderIntervalMinutes ?? "00";
+        this.reminderIntervalSeconds = reminder.reminderIntervalSeconds ?? "00";
+
         this.reminderStartOverrideAmount = reminder.reminderStartOverrideAmount
         this.ignoredReminderIntervalAmount = reminder.ignoredReminderIntervalAmount;
         this.maxIgnoredReminders = reminder.maxIgnoredReminders;
@@ -90,9 +105,14 @@ class ReminderImpl implements IReminder {
         this.intrusiveReminder = false;
     }
 
+    get reminderIntervalAmount(): number {
+        return reminderIntervalAmount(this);
+    }
+
     setNextReminderDate(intervalMinutes: number) {
         intervalMinutes = Math.min(intervalMinutes, MAX_TIMER_DELAY_MINS);
         const interval = intervalMinutes * Constants.MINUTES_TO_MS
+        console.log(interval)
         this.nextReminder = new Date().addMilliseconds(interval);
         this.nextReminder.setMilliseconds(0);
 
@@ -232,16 +252,19 @@ class ReminderImpl implements IReminder {
             this.setNextReminderDate(reminder.reminderStartOverrideAmount);
             this.pausedTime = new Date();
         } else if (this.reminderStartOverrideAmount
-            || reminder.reminderIntervalAmount < this.reminderIntervalAmount
+            || reminderIntervalAmount(reminder) < this.reminderIntervalAmount
             || this.isIgnored
         ) {
-            this.setNextReminderDate(reminder.reminderIntervalAmount);
+            this.setNextReminderDate(reminderIntervalAmount(reminder));
             this.pausedTime = new Date();
         } else {
             this.pausedTime = reminder.pausedTime || this.pausedTime
         }
 
-        this.reminderIntervalAmount = reminder.reminderIntervalAmount;
+        this.reminderIntervalHours = reminder.reminderIntervalHours ?? "00";
+        this.reminderIntervalMinutes = reminder.reminderIntervalMinutes ?? "00";
+        this.reminderIntervalSeconds = reminder.reminderIntervalSeconds ?? "00";
+
         this.reminderStartOverrideAmount = reminder.reminderStartOverrideAmount
         this.ignoredReminderIntervalAmount = reminder.ignoredReminderIntervalAmount;
         this.maxIgnoredReminders = reminder.maxIgnoredReminders;

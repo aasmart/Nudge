@@ -34,7 +34,7 @@ REMINDER FORM
     padding: 8px;
     font-size: var(--input-font-size);
     text-align: center;
-    
+
     background-color: var(--input-color);
     background-image: linear-gradient(rgb(0 0 0/10%) 0 0);
     box-shadow: 0 0.75px 3px black;
@@ -42,12 +42,70 @@ REMINDER FORM
     grid-column: calc(var(--columns) - var(--select-columns) + 1) / span calc(var(--select-columns));
 }
 
+.time-input {
+    display: grid;
+    grid-template-columns: 1fr 0.1fr 1fr 0.1fr 1fr;
+    grid-template-rows: 0.5fr 1fr min-content;
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+
+    gap: 0px 4px;
+    margin-bottom: var(--input-container-end-margin);
+}
+
+.time-input .hour-label {
+    grid-column: 1;
+}
+
+.time-input .minute-label {
+    grid-column: 3;
+}
+
+.time-input .second-label {
+    grid-column: 5;
+}
+
+.time-input #reminder-interval-hours {
+    grid-row: 2;
+    grid-column: 1;
+}
+
+.time-input #reminder-interval-hours+.error-message {
+    grid-row: 3;
+    grid-column: 1;
+}
+
+.time-input #reminder-interval-minutes+.error-message {
+    grid-row: 3;
+    grid-column: 3;
+}
+
+.time-input #reminder-interval-seconds+.error-message {
+    grid-row: 3;
+    grid-column: 5;
+}
+
+.time-input>span {
+    font-weight: bolder;
+}
+
+/* .time-input>div { */
+/*     display: flex; */
+/*     flex-direction: column; */
+/*     flex: 1; */
+/* } */
+
+.time-input input {
+    text-align: center;
+}
+
 .reminder-form label,
 legend {
     font-size: 1.2rem;
 }
 
-.reminder-form .input-container-grid > * {
+.reminder-form .input-container-grid>* {
     grid-column: 1 / span var(--columns);
 }
 
@@ -55,7 +113,7 @@ legend {
     grid-column: 1 / span calc(var(--columns) - var(--select-columns));
 }
 
-.reminder-form > input[type="checkbox"] + label {
+.reminder-form>input[type="checkbox"]+label {
     justify-self: start;
 }
 
@@ -75,16 +133,16 @@ legend {
     margin: 0;
 }
 
-.reminder-form :is(input, textarea):not(:placeholder-shown):invalid ~ .error-message,
-[dirty]:not(:valid, :disabled):is(input, textarea, select) ~ .error-message {
+.reminder-form :is(input, textarea):not(:placeholder-shown):invalid~.error-message,
+[dirty]:not(:valid, :disabled):is(input, textarea, select)~.error-message {
     display: inline;
 }
 
-.reminder-form > p {
+.reminder-form>p {
     text-align: right;
 }
 
-.reminder-form > p span {
+.reminder-form>p span {
     color: var(--input-invalid-color)
 }
 
@@ -102,4 +160,13 @@ legend {
 #upload-reminder-audio {
     flex: 1;
     margin-top: 20px;
+}
+
+form label:not(.time-input *):has(+input,
+    +select,
+    +textarea):not(:has(+.combobox--input)):not(:has(+input:required,
+        +select:required,
+        +textarea:required))::after {
+    content: ' (optional)';
+    color: var(--popup-accent-color)
 }

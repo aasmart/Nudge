@@ -10,18 +10,37 @@
             <textarea cols="40" rows = "10" id="message" name="message"></textarea>
         </div>
         
-        <div title="The amount of time between each reminder" class="input-container-grid">
-            <label for="reminder-interval-amount">Reminder Interval</label>
-            <input type="number" 
-                    step="0.01" 
-                    id="reminder-interval-amount" 
-                    name="reminder-interval-amount" 
-                    placeholder=" "
-                    min="0.1"
-                    max="34560"
-                    required 
-                    use-units="time"
-            >
+        <div title="The amount of time between each reminder" class="time-input">
+            <label class="hour-label" for="reminder-interval-hours">Hours</label>
+            <label class="minute-label" for="reminder-interval-minutes">Minutes</label>
+            <label class="second-label" for="reminder-interval-seconds">Seconds</label>
+            <input type="number"
+                    step="1"
+                    id="reminder-interval-hours"
+                    name="reminder-interval-hours"
+                    maxlength="2"
+                     placeholder="00" 
+                     min="0" 
+                     max="11" 
+             > 
+            <span>:</span> 
+            <input type="number"
+                    step="1"
+                    id="reminder-interval-minutes"
+                    name="reminder-interval-minutes"
+                     placeholder="00"
+                     min="0"
+                     max="59"
+             > 
+            <span>:</span> 
+            <input type="number"
+                    step="1"
+                    id="reminder-interval-seconds"
+                    name="reminder-interval-seconds"
+                     placeholder="00" 
+                     min="0" 
+                     max="59" 
+             > 
         </div>
 
         <div title="If used, this overrides the duration until the first reminder plays" class="input-container-grid">

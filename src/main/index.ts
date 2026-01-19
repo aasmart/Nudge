@@ -250,8 +250,8 @@ function registerIpcEvents() {
     })
 
     // Themes
-    ipcMain.on("set-color-scheme", (_event: any, theme: Theme) => {
-        nativeTheme.themeSource = theme;
+    ipcMain.on("set-color-scheme", (_event: any, theme: Theme | undefined) => {
+        nativeTheme.themeSource = theme ?? "system";
     });
 
     ipcMain.on("set-activity-detection", (_event: any, enabled: boolean) => {

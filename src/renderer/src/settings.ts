@@ -10,7 +10,7 @@ function initTabs() {
         const radioTabId = radio.getAttribute("value");
 
         // Make sure the settings always return to the default thing
-        if(index === 0) {
+        if (index === 0) {
             radio.checked = true;
             tabs.forEach(element => {
                 element.setAttribute("visible", `${radioTabId === element.id}`)
@@ -40,11 +40,11 @@ function initSettings() {
 
             const storedValue = await window.api.preferences.get(storeId) as Preferences[keyof Preferences];
 
-            switch(type) {
+            switch (type) {
                 case "radio": {
                     const value = input.getAttribute("value") as Preferences[keyof Preferences];
-                    input.toggleAttribute("checked", value === storedValue);     
-                    
+                    input.toggleAttribute("checked", value === storedValue);
+
                     input.addEventListener("change", () => {
                         window.api.preferences.set(storeId, value ?? "");
                     });
@@ -67,7 +67,7 @@ function initSettings() {
             const storeId = (groupStoreId ?? selectMenu.getAttribute("data-store-id") ?? "") as keyof Preferences;
             const storedValue = await window.api.preferences.get(storeId) as Preferences[keyof Preferences];
 
-            if(!BetterSelectMenu.isBetterSelectMenu(selectMenu)) return;
+            if (!BetterSelectMenu.isBetterSelectMenu(selectMenu)) return;
 
             selectMenu.setSelectedOptionWithoutId(storedValue as string ?? "");
             selectMenu.addEventListener("change", () => {
@@ -93,7 +93,7 @@ window.addEventListener("load", () => {
     window.api.preferences.addChangeListener("theme", value => {
         window.api.setTheme(value);
     });
-    
+
     window.api.preferences.addChangeListener("activityTracking", value => {
         window.api.setActivityDetection(value);
     });

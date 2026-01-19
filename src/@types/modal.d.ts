@@ -4,4 +4,5 @@ declare type ModalParams = {
     reminderCount?: number,
     winWidth?: number,
     winHeight?: number,
+    intrusive: boolean,
 }

@@ -191,7 +191,7 @@ function createModal() {
     });
     loadHtml(modal, "modal");
 
-    modal.on('close', (event: any) => {
+    modal.on('before-quit', (event: any) => {
         if (win.quitting) {
             app.quit();
             return;
@@ -200,6 +200,13 @@ function createModal() {
         event.preventDefault();
         modal.hide();
     });
+}
+
+function hideModal() {
+    win.setAlwaysOnTop(false)
+    win.setVisibleOnAllWorkspaces(false, { visibleOnFullScreen: false });
+
+    modal.hide();
 }
 
 function showModal(params: ModalParams) {
@@ -211,8 +218,16 @@ function showModal(params: ModalParams) {
 
     loadHtml(modal, "modal");
     modal.setAlwaysOnTop(true);
+    win.setAlwaysOnTop(true);
+
+    if (params.intrusive) {
+        modal.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
+        win.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
+    }
+
     modal.show();
     win.show();
+    modal.focus();
 }
 
 function registerIpcEvents() {
@@ -232,7 +247,7 @@ function registerIpcEvents() {
     ipcMain.on("hide-modal", (_event: any) => {
         // ipcMain.removeHandler("get-modal-params");
         if (modal)
-            modal.hide();
+            hideModal();
     });
 
     ipcMain.handle("preferences:get", (_event: any, key: keyof Preferences) => {

@@ -38,6 +38,7 @@ interface IReminder {
     sentPausedActivityNotification?: boolean;
     autoPauseAfterAcknowledge: boolean;
     reminderCount?: number;
+    intrusiveReminder: boolean;
 }
 
 type ReminderAudio = {
@@ -65,6 +66,7 @@ class ReminderImpl implements IReminder {
     autoPauseAfterAcknowledge: boolean;
     sentPausedActivityNotification: boolean;
     reminderCount: number;
+    intrusiveReminder: boolean;
 
     constructor(reminder: IReminder) {
         this.nextReminder = reminder.nextReminder || new Date()
@@ -85,6 +87,7 @@ class ReminderImpl implements IReminder {
         this.autoPauseAfterAcknowledge = reminder.autoPauseAfterAcknowledge;
         this.sentPausedActivityNotification = false;
         this.reminderCount = 0;
+        this.intrusiveReminder = false;
     }
 
     setNextReminderDate(intervalMinutes: number) {
@@ -165,7 +168,8 @@ class ReminderImpl implements IReminder {
                 window.api.showModal({
                     title: this.title,
                     message: this.message,
-                    reminderCount: this.reminderCount
+                    reminderCount: this.reminderCount,
+                    intrusive: this.intrusiveReminder
                 });
                 break;
             default:
@@ -253,6 +257,7 @@ class ReminderImpl implements IReminder {
         this.autoPauseAfterAcknowledge = reminder.autoPauseAfterAcknowledge;
         this.sentPausedActivityNotification = reminder.sentPausedActivityNotification ?? this.sentPausedActivityNotification;
         this.reminderCount = reminder.reminderCount ?? this.reminderCount;
+        this.intrusiveReminder = reminder.intrusiveReminder;
     }
 
     toJSON(): IReminder {

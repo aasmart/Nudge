@@ -105,6 +105,13 @@
             <label for="auto-pause-after-acknowledge">Auto pause after trigger or acknowledge</label>
         </div>
 
+        <div class="input-container-flex"
+            title="If enabled and the reminder is in modal mode, the reminder will aggressively display on top--it does not want to be ignored."
+        >
+            <input id="intrusive-reminder" name="intrusive-reminder" type="checkbox" />
+            <label for="intrusive-reminder">Intrusive modal reminder</label>
+        </div>
+
         <div class="input-container-grid">
             <button id="create-reminder" class="primary" when-editing="Update Reminder" type="submit">Create Reminder</button>
             <button id="cancel" action="destructive" type="reset">Cancel</button>
